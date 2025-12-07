@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Find the Last Piece of Memory</title>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+  <!-- Soft RPG / anime-ish fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: radial-gradient(circle at top, #dbeafe 0, #eff6ff 35%, #e5e7eb 100%);
+      font-family: "Nunito", system-ui, sans-serif;
+    }
+
+    #map {
+      height: 100%;
+      width: 100%;
+    }
+
+    /* Top narrative bar */
+    h2 {
+      position: absolute;
+      z-index: 1000;
+      background: linear-gradient(135deg, rgba(191,219,254,0.95), rgba(236,252,203,0.98));
+      padding: 12px 22px;
+      margin: 10px;
+      border-radius: 999px;
+      font-size: 17px;
+      color: #1f2937;
+      box-shadow: 0 8px 24px rgba(15,23,42,0.25);
+      border: 1px solid rgba(59,130,246,0.35);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    h2 span.label {
+      font-family: "Zen Maru Gothic", system-ui, sans-serif;
+      font-size: 13px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(59,130,246,0.1);
+      color: #1d4ed8;
+    }
+
+    /* 🎁 Gift icon */
+    .gift-icon-wrapper {}
+    .gift-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      background: radial-gradient(circle at 30% 0%, #fef3c7 0, #fb923c 40%, #ea580c 100%);
+      color: #fff;
+      box-shadow:
+        0 0 0 0 rgba(251,146,60,0.0),
+        0 12px 26px rgba(15,23,42,0.4);
+      border: 1px solid rgba(254,243,199,0.8);
+    }
+
+    /* 💥 Dramatic reveal animation */
+    .gift-icon-wrapper.gift-reveal .gift-icon {
+      animation: pop 0.6s ease-out, pulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0); opacity: 0; }
+      70% { transform: scale(1.25); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+        box-shadow:
+          0 0 0 0 rgba(251,146,60,0.0),
+          0 12px 26px rgba(15,23,42,0.35);
+      }
+      50% {
+        transform: scale(1.08);
+        box-shadow:
+          0 0 0 12px rgba(251,146,60,0.18),
+          0 18px 32px rgba(15,23,42,0.5);
+      }
+      100% {
+        transform: scale(1);
+        box-shadow:
+          0 0 0 0 rgba(251,146,60,0.0),
+          0 12px 26px rgba(15,23,42,0.35);
+      }
+    }
+
+    /* Map look / font */
+    .leaflet-container {
+      background: #bfdbfe;
+      font-family: "Nunito", system-ui, sans-serif;
+    }
+
+    /* 🔐 Opening hint / lock screen */
+    #hint-overlay {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at top, rgba(191,219,254,0.9) 0, rgba(219,234,254,0.95) 40%, rgba(239,246,255,0.95) 100%);
+      color: #111827;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+    }
+
+    .hint-card {
+      background: rgba(255,255,255,0.96);
+      border-radius: 24px;
+      padding: 26px 26px 22px;
+      max-width: 480px;
+      width: 90%;
+      box-shadow: 0 24px 60px rgba(15,23,42,0.25);
+      border: 1px solid rgba(96,165,250,0.7);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hint-card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle at 10% 0%, rgba(248,250,252,0.9), transparent 60%);
+      pointer-events: none;
+    }
+
+    .hint-title {
+      font-family: "Zen Maru Gothic", system-ui, sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #1d4ed8;
+    }
+
+    .hint-subtitle {
+      font-size: 17px;
+      color: #374151;
+      margin-bottom: 16px;
+      line-height: 1.7;
+    }
+
+    .hint-subtitle.parenth {
+      font-size: 16px;
+    }
+
+    .hint-subtitle span.em {
+      color: #f97316;
+      font-weight: 700;
+    }
+
+    .hint-audio-wrapper {
+      margin-bottom: 18px;
+      padding: 12px 12px 10px;
+      border-radius: 16px;
+      background: rgba(239,246,255,0.9);
+      border: 1px solid rgba(191,219,254,1);
+    }
+
+    .hint-audio-label {
+      font-size: 15px;
+      color: #4b5563;
+      margin-bottom: 6px;
+    }
+
+    .lock-wheels {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin: 12px 0 16px;
+    }
+
+    /* 🔢 Letter wheel like a combination lock */
+    .wheel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .wheel-button {
+      background: #eff6ff;
+      color: #1f2937;
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+      width: 32px;
+      height: 20px;
+      font-size: 12px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0;
+      box-shadow: 0 3px 6px rgba(148,163,184,0.7);
+    }
+
+    .wheel-button:active {
+      background: #dbeafe;
+      transform: translateY(1px);
+    }
+
+    .wheel-letter {
+      width: 36px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(180deg, #eff6ff 0, #dbeafe 100%);
+      border: 1px solid #bfdbfe;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 6px 14px rgba(148,163,184,0.7);
+      font-family: "Zen Maru Gothic", system-ui, sans-serif;
+      color: #1f2937;
+    }
+
+    .hint-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: none;
+      padding: 10px 18px;
+      font-size: 15px;
+      cursor: pointer;
+      font-weight: 700;
+      font-family: "Nunito", system-ui, sans-serif;
+      letter-spacing: 0.04em;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #fb923c, #facc15);
+      color: #111827;
+      box-shadow: 0 8px 18px rgba(251,146,60,0.4);
+    }
+
+    .btn-secondary {
+      background: #eff6ff;
+      color: #1f2937;
+      border: 1px solid #bfdbfe;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+      box-shadow: none;
+    }
+
+    .hint-message {
+      font-size: 16px;
+      min-height: 22px;
+      margin-top: 10px;
+      font-weight: 700;
+    }
+
+    .hint-message.error {
+      color: #b91c1c;
+    }
+
+    .hint-message.success {
+      color: #16a34a;
+    }
+
+    /* Second hint page */
+    #hint-step-text {
+      display: none;
+    }
+
+    .hint-body-text {
+      font-size: 16px;
+      color: #374151;
+      margin: 12px 0 10px;
+      line-height: 1.8;
+    }
+
+    .hint-body-text span.em {
+      color: #f97316;
+      font-weight: 700;
+    }
+
+    .hint-image {
+      max-width: 100%;
+      border-radius: 18px;
+      box-shadow: 0 16px 40px rgba(15,23,42,0.25);
+      border: 1px solid rgba(191,219,254,0.9);
+      display: block;
+      margin: 0 auto 10px;
+    }
+
+    /* 🎉 Win overlay (brighter, map still visible behind) */
+    #win-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(191,219,254,0.65), rgba(243,244,246,0.9));
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 4000;
+    }
+
+    .win-card {
+      background: rgba(255,255,255,0.98);
+      border-radius: 24px;
+      padding: 26px 24px 22px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      border: 1px solid rgba(129,140,248,0.7);
+      box-shadow: 0 24px 60px rgba(15,23,42,0.3);
+      color: #111827;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .win-card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle at 10% 0%, rgba(239,246,255,0.8), transparent 60%);
+      pointer-events: none;
+    }
+
+    .win-emoji {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+
+    .win-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      font-family: "Zen Maru Gothic", system-ui, sans-serif;
+    }
+
+    .win-subtitle {
+      font-size: 16px;
+      color: #374151;
+      margin-bottom: 14px;
+      line-height: 1.7;
+    }
+
+    .win-place {
+      font-size: 16px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      margin-bottom: 12px;
+      color: #1f2937;
+    }
+
+    .win-note {
+      font-size: 15px;
+      color: #4b5563;
+      margin-top: 8px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>
+    <span class="label">Memory Quest</span>
+    Where is the last piece of memory? Zoom through the world to find it…
+  </h2>
+
+  <div id="map"></div>
+
+  <!-- 🔐 Opening hint / lock screen -->
+  <div id="hint-overlay">
+    <div class="hint-card">
+
+      <!-- STEP 1: music + lock -->
+      <div id="hint-step-lock">
+        <div class="hint-title">Prologue · The Sealed Memory</div>
+        <div class="hint-subtitle">
+          Before reaching <span class="em">level 33</span>, one last piece of your memory
+          is still wandering in its own timeline.<br/>
+          To see where it landed, you must first unlock this to get a clue.
+        </div>
+
+        <!-- 🎵 Music BEFORE the lock as hint -->
+        <div id="hint-audio-wrapper" class="hint-audio-wrapper">
+          <div class="hint-audio-label">
+            This audio might help 🎵<br/>
+          </div>
+          <audio id="hint-audio" src="song.m4a" controls preload="auto"></audio>
+        </div>
+
+        <!-- 🔢 Letter wheels -->
+        <div id="lock-wheels" class="lock-wheels">
+          <!-- Wheels created by JavaScript -->
+        </div>
+
+        <div class="hint-buttons">
+          <button id="unlock-btn" class="btn btn-primary">Unlock</button>
+        </div>
+
+        <div id="hint-message" class="hint-message"></div>
+      </div>
+
+      <!-- STEP 2: hint page after unlocking -->
+      <div id="hint-step-text">
+        <div class="hint-title">Hint Unlocked</div>
+        <div class="hint-body-text">
+          <img src="hint.png" alt="Hint image" class="hint-image" />
+          This image is your clue to where the memory happened. 🗺️
+        </div>
+        <div class="hint-subtitle parenth">
+          When you’re ready, begin your journey on the world map<br/>
+          and chase the memory across oceans and cities.
+        </div>
+        <div class="hint-buttons">
+          <button id="start-btn" class="btn btn-secondary">
+            Begin the journey
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 🎉 Win overlay -->
+  <div id="win-overlay">
+    <div class="win-card">
+      <div class="win-emoji">🎂🎉🎁</div>
+      <div class="win-title">You found it!</div>
+      <div class="win-subtitle">
+        The last piece of memory has finally come home.<br/>
+        The place on the map and the moment in your heart now match.
+      </div>
+      <div class="win-place" id="win-place"></div>
+      <div class="win-note">
+        I’ll give you the physical gift in person.<br/>
+        Thank you for playing through this little world I made for you. ✨
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔔 Short sound when the gift is clicked -->
+  <audio id="gift-sound" src="win.m4a" preload="auto"></audio>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // ============================
+    // 1. Hint lock logic
+    // ============================
+    const CORRECT_CODE = "REALITY"; // 7 letters
+    const NUM_WHEELS = 7;
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+    const lockWheelsContainer = document.getElementById("lock-wheels");
+    const unlockBtn = document.getElementById("unlock-btn");
+    const startBtn = document.getElementById("start-btn");
+    const hintMessage = document.getElementById("hint-message");
+    const hintOverlay = document.getElementById("hint-overlay");
+    const hintAudio = document.getElementById("hint-audio");
+
+    const hintStepLock = document.getElementById("hint-step-lock");
+    const hintStepText = document.getElementById("hint-step-text");
+
+    // Store wheel positions (0–25 for A–Z)
+    const wheelPositions = new Array(NUM_WHEELS).fill(0);
+
+    function createWheel(index) {
+      const wheel = document.createElement("div");
+      wheel.className = "wheel";
+
+      const btnUp = document.createElement("button");
+      btnUp.className = "wheel-button wheel-up";
+      btnUp.textContent = "▲";
+
+      const letterEl = document.createElement("div");
+      letterEl.className = "wheel-letter";
+      letterEl.textContent = letters[wheelPositions[index]];
+
+      const btnDown = document.createElement("button");
+      btnDown.className = "wheel-button wheel-down";
+      btnDown.textContent = "▼";
+
+      btnUp.addEventListener("click", () => {
+        wheelPositions[index] = (wheelPositions[index] + 1) % letters.length;
+        letterEl.textContent = letters[wheelPositions[index]];
+      });
+
+      btnDown.addEventListener("click", () => {
+        wheelPositions[index] =
+          (wheelPositions[index] - 1 + letters.length) % letters.length;
+        letterEl.textContent = letters[wheelPositions[index]];
+      });
+
+      wheel.appendChild(btnUp);
+      wheel.appendChild(letterEl);
+      wheel.appendChild(btnDown);
+
+      return wheel;
+    }
+
+    // Create 7 letter wheels like a number lock
+    for (let i = 0; i < NUM_WHEELS; i++) {
+      const wheel = createWheel(i);
+      lockWheelsContainer.appendChild(wheel);
+    }
+
+    function getEnteredCode() {
+      return wheelPositions.map((pos) => letters[pos]).join("");
+    }
+
+    function showHintMessage(text, type) {
+      hintMessage.textContent = text;
+      hintMessage.classList.remove("error", "success");
+      if (type) {
+        hintMessage.classList.add(type);
+      }
+    }
+
+    unlockBtn.addEventListener("click", () => {
+      const entered = getEnteredCode();
+      if (entered === CORRECT_CODE) {
+        // Correct: go to second hint page
+        showHintMessage("", null);
+        hintStepLock.style.display = "none";
+        hintStepText.style.display = "block";
+      } else {
+        showHintMessage("That’s not quite the right word yet… try again please.", "error");
+      }
+    });
+
+    startBtn.addEventListener("click", () => {
+      // Close hint overlay and show the map
+      hintOverlay.style.display = "none";
+      try {
+        hintAudio.pause();
+      } catch (_) {}
+    });
+
+    // ============================
+    // 2. Map + gift logic
+    // ============================
+
+    const targetRestaurant = {
+      name: "Ramen Jiro Yokohama Kannai",
+      lat: 35.442006,
+      lng: 139.630649
+    };
+
+    // 🌍 Map with non-repeating world
+    const map = L.map("map", {
+      minZoom: 2,
+      maxZoom: 19,
+      worldCopyJump: false,
+      maxBounds: [
+        [-90, -180],
+        [90, 180]
+      ],
+      maxBoundsViscosity: 1.0
+    }).setView([20, 0], 2);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      noWrap: true,
+      continuousWorld: false,
+      attribution: "© OpenStreetMap"
+    }).addTo(map);
+
+    const targetLatLng = L.latLng(targetRestaurant.lat, targetRestaurant.lng);
+
+    const giftIcon = L.divIcon({
+      className: "gift-icon-wrapper",
+      html: '<div class="gift-icon">🎁</div>',
+      iconSize: [44, 44],
+      iconAnchor: [22, 44],
+      popupAnchor: [0, -46]
+    });
+
+    // ⛔ No popup bound here anymore – we only use our custom win overlay
+    const giftMarker = L.marker(targetLatLng, { icon: giftIcon });
+
+    const SHOW_MARKER_ZOOM = 18;
+    let markerShown = false;
+    let giftFound = false;
+
+    const giftSound = document.getElementById("gift-sound");
+    const winOverlay = document.getElementById("win-overlay");
+    const winPlace = document.getElementById("win-place");
+
+    function playGiftSound() {
+      if (!giftSound) return;
+      try {
+        giftSound.currentTime = 0;
+        giftSound.play().catch(() => {});
+      } catch (_) {}
+    }
+
+    function animateMarker() {
+      const el = giftMarker.getElement();
+      if (!el) return;
+      el.classList.remove("gift-reveal");
+      void el.offsetWidth; // restart animation
+      el.classList.add("gift-reveal");
+    }
+
+    function showWinOverlay() {
+      winPlace.textContent = targetRestaurant.name + " – Yokohama, Japan";
+      winOverlay.style.display = "flex";
+    }
+
+    map.on("zoomend", function () {
+      if (giftFound) return;
+
+      const zoom = map.getZoom();
+      if (zoom >= SHOW_MARKER_ZOOM) {
+        if (!markerShown) {
+          giftMarker.addTo(map);
+          animateMarker();
+          markerShown = true;
+        }
+      } else {
+        if (map.hasLayer(giftMarker)) {
+          map.removeLayer(giftMarker);
+        }
+        markerShown = false;
+      }
+    });
+
+    giftMarker.on("click", function () {
+      if (giftFound) return;
+      giftFound = true;
+
+      // Center nicely on the gift
+      map.setView(targetLatLng, map.getZoom());
+
+      // Disable map interactions so they don't keep zooming
+      map.dragging.disable();
+      map.touchZoom.disable();
+      map.doubleClickZoom.disable();
+      map.scrollWheelZoom.disable();
+      map.boxZoom.disable();
+      map.keyboard.disable();
+      if (map.zoomControl) {
+        map.zoomControl.remove();
+      }
+
+      animateMarker();
+      playGiftSound();
+      showWinOverlay();  // single bright overlay; no Leaflet popup
+    });
+  </script>
+</body>
+</html>
