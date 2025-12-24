@@ -5,7 +5,6 @@
   <title>Find the Last Piece of Memory</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
-  <!-- Soft RPG / anime-ish fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
@@ -49,6 +48,7 @@
       font-family: "Nunito", system-ui, sans-serif;
     }
 
+    /* overlays */
     #hint-overlay {
       position: fixed;
       inset: 0;
@@ -91,10 +91,7 @@
       margin-bottom: 16px;
       line-height: 1.7;
     }
-    .hint-subtitle span.em {
-      color: #f97316;
-      font-weight: 800;
-    }
+
     .hint-audio-wrapper {
       margin-bottom: 18px;
       padding: 12px 12px 10px;
@@ -108,7 +105,7 @@
       margin-bottom: 6px;
     }
 
-    /* ✅ 滑滚式字母锁 */
+    /* scroll wheels */
     .lock-wheels{
       display:flex;
       justify-content:center;
@@ -194,11 +191,6 @@
       color: #111827;
       box-shadow: 0 8px 18px rgba(251,146,60,0.4);
     }
-    .btn-secondary {
-      background: #eff6ff;
-      color: #1f2937;
-      border: 1px solid #bfdbfe;
-    }
     .btn:disabled { opacity: 0.55; cursor: default; box-shadow: none; }
 
     .hint-message {
@@ -209,7 +201,7 @@
     }
     .hint-message.error { color: #b91c1c; }
 
-    /* Step 2: coordinate search */
+    /* Step 2 */
     #hint-step-text { display: none; }
 
     .coord-card {
@@ -306,7 +298,6 @@
       box-shadow: 0 14px 36px rgba(15,23,42,0.18);
     }
 
-    /* Marker bubbles */
     .guess-icon {
       width: 42px;
       height: 42px;
@@ -322,11 +313,12 @@
     .guess-good { background: radial-gradient(circle at 30% 0%, #bbf7d0 0, #22c55e 60%, #16a34a 100%); }
     .guess-bad  { background: radial-gradient(circle at 30% 0%, #fecaca 0, #ef4444 60%, #b91c1c 100%); }
 
-    /* Win overlay */
+    /* Win overlay: slightly transparent so the real map is visible behind it */
     #win-overlay {
       position: fixed;
       inset: 0;
-      background: radial-gradient(circle at top, rgba(191,219,254,0.65), rgba(243,244,246,0.9));
+      background: rgba(219,234,254,0.60);
+      backdrop-filter: blur(4px);
       display: none;
       align-items: center;
       justify-content: center;
@@ -407,11 +399,10 @@
 
   <div id="map"></div>
 
-  <!-- 🔐 Opening hint / lock screen -->
   <div id="hint-overlay">
     <div class="hint-card">
 
-      <!-- STEP 1: music + lock -->
+      <!-- STEP 1 -->
       <div id="hint-step-lock">
         <div class="hint-title">Prologue · The Sealed Memory</div>
         <div class="hint-subtitle">
@@ -434,7 +425,7 @@
         <div id="hint-message" class="hint-message"></div>
       </div>
 
-      <!-- STEP 2: coordinate puzzle -->
+      <!-- STEP 2 -->
       <div id="hint-step-text">
         <div class="hint-title">Clue Unlocked · Coordinate Riddles</div>
 
@@ -453,10 +444,8 @@
 
           <div class="hint-buttons" style="margin-top: 6px;">
             <button id="search-btn" class="btn btn-primary">Search on Map</button>
-            <button id="start-btn" class="btn btn-secondary">Begin the journey</button>
           </div>
 
-          <!-- ✅ YOUR CUSTOM HARDCORE CLUES HERE -->
           <div class="coord-help">
             <b>Latitude prefix (2 digits):</b><br/>
             “Your favorite paper — the number you see before <i>‘essentially.’</i>”<br/><br/>
@@ -481,13 +470,12 @@
     </div>
   </div>
 
-  <!-- 🎉 Win overlay -->
   <div id="win-overlay">
     <div class="win-card">
       <div class="win-emoji">🎂🎉🎁</div>
       <div class="win-title">You found it!</div>
       <div class="win-subtitle">
-        The last piece of memory has finally come home.
+        The map below is the real restaurant location.
       </div>
       <div class="win-place" id="win-place"></div>
 
@@ -508,7 +496,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     // ============================
-    // 1) 滑滚 Letter lock logic
+    // 1) Letter lock
     // ============================
     const CORRECT_CODE = "REALITY";
     const NUM_WHEELS = 7;
@@ -516,9 +504,7 @@
 
     const lockWheelsContainer = document.getElementById("lock-wheels");
     const unlockBtn = document.getElementById("unlock-btn");
-    const startBtn = document.getElementById("start-btn");
     const hintMessage = document.getElementById("hint-message");
-    const hintOverlay = document.getElementById("hint-overlay");
     const hintAudio = document.getElementById("hint-audio");
 
     const hintStepLock = document.getElementById("hint-step-lock");
@@ -536,10 +522,9 @@
       return wheelPositions.map((pos) => letters[pos]).join("");
     }
 
-    function showHintMessage(text, type) {
+    function showHintMessage(text) {
       hintMessage.textContent = text;
-      hintMessage.classList.remove("error", "success");
-      if (type) hintMessage.classList.add(type);
+      hintMessage.classList.add("error");
     }
 
     function createScrollWheel(index) {
@@ -618,21 +603,16 @@
     unlockBtn.addEventListener("click", () => {
       const entered = getEnteredCode();
       if (entered === CORRECT_CODE) {
-        showHintMessage("", null);
+        hintMessage.textContent = "";
         hintStepLock.style.display = "none";
         hintStepText.style.display = "block";
       } else {
-        showHintMessage("Not quite… try again.", "error");
+        showHintMessage("Not quite… try again.");
       }
     });
 
-    startBtn.addEventListener("click", () => {
-      hintOverlay.style.display = "none";
-      try { hintAudio.pause(); } catch (_) {}
-    });
-
     // ============================
-    // 2) Map + Coordinate Search logic
+    // 2) Map + Coordinate Search
     // ============================
     const targetRestaurant = {
       name: "Ramen Jiro Yokohama Kannai",
@@ -654,6 +634,7 @@
       attribution: "© OpenStreetMap"
     }).addTo(map);
 
+    const hintOverlay = document.getElementById("hint-overlay");
     const giftSound = document.getElementById("gift-sound");
     const winOverlay = document.getElementById("win-overlay");
     const winPlace = document.getElementById("win-place");
@@ -671,7 +652,6 @@
     let giftFound = false;
 
     function playWinSound() {
-      if (!giftSound) return;
       try {
         giftSound.currentTime = 0;
         giftSound.play().catch(() => {});
@@ -747,12 +727,7 @@
       const lngPrefix = (lngPrefixEl.value || "").trim();
 
       if (!/^\d{2}$/.test(latPrefix) || !/^\d{3}$/.test(lngPrefix)) {
-        setResult(
-          "bad",
-          "Input not complete",
-          "Latitude needs 2 digits; Longitude needs 3 digits.",
-          false
-        );
+        setResult("bad", "Input not complete", "Latitude needs 2 digits; Longitude needs 3 digits.", false);
         return;
       }
 
@@ -762,35 +737,30 @@
       clearGuessMarker();
 
       if (isCorrectGuess(lat, lng)) {
-        const ll = L.latLng(lat, lng);
-        map.setView(ll, 18);
+        // ✅ Close hint overlay so the real map is visible
+        hintOverlay.style.display = "none";
+        try { hintAudio.pause(); } catch (_) {}
 
+        const ll = L.latLng(lat, lng);
+
+        // ✅ Show the real restaurant map (fly + high zoom)
+        map.flyTo(ll, 18, { duration: 1.2 });
+
+        // ✅ Place a marker at the real location
         activeGuessMarker = L.marker(ll, { icon: makeGuessIcon(true) }).addTo(map);
 
-        setResult(
-          "good",
-          "Correct! Memory located.",
-          `${targetRestaurant.name} — you found the true coordinates.`,
-          true
-        );
+        setResult("good", "Correct! Memory located.", `${targetRestaurant.name} — you found the true coordinates.`, true);
 
         giftFound = true;
         playWinSound();
-        lockMap();
-        showWin();
+        lockMap();   // lock interactions so they can't zoom away
+        showWin();   // win overlay on top, map remains at real location behind it
       } else {
         const rnd = randomLatLngNotNear(targetRestaurant.lat, targetRestaurant.lng);
         const ll = L.latLng(rnd.lat, rnd.lng);
         map.setView(ll, 5);
-
         activeGuessMarker = L.marker(ll, { icon: makeGuessIcon(false) }).addTo(map);
-
-        setResult(
-          "bad",
-          "Not quite…",
-          "That coordinate leads somewhere else. Try again and search again!",
-          false
-        );
+        setResult("bad", "Not quite…", "That coordinate leads somewhere else. Try again and search again!", false);
       }
     });
   </script>
