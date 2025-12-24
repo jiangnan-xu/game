@@ -21,10 +21,7 @@
       font-family: "Nunito", system-ui, sans-serif;
     }
 
-    #map {
-      height: 100%;
-      width: 100%;
-    }
+    #map { height: 100%; width: 100%; }
 
     /* Top narrative bar */
     h2 {
@@ -52,56 +49,6 @@
       color: #1d4ed8;
     }
 
-    /* 🎁 Gift icon */
-    .gift-icon-wrapper {}
-    .gift-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 999px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 26px;
-      background: radial-gradient(circle at 30% 0%, #fef3c7 0, #fb923c 40%, #ea580c 100%);
-      color: #fff;
-      box-shadow:
-        0 0 0 0 rgba(251,146,60,0.0),
-        0 12px 26px rgba(15,23,42,0.4);
-      border: 1px solid rgba(254,243,199,0.8);
-    }
-
-    /* 💥 Dramatic reveal animation */
-    .gift-icon-wrapper.gift-reveal .gift-icon {
-      animation: pop 0.6s ease-out, pulse 1.2s ease-in-out infinite;
-    }
-
-    @keyframes pop {
-      0% { transform: scale(0); opacity: 0; }
-      70% { transform: scale(1.25); opacity: 1; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    @keyframes pulse {
-      0% {
-        transform: scale(1);
-        box-shadow:
-          0 0 0 0 rgba(251,146,60,0.0),
-          0 12px 26px rgba(15,23,42,0.35);
-      }
-      50% {
-        transform: scale(1.08);
-        box-shadow:
-          0 0 0 12px rgba(251,146,60,0.18),
-          0 18px 32px rgba(15,23,42,0.5);
-      }
-      100% {
-        transform: scale(1);
-        box-shadow:
-          0 0 0 0 rgba(251,146,60,0.0),
-          0 12px 26px rgba(15,23,42,0.35);
-      }
-    }
-
     /* Map look / font */
     .leaflet-container {
       background: #bfdbfe;
@@ -125,7 +72,7 @@
       background: rgba(255,255,255,0.96);
       border-radius: 24px;
       padding: 26px 26px 22px;
-      max-width: 480px;
+      max-width: 520px;
       width: 90%;
       box-shadow: 0 24px 60px rgba(15,23,42,0.25);
       border: 1px solid rgba(96,165,250,0.7);
@@ -157,9 +104,7 @@
       line-height: 1.7;
     }
 
-    .hint-subtitle.parenth {
-      font-size: 16px;
-    }
+    .hint-subtitle.parenth { font-size: 16px; }
 
     .hint-subtitle span.em {
       color: #f97316;
@@ -180,60 +125,68 @@
       margin-bottom: 6px;
     }
 
+    /* 滑滚式字母锁 */
     .lock-wheels {
       display: flex;
       justify-content: center;
-      gap: 8px;
-      margin: 12px 0 16px;
+      gap: 10px;
+      margin: 14px 0 8px;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: pan-y;
     }
 
-    /* 🔢 Letter wheel like a combination lock */
     .wheel {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-    }
-
-    .wheel-button {
-      background: #eff6ff;
-      color: #1f2937;
-      border: 1px solid #bfdbfe;
-      border-radius: 6px;
-      width: 32px;
-      height: 20px;
-      font-size: 12px;
-      line-height: 1;
-      cursor: pointer;
-      padding: 0;
-      box-shadow: 0 3px 6px rgba(148,163,184,0.7);
-    }
-
-    .wheel-button:active {
-      background: #dbeafe;
-      transform: translateY(1px);
-    }
-
-    .wheel-letter {
-      width: 36px;
-      height: 32px;
-      border-radius: 8px;
+      width: 44px;
+      height: 64px;
+      border-radius: 14px;
       background: linear-gradient(180deg, #eff6ff 0, #dbeafe 100%);
       border: 1px solid #bfdbfe;
+      box-shadow: 0 10px 20px rgba(148,163,184,0.6);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
-      box-shadow: 0 6px 14px rgba(148,163,184,0.7);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .wheel::before, .wheel::after{
+      content:"";
+      position:absolute;
+      left:0; right:0;
+      height: 14px;
+      opacity: 0.8;
+      pointer-events:none;
+    }
+    .wheel::before{
+      top:0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0));
+    }
+    .wheel::after{
+      bottom:0;
+      background: linear-gradient(0deg, rgba(255,255,255,0.9), rgba(255,255,255,0));
+    }
+
+    .wheel-letter {
       font-family: "Zen Maru Gothic", system-ui, sans-serif;
-      color: #1f2937;
+      font-size: 22px;
+      font-weight: 700;
+      color: #111827;
+      transform: translateY(0);
+      transition: transform 0.08s ease;
+    }
+
+    .wheel-hint {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 6px;
     }
 
     .hint-buttons {
       display: flex;
       justify-content: center;
       gap: 10px;
-      margin-top: 10px;
+      margin-top: 12px;
     }
 
     .btn {
@@ -259,11 +212,7 @@
       border: 1px solid #bfdbfe;
     }
 
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: default;
-      box-shadow: none;
-    }
+    .btn:disabled { opacity: 0.55; cursor: default; box-shadow: none; }
 
     .hint-message {
       font-size: 16px;
@@ -271,42 +220,112 @@
       margin-top: 10px;
       font-weight: 700;
     }
+    .hint-message.error { color: #b91c1c; }
+    .hint-message.success { color: #16a34a; }
 
-    .hint-message.error {
-      color: #b91c1c;
+    /* Step 2: coordinate search */
+    #hint-step-text { display: none; }
+
+    .coord-card {
+      margin-top: 8px;
+      padding: 14px 14px 12px;
+      border-radius: 18px;
+      background: rgba(239,246,255,0.9);
+      border: 1px solid rgba(191,219,254,1);
+      text-align: left;
     }
 
-    .hint-message.success {
-      color: #16a34a;
+    .coord-title {
+      font-family: "Zen Maru Gothic", system-ui, sans-serif;
+      font-weight: 700;
+      color: #1d4ed8;
+      margin-bottom: 8px;
+      font-size: 16px;
+      text-align: center;
     }
 
-    /* Second hint page */
-    #hint-step-text {
+    .coord-line {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .coord-bubble {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 16px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.9);
+      border: 1px solid rgba(147,197,253,0.9);
+      color: #111827;
+    }
+
+    .coord-input {
+      width: 70px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 16px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(147,197,253,0.9);
+      outline: none;
+      background: white;
+      text-align: center;
+    }
+
+    .coord-input:focus {
+      box-shadow: 0 0 0 4px rgba(59,130,246,0.18);
+      border-color: rgba(59,130,246,0.65);
+    }
+
+    .coord-help {
+      text-align: center;
+      font-size: 13px;
+      color: #4b5563;
+      line-height: 1.5;
+      margin-top: 6px;
+    }
+
+    .result-box {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.9);
+      border: 1px solid rgba(147,197,253,0.9);
+      color: #111827;
+      font-size: 14px;
+      line-height: 1.55;
       display: none;
     }
 
-    .hint-body-text {
-      font-size: 16px;
-      color: #374151;
-      margin: 12px 0 10px;
-      line-height: 1.8;
+    .result-box.bad { border-color: rgba(248,113,113,0.8); }
+    .result-box.good { border-color: rgba(74,222,128,0.85); }
+
+    .result-title {
+      font-weight: 800;
+      margin-bottom: 6px;
+      font-family: "Zen Maru Gothic", system-ui, sans-serif;
     }
 
-    .hint-body-text span.em {
-      color: #f97316;
-      font-weight: 700;
+    .result-photos {
+      margin-top: 8px;
+      display: none;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
     }
 
-    .hint-image {
-      max-width: 100%;
-      border-radius: 18px;
-      box-shadow: 0 16px 40px rgba(15,23,42,0.25);
+    .result-photos img {
+      max-width: 220px;
+      width: 100%;
+      border-radius: 16px;
       border: 1px solid rgba(191,219,254,0.9);
-      display: block;
-      margin: 0 auto 10px;
+      box-shadow: 0 14px 36px rgba(15,23,42,0.18);
     }
 
-    /* 🎉 Win overlay (brighter, map still visible behind) */
+    /* 🎉 Win overlay */
     #win-overlay {
       position: fixed;
       inset: 0;
@@ -321,7 +340,7 @@
       background: rgba(255,255,255,0.98);
       border-radius: 24px;
       padding: 26px 24px 22px;
-      max-width: 400px;
+      max-width: 420px;
       width: 90%;
       text-align: center;
       border: 1px solid rgba(129,140,248,0.7);
@@ -374,6 +393,39 @@
       margin-top: 8px;
       line-height: 1.6;
     }
+
+    .win-images {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .win-images img {
+      max-width: 220px;
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid rgba(191,219,254,0.9);
+      box-shadow: 0 14px 36px rgba(15,23,42,0.18);
+    }
+
+    /* Markers */
+    .guess-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.8);
+      box-shadow: 0 12px 26px rgba(15,23,42,0.35);
+    }
+    .guess-good { background: radial-gradient(circle at 30% 0%, #bbf7d0 0, #22c55e 60%, #16a34a 100%); }
+    .guess-bad  { background: radial-gradient(circle at 30% 0%, #fecaca 0, #ef4444 60%, #b91c1c 100%); }
+
   </style>
 </head>
 <body>
@@ -398,18 +450,14 @@
           To see where it landed, you must first unlock this to get a clue.
         </div>
 
-        <!-- 🎵 Music BEFORE the lock as hint -->
         <div id="hint-audio-wrapper" class="hint-audio-wrapper">
-          <div class="hint-audio-label">
-            This audio might help 🎵<br/>
-          </div>
+          <div class="hint-audio-label">This audio might help 🎵</div>
           <audio id="hint-audio" src="song.m4a" controls preload="auto"></audio>
         </div>
 
-        <!-- 🔢 Letter wheels -->
-        <div id="lock-wheels" class="lock-wheels">
-          <!-- Wheels created by JavaScript -->
-        </div>
+        <!-- 滑滚式 Letter wheels -->
+        <div id="lock-wheels" class="lock-wheels"></div>
+        <div class="wheel-hint">Tip: scroll / swipe each wheel to change letters.</div>
 
         <div class="hint-buttons">
           <button id="unlock-btn" class="btn btn-primary">Unlock</button>
@@ -418,21 +466,43 @@
         <div id="hint-message" class="hint-message"></div>
       </div>
 
-      <!-- STEP 2: hint page after unlocking -->
+      <!-- STEP 2: coordinate puzzle (no image here) -->
       <div id="hint-step-text">
-        <div class="hint-title">Hint Unlocked</div>
-        <div class="hint-body-text">
-          <img src="hint.png" alt="Hint image" class="hint-image" />
-          This image is your clue to where the memory happened. 🗺️
-        </div>
-        <div class="hint-subtitle parenth">
-          When you’re ready, begin your journey on the world map<br/>
-          and chase the memory across oceans and cities.
-        </div>
-        <div class="hint-buttons">
-          <button id="start-btn" class="btn btn-secondary">
-            Begin the journey
-          </button>
+        <div class="hint-title">Clue Unlocked · Coordinate Search</div>
+
+        <div class="coord-card">
+          <div class="coord-title">Complete the Coordinates</div>
+
+          <div class="coord-line">
+            <span class="coord-bubble">Lat</span>
+            <input id="lat-prefix" class="coord-input" inputmode="numeric" maxlength="2" placeholder="??" />
+            <span class="coord-bubble">.442006</span>
+            <span class="coord-bubble">,</span>
+            <span class="coord-bubble">Lng</span>
+            <input id="lng-prefix" class="coord-input" inputmode="numeric" maxlength="3" placeholder="???" />
+            <span class="coord-bubble">.630649</span>
+          </div>
+
+          <div class="hint-buttons" style="margin-top: 6px;">
+            <button id="search-btn" class="btn btn-primary">Search on Map</button>
+            <button id="start-btn" class="btn btn-secondary">Begin the journey</button>
+          </div>
+
+          <div class="coord-help">
+            Fill the missing numbers, then press <b>Search on Map</b>.<br/>
+            If you discover the true location, the memory will reveal itself.
+          </div>
+
+          <div id="result-box" class="result-box">
+            <div id="result-title" class="result-title"></div>
+            <div id="result-text"></div>
+
+            <!-- Only shown when correct -->
+            <div id="result-photos" class="result-photos">
+              <img src="place.png" alt="The real place photo (place.png)" />
+              <img src="win.png" alt="Winning image (win.png)" />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -449,6 +519,12 @@
         The place on the map and the moment in your heart now match.
       </div>
       <div class="win-place" id="win-place"></div>
+
+      <div class="win-images">
+        <img src="place.png" alt="The real place photo (place.png)" />
+        <img src="win.png" alt="Winning image (win.png)" />
+      </div>
+
       <div class="win-note">
         I’ll give you the physical gift in person.<br/>
         Thank you for playing through this little world I made for you. ✨
@@ -456,15 +532,15 @@
     </div>
   </div>
 
-  <!-- 🔔 Short sound when the gift is clicked -->
+  <!-- 🔔 Win sound -->
   <audio id="gift-sound" src="win.m4a" preload="auto"></audio>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     // ============================
-    // 1. Hint lock logic
+    // 1) 滑滚 Letter lock logic
     // ============================
-    const CORRECT_CODE = "REALITY"; // 7 letters
+    const CORRECT_CODE = "REALITY";
     const NUM_WHEELS = 7;
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
@@ -478,47 +554,13 @@
     const hintStepLock = document.getElementById("hint-step-lock");
     const hintStepText = document.getElementById("hint-step-text");
 
-    // Store wheel positions (0–25 for A–Z)
+    // Each wheel stores an index 0-25
     const wheelPositions = new Array(NUM_WHEELS).fill(0);
 
-    function createWheel(index) {
-      const wheel = document.createElement("div");
-      wheel.className = "wheel";
-
-      const btnUp = document.createElement("button");
-      btnUp.className = "wheel-button wheel-up";
-      btnUp.textContent = "▲";
-
-      const letterEl = document.createElement("div");
-      letterEl.className = "wheel-letter";
-      letterEl.textContent = letters[wheelPositions[index]];
-
-      const btnDown = document.createElement("button");
-      btnDown.className = "wheel-button wheel-down";
-      btnDown.textContent = "▼";
-
-      btnUp.addEventListener("click", () => {
-        wheelPositions[index] = (wheelPositions[index] + 1) % letters.length;
-        letterEl.textContent = letters[wheelPositions[index]];
-      });
-
-      btnDown.addEventListener("click", () => {
-        wheelPositions[index] =
-          (wheelPositions[index] - 1 + letters.length) % letters.length;
-        letterEl.textContent = letters[wheelPositions[index]];
-      });
-
-      wheel.appendChild(btnUp);
-      wheel.appendChild(letterEl);
-      wheel.appendChild(btnDown);
-
-      return wheel;
-    }
-
-    // Create 7 letter wheels like a number lock
-    for (let i = 0; i < NUM_WHEELS; i++) {
-      const wheel = createWheel(i);
-      lockWheelsContainer.appendChild(wheel);
+    function clampWheel(i) {
+      if (i < 0) return letters.length - 1;
+      if (i >= letters.length) return 0;
+      return i;
     }
 
     function getEnteredCode() {
@@ -528,15 +570,78 @@
     function showHintMessage(text, type) {
       hintMessage.textContent = text;
       hintMessage.classList.remove("error", "success");
-      if (type) {
-        hintMessage.classList.add(type);
-      }
+      if (type) hintMessage.classList.add(type);
+    }
+
+    function bumpLetter(el, direction) {
+      // tiny visual nudge to feel "rolling"
+      el.style.transform = `translateY(${direction > 0 ? -6 : 6}px)`;
+      setTimeout(() => { el.style.transform = "translateY(0)"; }, 70);
+    }
+
+    function createScrollWheel(index) {
+      const wheel = document.createElement("div");
+      wheel.className = "wheel";
+
+      const letterEl = document.createElement("div");
+      letterEl.className = "wheel-letter";
+      letterEl.textContent = letters[wheelPositions[index]];
+
+      // Mouse wheel scroll
+      wheel.addEventListener("wheel", (e) => {
+        e.preventDefault();
+        const direction = e.deltaY > 0 ? -1 : 1; // scroll down -> previous; scroll up -> next
+        wheelPositions[index] = clampWheel(wheelPositions[index] + direction);
+        letterEl.textContent = letters[wheelPositions[index]];
+        bumpLetter(letterEl, direction);
+      }, { passive: false });
+
+      // Touch / drag up-down
+      let startY = null;
+      let lastY = null;
+
+      wheel.addEventListener("pointerdown", (e) => {
+        wheel.setPointerCapture(e.pointerId);
+        startY = e.clientY;
+        lastY = e.clientY;
+      });
+
+      wheel.addEventListener("pointermove", (e) => {
+        if (startY === null) return;
+        const dy = e.clientY - lastY;
+        lastY = e.clientY;
+
+        // Every ~10px move triggers one "step"
+        const step = 10;
+        if (Math.abs(dy) >= step) {
+          const direction = dy < 0 ? 1 : -1; // drag up => next; drag down => previous
+          wheelPositions[index] = clampWheel(wheelPositions[index] + direction);
+          letterEl.textContent = letters[wheelPositions[index]];
+          bumpLetter(letterEl, direction);
+        }
+      });
+
+      wheel.addEventListener("pointerup", () => {
+        startY = null;
+        lastY = null;
+      });
+
+      wheel.addEventListener("pointercancel", () => {
+        startY = null;
+        lastY = null;
+      });
+
+      wheel.appendChild(letterEl);
+      return wheel;
+    }
+
+    for (let i = 0; i < NUM_WHEELS; i++) {
+      lockWheelsContainer.appendChild(createScrollWheel(i));
     }
 
     unlockBtn.addEventListener("click", () => {
       const entered = getEnteredCode();
       if (entered === CORRECT_CODE) {
-        // Correct: go to second hint page
         showHintMessage("", null);
         hintStepLock.style.display = "none";
         hintStepText.style.display = "block";
@@ -546,24 +651,20 @@
     });
 
     startBtn.addEventListener("click", () => {
-      // Close hint overlay and show the map
       hintOverlay.style.display = "none";
-      try {
-        hintAudio.pause();
-      } catch (_) {}
+      try { hintAudio.pause(); } catch (_) {}
     });
 
     // ============================
-    // 2. Map + gift logic
+    // 2) Map + Coordinate Search logic
     // ============================
-
     const targetRestaurant = {
       name: "Ramen Jiro Yokohama Kannai",
       lat: 35.442006,
       lng: 139.630649
     };
 
-    // 🌍 Map with non-repeating world
+    // Leaflet map (non repeating world)
     const map = L.map("map", {
       minZoom: 2,
       maxZoom: 18,
@@ -581,28 +682,23 @@
       attribution: "© OpenStreetMap"
     }).addTo(map);
 
-    const targetLatLng = L.latLng(targetRestaurant.lat, targetRestaurant.lng);
-
-    const giftIcon = L.divIcon({
-      className: "gift-icon-wrapper",
-      html: '<div class="gift-icon">🎁</div>',
-      iconSize: [44, 44],
-      iconAnchor: [22, 44],
-      popupAnchor: [0, -46]
-    });
-
-    // ⛔ No popup bound here anymore – we only use our custom win overlay
-    const giftMarker = L.marker(targetLatLng, { icon: giftIcon });
-
-    const SHOW_MARKER_ZOOM = 18;
-    let markerShown = false;
-    let giftFound = false;
-
     const giftSound = document.getElementById("gift-sound");
     const winOverlay = document.getElementById("win-overlay");
     const winPlace = document.getElementById("win-place");
 
-    function playGiftSound() {
+    const latPrefixEl = document.getElementById("lat-prefix");
+    const lngPrefixEl = document.getElementById("lng-prefix");
+    const searchBtn = document.getElementById("search-btn");
+
+    const resultBox = document.getElementById("result-box");
+    const resultTitle = document.getElementById("result-title");
+    const resultText = document.getElementById("result-text");
+    const resultPhotos = document.getElementById("result-photos");
+
+    let activeGuessMarker = null;
+    let giftFound = false;
+
+    function playWinSound() {
       if (!giftSound) return;
       try {
         giftSound.currentTime = 0;
@@ -610,58 +706,120 @@
       } catch (_) {}
     }
 
-    function animateMarker() {
-      const el = giftMarker.getElement();
-      if (!el) return;
-      el.classList.remove("gift-reveal");
-      void el.offsetWidth; // restart animation
-      el.classList.add("gift-reveal");
-    }
-
-    function showWinOverlay() {
-      winPlace.textContent = targetRestaurant.name + " – Yokohama, Japan";
-      winOverlay.style.display = "flex";
-    }
-
-    map.on("zoomend", function () {
-      if (giftFound) return;
-
-      const zoom = map.getZoom();
-      if (zoom >= SHOW_MARKER_ZOOM) {
-        if (!markerShown) {
-          giftMarker.addTo(map);
-          animateMarker();
-          markerShown = true;
-        }
-      } else {
-        if (map.hasLayer(giftMarker)) {
-          map.removeLayer(giftMarker);
-        }
-        markerShown = false;
-      }
-    });
-
-    giftMarker.on("click", function () {
-      if (giftFound) return;
-      giftFound = true;
-
-      // Center nicely on the gift
-      map.setView(targetLatLng, map.getZoom());
-
-      // Disable map interactions so they don't keep zooming
+    function lockMap() {
       map.dragging.disable();
       map.touchZoom.disable();
       map.doubleClickZoom.disable();
       map.scrollWheelZoom.disable();
       map.boxZoom.disable();
       map.keyboard.disable();
-      if (map.zoomControl) {
-        map.zoomControl.remove();
+      if (map.zoomControl) map.zoomControl.remove();
+    }
+
+    function setResult(type, title, text, showPics) {
+      resultBox.style.display = "block";
+      resultBox.classList.remove("bad", "good");
+      resultBox.classList.add(type === "good" ? "good" : "bad");
+      resultTitle.textContent = title;
+      resultText.textContent = text;
+      resultPhotos.style.display = showPics ? "flex" : "none";
+    }
+
+    function clearGuessMarker() {
+      if (activeGuessMarker && map.hasLayer(activeGuessMarker)) map.removeLayer(activeGuessMarker);
+      activeGuessMarker = null;
+    }
+
+    function makeGuessIcon(isGood) {
+      return L.divIcon({
+        className: "",
+        html: `<div class="guess-icon ${isGood ? "guess-good" : "guess-bad"}">${isGood ? "✨" : "❌"}</div>`,
+        iconSize: [42, 42],
+        iconAnchor: [21, 42]
+      });
+    }
+
+    function randomLatLngNotNear(targetLat, targetLng) {
+      // pick a random place on Earth but not too close to target
+      for (let tries = 0; tries < 50; tries++) {
+        const lat = (Math.random() * 170) - 85;    // -85..85 to avoid poles
+        const lng = (Math.random() * 360) - 180;   // -180..180
+        const dLat = lat - targetLat;
+        const dLng = lng - targetLng;
+        const dist = Math.sqrt(dLat*dLat + dLng*dLng);
+        if (dist > 10) return { lat, lng }; // far away
+      }
+      return { lat: 0, lng: 0 };
+    }
+
+    function isCorrectGuess(lat, lng) {
+      // Your puzzle is “missing prefix digits”, so exact match is fine,
+      // but we also allow a tiny tolerance just in case.
+      const tol = 0.00005; // ~5m-10m-ish depending latitude
+      return Math.abs(lat - targetRestaurant.lat) <= tol && Math.abs(lng - targetRestaurant.lng) <= tol;
+    }
+
+    function showWin() {
+      winPlace.textContent = targetRestaurant.name + " – Yokohama, Japan";
+      winOverlay.style.display = "flex";
+    }
+
+    searchBtn.addEventListener("click", () => {
+      if (giftFound) return;
+
+      const latPrefix = (latPrefixEl.value || "").trim();
+      const lngPrefix = (lngPrefixEl.value || "").trim();
+
+      // Basic validation (digits only)
+      if (!/^\d{2}$/.test(latPrefix) || !/^\d{3}$/.test(lngPrefix)) {
+        setResult(
+          "bad",
+          "Input not complete",
+          "Latitude needs 2 digits, Longitude needs 3 digits. Example: 35 and 139.",
+          false
+        );
+        return;
       }
 
-      animateMarker();
-      playGiftSound();
-      showWinOverlay();  // single bright overlay; no Leaflet popup
+      const lat = parseFloat(`${latPrefix}.442006`);
+      const lng = parseFloat(`${lngPrefix}.630649`);
+
+      // Remove old marker
+      clearGuessMarker();
+
+      if (isCorrectGuess(lat, lng)) {
+        // Correct: zoom to real place, show name + pictures + win overlay
+        const ll = L.latLng(lat, lng);
+        map.setView(ll, 18);
+
+        activeGuessMarker = L.marker(ll, { icon: makeGuessIcon(true) }).addTo(map);
+
+        setResult(
+          "good",
+          "Correct! Memory located.",
+          `${targetRestaurant.name} — you found the true coordinates.`,
+          true
+        );
+
+        giftFound = true;
+        playWinSound();
+        lockMap();
+        showWin();
+      } else {
+        // Wrong: jump to random place, show try again
+        const rnd = randomLatLngNotNear(targetRestaurant.lat, targetRestaurant.lng);
+        const ll = L.latLng(rnd.lat, rnd.lng);
+        map.setView(ll, 5);
+
+        activeGuessMarker = L.marker(ll, { icon: makeGuessIcon(false) }).addTo(map);
+
+        setResult(
+          "bad",
+          "Not quite…",
+          "That coordinate leads somewhere else. Try again and search again!",
+          false
+        );
+      }
     });
   </script>
 </body>
