@@ -3,10 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <title>Find the Last Piece of Memory</title>
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
   <!-- Soft RPG / anime-ish fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,10 +18,8 @@
       background: radial-gradient(circle at top, #dbeafe 0, #eff6ff 35%, #e5e7eb 100%);
       font-family: "Nunito", system-ui, sans-serif;
     }
-
     #map { height: 100%; width: 100%; }
 
-    /* Top narrative bar */
     h2 {
       position: absolute;
       z-index: 1000;
@@ -39,7 +35,6 @@
       align-items: center;
       gap: 10px;
     }
-
     h2 span.label {
       font-family: "Zen Maru Gothic", system-ui, sans-serif;
       font-size: 13px;
@@ -49,38 +44,33 @@
       color: #1d4ed8;
     }
 
-    /* Map look / font */
     .leaflet-container {
       background: #bfdbfe;
       font-family: "Nunito", system-ui, sans-serif;
     }
 
-    /* 🔐 Opening hint / lock screen */
     #hint-overlay {
       position: fixed;
       inset: 0;
-      background:
-        radial-gradient(circle at top, rgba(191,219,254,0.9) 0, rgba(219,234,254,0.95) 40%, rgba(239,246,255,0.95) 100%);
+      background: radial-gradient(circle at top, rgba(191,219,254,0.9) 0, rgba(219,234,254,0.95) 40%, rgba(239,246,255,0.95) 100%);
       color: #111827;
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 3000;
     }
-
     .hint-card {
       background: rgba(255,255,255,0.96);
       border-radius: 24px;
       padding: 26px 26px 22px;
-      max-width: 520px;
-      width: 90%;
+      max-width: 560px;
+      width: 92%;
       box-shadow: 0 24px 60px rgba(15,23,42,0.25);
       border: 1px solid rgba(96,165,250,0.7);
       text-align: center;
       position: relative;
       overflow: hidden;
     }
-
     .hint-card::before {
       content: "";
       position: absolute;
@@ -88,7 +78,6 @@
       background: radial-gradient(circle at 10% 0%, rgba(248,250,252,0.9), transparent 60%);
       pointer-events: none;
     }
-
     .hint-title {
       font-family: "Zen Maru Gothic", system-ui, sans-serif;
       font-size: 20px;
@@ -96,21 +85,16 @@
       margin-bottom: 10px;
       color: #1d4ed8;
     }
-
     .hint-subtitle {
       font-size: 17px;
       color: #374151;
       margin-bottom: 16px;
       line-height: 1.7;
     }
-
-    .hint-subtitle.parenth { font-size: 16px; }
-
     .hint-subtitle span.em {
       color: #f97316;
-      font-weight: 700;
+      font-weight: 800;
     }
-
     .hint-audio-wrapper {
       margin-bottom: 18px;
       padding: 12px 12px 10px;
@@ -118,68 +102,74 @@
       background: rgba(239,246,255,0.9);
       border: 1px solid rgba(191,219,254,1);
     }
-
     .hint-audio-label {
       font-size: 15px;
       color: #4b5563;
       margin-bottom: 6px;
     }
 
-    /* 滑滚式字母锁 */
-    .lock-wheels {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin: 14px 0 8px;
-      user-select: none;
-      -webkit-user-select: none;
+    /* ✅ 滑滚式字母锁 */
+    .lock-wheels{
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      margin:14px 0 8px;
+      user-select:none;
+      -webkit-user-select:none;
       touch-action: pan-y;
     }
-
-    .wheel {
-      width: 44px;
-      height: 64px;
-      border-radius: 14px;
+    .wheel{
+      width: 54px;
+      height: 78px;
+      border-radius: 16px;
       background: linear-gradient(180deg, #eff6ff 0, #dbeafe 100%);
       border: 1px solid #bfdbfe;
-      box-shadow: 0 10px 20px rgba(148,163,184,0.6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
+      box-shadow: 0 12px 26px rgba(148,163,184,0.55);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+      overflow:hidden;
+      cursor: grab;
     }
-
+    .wheel:active{ cursor: grabbing; }
     .wheel::before, .wheel::after{
       content:"";
       position:absolute;
       left:0; right:0;
-      height: 14px;
-      opacity: 0.8;
+      height: 22px;
       pointer-events:none;
     }
     .wheel::before{
       top:0;
-      background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0));
+      background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0));
     }
     .wheel::after{
       bottom:0;
-      background: linear-gradient(0deg, rgba(255,255,255,0.9), rgba(255,255,255,0));
+      background: linear-gradient(0deg, rgba(255,255,255,0.95), rgba(255,255,255,0));
     }
-
-    .wheel-letter {
+    .wheel .window-line{
+      position:absolute;
+      left:8px; right:8px;
+      height: 2px;
+      top: 50%;
+      transform: translateY(-1px);
+      background: rgba(59,130,246,0.25);
+      border-radius: 999px;
+      pointer-events:none;
+    }
+    .wheel-letter{
       font-family: "Zen Maru Gothic", system-ui, sans-serif;
-      font-size: 22px;
-      font-weight: 700;
-      color: #111827;
-      transform: translateY(0);
-      transition: transform 0.08s ease;
+      font-size: 26px;
+      font-weight: 800;
+      color:#111827;
+      transition: transform 0.06s ease;
+      will-change: transform;
     }
-
-    .wheel-hint {
+    .wheel-hint{
       font-size: 12px;
-      color: #6b7280;
-      margin-top: 6px;
+      color:#6b7280;
+      margin-top: 8px;
     }
 
     .hint-buttons {
@@ -187,41 +177,37 @@
       justify-content: center;
       gap: 10px;
       margin-top: 12px;
+      flex-wrap: wrap;
     }
-
     .btn {
       border-radius: 999px;
       border: none;
       padding: 10px 18px;
       font-size: 15px;
       cursor: pointer;
-      font-weight: 700;
+      font-weight: 800;
       font-family: "Nunito", system-ui, sans-serif;
       letter-spacing: 0.04em;
     }
-
     .btn-primary {
       background: linear-gradient(135deg, #fb923c, #facc15);
       color: #111827;
       box-shadow: 0 8px 18px rgba(251,146,60,0.4);
     }
-
     .btn-secondary {
       background: #eff6ff;
       color: #1f2937;
       border: 1px solid #bfdbfe;
     }
-
     .btn:disabled { opacity: 0.55; cursor: default; box-shadow: none; }
 
     .hint-message {
       font-size: 16px;
       min-height: 22px;
       margin-top: 10px;
-      font-weight: 700;
+      font-weight: 800;
     }
     .hint-message.error { color: #b91c1c; }
-    .hint-message.success { color: #16a34a; }
 
     /* Step 2: coordinate search */
     #hint-step-text { display: none; }
@@ -234,16 +220,14 @@
       border: 1px solid rgba(191,219,254,1);
       text-align: left;
     }
-
     .coord-title {
       font-family: "Zen Maru Gothic", system-ui, sans-serif;
-      font-weight: 700;
+      font-weight: 800;
       color: #1d4ed8;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       font-size: 16px;
       text-align: center;
     }
-
     .coord-line {
       display: flex;
       align-items: center;
@@ -252,7 +236,6 @@
       flex-wrap: wrap;
       margin-bottom: 10px;
     }
-
     .coord-bubble {
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       font-size: 16px;
@@ -262,155 +245,68 @@
       border: 1px solid rgba(147,197,253,0.9);
       color: #111827;
     }
-
     .coord-input {
-      width: 70px;
+      width: 92px;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       font-size: 16px;
-      padding: 8px 10px;
-      border-radius: 12px;
+      padding: 10px 10px;
+      border-radius: 14px;
       border: 1px solid rgba(147,197,253,0.9);
       outline: none;
       background: white;
       text-align: center;
     }
-
     .coord-input:focus {
       box-shadow: 0 0 0 4px rgba(59,130,246,0.18);
       border-color: rgba(59,130,246,0.65);
     }
 
     .coord-help {
-      text-align: center;
       font-size: 13px;
-      color: #4b5563;
-      line-height: 1.5;
-      margin-top: 6px;
+      color: #374151;
+      line-height: 1.55;
+      margin-top: 8px;
+      background: rgba(255,255,255,0.9);
+      border: 1px solid rgba(147,197,253,0.9);
+      border-radius: 14px;
+      padding: 10px 12px;
     }
+    .coord-help b { color: #1d4ed8; }
 
     .result-box {
-      margin-top: 10px;
-      padding: 10px 12px;
+      margin-top: 12px;
+      padding: 12px 14px;
       border-radius: 14px;
-      background: rgba(255,255,255,0.9);
+      background: rgba(255,255,255,0.95);
       border: 1px solid rgba(147,197,253,0.9);
       color: #111827;
       font-size: 14px;
       line-height: 1.55;
       display: none;
     }
-
-    .result-box.bad { border-color: rgba(248,113,113,0.8); }
+    .result-box.bad  { border-color: rgba(248,113,113,0.8); }
     .result-box.good { border-color: rgba(74,222,128,0.85); }
-
     .result-title {
-      font-weight: 800;
+      font-weight: 900;
       margin-bottom: 6px;
       font-family: "Zen Maru Gothic", system-ui, sans-serif;
     }
-
     .result-photos {
-      margin-top: 8px;
-      display: none;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .result-photos img {
-      max-width: 220px;
-      width: 100%;
-      border-radius: 16px;
-      border: 1px solid rgba(191,219,254,0.9);
-      box-shadow: 0 14px 36px rgba(15,23,42,0.18);
-    }
-
-    /* 🎉 Win overlay */
-    #win-overlay {
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(circle at top, rgba(191,219,254,0.65), rgba(243,244,246,0.9));
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 4000;
-    }
-
-    .win-card {
-      background: rgba(255,255,255,0.98);
-      border-radius: 24px;
-      padding: 26px 24px 22px;
-      max-width: 420px;
-      width: 90%;
-      text-align: center;
-      border: 1px solid rgba(129,140,248,0.7);
-      box-shadow: 0 24px 60px rgba(15,23,42,0.3);
-      color: #111827;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .win-card::before {
-      content: "";
-      position: absolute;
-      inset: -40%;
-      background: radial-gradient(circle at 10% 0%, rgba(239,246,255,0.8), transparent 60%);
-      pointer-events: none;
-    }
-
-    .win-emoji {
-      font-size: 36px;
-      margin-bottom: 10px;
-    }
-
-    .win-title {
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 8px;
-      font-family: "Zen Maru Gothic", system-ui, sans-serif;
-    }
-
-    .win-subtitle {
-      font-size: 16px;
-      color: #374151;
-      margin-bottom: 14px;
-      line-height: 1.7;
-    }
-
-    .win-place {
-      font-size: 16px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      margin-bottom: 12px;
-      color: #1f2937;
-    }
-
-    .win-note {
-      font-size: 15px;
-      color: #4b5563;
-      margin-top: 8px;
-      line-height: 1.6;
-    }
-
-    .win-images {
       margin-top: 10px;
-      display: flex;
+      display: none;
       gap: 10px;
       justify-content: center;
       flex-wrap: wrap;
     }
-
-    .win-images img {
-      max-width: 220px;
+    .result-photos img {
+      max-width: 230px;
       width: 100%;
       border-radius: 16px;
       border: 1px solid rgba(191,219,254,0.9);
       box-shadow: 0 14px 36px rgba(15,23,42,0.18);
     }
 
-    /* Markers */
+    /* Marker bubbles */
     .guess-icon {
       width: 42px;
       height: 42px;
@@ -420,19 +316,93 @@
       justify-content: center;
       font-size: 22px;
       color: #fff;
-      border: 1px solid rgba(255,255,255,0.8);
+      border: 1px solid rgba(255,255,255,0.85);
       box-shadow: 0 12px 26px rgba(15,23,42,0.35);
     }
     .guess-good { background: radial-gradient(circle at 30% 0%, #bbf7d0 0, #22c55e 60%, #16a34a 100%); }
     .guess-bad  { background: radial-gradient(circle at 30% 0%, #fecaca 0, #ef4444 60%, #b91c1c 100%); }
 
+    /* Win overlay */
+    #win-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(191,219,254,0.65), rgba(243,244,246,0.9));
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 4000;
+    }
+    .win-card {
+      background: rgba(255,255,255,0.98);
+      border-radius: 24px;
+      padding: 26px 24px 22px;
+      max-width: 460px;
+      width: 92%;
+      text-align: center;
+      border: 1px solid rgba(129,140,248,0.7);
+      box-shadow: 0 24px 60px rgba(15,23,42,0.3);
+      color: #111827;
+      position: relative;
+      overflow: hidden;
+    }
+    .win-card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle at 10% 0%, rgba(239,246,255,0.8), transparent 60%);
+      pointer-events: none;
+    }
+    .win-emoji { font-size: 36px; margin-bottom: 10px; }
+    .win-title {
+      font-size: 20px;
+      font-weight: 900;
+      margin-bottom: 8px;
+      font-family: "Zen Maru Gothic", system-ui, sans-serif;
+    }
+    .win-subtitle {
+      font-size: 16px;
+      color: #374151;
+      margin-bottom: 14px;
+      line-height: 1.7;
+    }
+    .win-place {
+      font-size: 16px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      margin-bottom: 12px;
+      color: #1f2937;
+      font-weight: 800;
+    }
+    .win-images {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .win-images img {
+      max-width: 230px;
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid rgba(191,219,254,0.9);
+      box-shadow: 0 14px 36px rgba(15,23,42,0.18);
+    }
+    .win-note {
+      font-size: 15px;
+      color: #4b5563;
+      margin-top: 10px;
+      line-height: 1.6;
+      font-weight: 700;
+    }
   </style>
 </head>
-<body>
 
+<body>
   <h2>
     <span class="label">Memory Quest</span>
-    Where is the last piece of memory? Zoom through the world to find it…
+    Search the missing coordinate prefixes to reveal the place…
   </h2>
 
   <div id="map"></div>
@@ -445,19 +415,17 @@
       <div id="hint-step-lock">
         <div class="hint-title">Prologue · The Sealed Memory</div>
         <div class="hint-subtitle">
-          Before reaching <span class="em">level 33</span>, one last piece of your memory
-          is still wandering in its own timeline.<br/>
-          To see where it landed, you must first unlock this to get a clue.
+          Listen… and unlock the word.<br/>
+          Then the coordinate riddles will appear.
         </div>
 
-        <div id="hint-audio-wrapper" class="hint-audio-wrapper">
+        <div class="hint-audio-wrapper">
           <div class="hint-audio-label">This audio might help 🎵</div>
           <audio id="hint-audio" src="song.m4a" controls preload="auto"></audio>
         </div>
 
-        <!-- 滑滚式 Letter wheels -->
         <div id="lock-wheels" class="lock-wheels"></div>
-        <div class="wheel-hint">Tip: scroll / swipe each wheel to change letters.</div>
+        <div class="wheel-hint">Tip: scroll / swipe each wheel (mouse wheel works too).</div>
 
         <div class="hint-buttons">
           <button id="unlock-btn" class="btn btn-primary">Unlock</button>
@@ -466,9 +434,9 @@
         <div id="hint-message" class="hint-message"></div>
       </div>
 
-      <!-- STEP 2: coordinate puzzle (no image here) -->
+      <!-- STEP 2: coordinate puzzle -->
       <div id="hint-step-text">
-        <div class="hint-title">Clue Unlocked · Coordinate Search</div>
+        <div class="hint-title">Clue Unlocked · Coordinate Riddles</div>
 
         <div class="coord-card">
           <div class="coord-title">Complete the Coordinates</div>
@@ -488,16 +456,20 @@
             <button id="start-btn" class="btn btn-secondary">Begin the journey</button>
           </div>
 
+          <!-- ✅ YOUR CUSTOM HARDCORE CLUES HERE -->
           <div class="coord-help">
-            Fill the missing numbers, then press <b>Search on Map</b>.<br/>
-            If you discover the true location, the memory will reveal itself.
+            <b>Latitude prefix (2 digits):</b><br/>
+            “Your favorite paper — the number you see before <i>‘essentially.’</i>”<br/><br/>
+            <b>Longitude prefix (3 digits):</b><br/>
+            “Prof. Kim entered a classroom with 8 seats in a row. From left to right,
+            the 2nd–4th seats are empty, the 6th one is also empty, but the others are full.”<br/>
+            (binary: <b>10001011</b>)
           </div>
 
           <div id="result-box" class="result-box">
             <div id="result-title" class="result-title"></div>
             <div id="result-text"></div>
 
-            <!-- Only shown when correct -->
             <div id="result-photos" class="result-photos">
               <img src="place.png" alt="The real place photo (place.png)" />
               <img src="win.png" alt="Winning image (win.png)" />
@@ -515,8 +487,7 @@
       <div class="win-emoji">🎂🎉🎁</div>
       <div class="win-title">You found it!</div>
       <div class="win-subtitle">
-        The last piece of memory has finally come home.<br/>
-        The place on the map and the moment in your heart now match.
+        The last piece of memory has finally come home.
       </div>
       <div class="win-place" id="win-place"></div>
 
@@ -532,7 +503,6 @@
     </div>
   </div>
 
-  <!-- 🔔 Win sound -->
   <audio id="gift-sound" src="win.m4a" preload="auto"></audio>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -554,7 +524,6 @@
     const hintStepLock = document.getElementById("hint-step-lock");
     const hintStepText = document.getElementById("hint-step-text");
 
-    // Each wheel stores an index 0-25
     const wheelPositions = new Array(NUM_WHEELS).fill(0);
 
     function clampWheel(i) {
@@ -573,64 +542,71 @@
       if (type) hintMessage.classList.add(type);
     }
 
-    function bumpLetter(el, direction) {
-      // tiny visual nudge to feel "rolling"
-      el.style.transform = `translateY(${direction > 0 ? -6 : 6}px)`;
-      setTimeout(() => { el.style.transform = "translateY(0)"; }, 70);
-    }
-
     function createScrollWheel(index) {
       const wheel = document.createElement("div");
       wheel.className = "wheel";
+
+      const windowLine = document.createElement("div");
+      windowLine.className = "window-line";
 
       const letterEl = document.createElement("div");
       letterEl.className = "wheel-letter";
       letterEl.textContent = letters[wheelPositions[index]];
 
-      // Mouse wheel scroll
-      wheel.addEventListener("wheel", (e) => {
-        e.preventDefault();
-        const direction = e.deltaY > 0 ? -1 : 1; // scroll down -> previous; scroll up -> next
+      function step(direction) {
         wheelPositions[index] = clampWheel(wheelPositions[index] + direction);
         letterEl.textContent = letters[wheelPositions[index]];
-        bumpLetter(letterEl, direction);
+        letterEl.style.transform = `translateY(${direction > 0 ? -8 : 8}px)`;
+        setTimeout(() => (letterEl.style.transform = "translateY(0)"), 60);
+      }
+
+      wheel.addEventListener("wheel", (e) => {
+        e.preventDefault();
+        const direction = e.deltaY > 0 ? -1 : 1;
+        step(direction);
       }, { passive: false });
 
-      // Touch / drag up-down
-      let startY = null;
-      let lastY = null;
+      const STEP_PX = 14;
+      let dragging = false;
+      let lastY = 0;
+      let accumulatedDy = 0;
 
       wheel.addEventListener("pointerdown", (e) => {
+        dragging = true;
         wheel.setPointerCapture(e.pointerId);
-        startY = e.clientY;
         lastY = e.clientY;
+        accumulatedDy = 0;
+        e.preventDefault();
       });
 
       wheel.addEventListener("pointermove", (e) => {
-        if (startY === null) return;
+        if (!dragging) return;
+        e.preventDefault();
+
         const dy = e.clientY - lastY;
         lastY = e.clientY;
+        accumulatedDy += dy;
 
-        // Every ~10px move triggers one "step"
-        const step = 10;
-        if (Math.abs(dy) >= step) {
-          const direction = dy < 0 ? 1 : -1; // drag up => next; drag down => previous
-          wheelPositions[index] = clampWheel(wheelPositions[index] + direction);
-          letterEl.textContent = letters[wheelPositions[index]];
-          bumpLetter(letterEl, direction);
+        while (accumulatedDy <= -STEP_PX) {
+          step(+1);
+          accumulatedDy += STEP_PX;
+        }
+        while (accumulatedDy >= STEP_PX) {
+          step(-1);
+          accumulatedDy -= STEP_PX;
         }
       });
 
-      wheel.addEventListener("pointerup", () => {
-        startY = null;
-        lastY = null;
-      });
+      function endDrag() {
+        dragging = false;
+        accumulatedDy = 0;
+      }
 
-      wheel.addEventListener("pointercancel", () => {
-        startY = null;
-        lastY = null;
-      });
+      wheel.addEventListener("pointerup", endDrag);
+      wheel.addEventListener("pointercancel", endDrag);
+      wheel.addEventListener("pointerleave", endDrag);
 
+      wheel.appendChild(windowLine);
       wheel.appendChild(letterEl);
       return wheel;
     }
@@ -646,7 +622,7 @@
         hintStepLock.style.display = "none";
         hintStepText.style.display = "block";
       } else {
-        showHintMessage("That’s not quite the right word yet… try again please.", "error");
+        showHintMessage("Not quite… try again.", "error");
       }
     });
 
@@ -664,15 +640,11 @@
       lng: 139.630649
     };
 
-    // Leaflet map (non repeating world)
     const map = L.map("map", {
       minZoom: 2,
       maxZoom: 18,
       worldCopyJump: false,
-      maxBounds: [
-        [-90, -180],
-        [90, 180]
-      ],
+      maxBounds: [[-90, -180],[90, 180]],
       maxBoundsViscosity: 1.0
     }).setView([20, 0], 2);
 
@@ -740,23 +712,21 @@
     }
 
     function randomLatLngNotNear(targetLat, targetLng) {
-      // pick a random place on Earth but not too close to target
-      for (let tries = 0; tries < 50; tries++) {
-        const lat = (Math.random() * 170) - 85;    // -85..85 to avoid poles
-        const lng = (Math.random() * 360) - 180;   // -180..180
+      for (let tries = 0; tries < 60; tries++) {
+        const lat = (Math.random() * 170) - 85;
+        const lng = (Math.random() * 360) - 180;
         const dLat = lat - targetLat;
         const dLng = lng - targetLng;
         const dist = Math.sqrt(dLat*dLat + dLng*dLng);
-        if (dist > 10) return { lat, lng }; // far away
+        if (dist > 10) return { lat, lng };
       }
       return { lat: 0, lng: 0 };
     }
 
     function isCorrectGuess(lat, lng) {
-      // Your puzzle is “missing prefix digits”, so exact match is fine,
-      // but we also allow a tiny tolerance just in case.
-      const tol = 0.00005; // ~5m-10m-ish depending latitude
-      return Math.abs(lat - targetRestaurant.lat) <= tol && Math.abs(lng - targetRestaurant.lng) <= tol;
+      const tol = 0.00005;
+      return Math.abs(lat - targetRestaurant.lat) <= tol &&
+             Math.abs(lng - targetRestaurant.lng) <= tol;
     }
 
     function showWin() {
@@ -764,18 +734,23 @@
       winOverlay.style.display = "flex";
     }
 
+    function sanitizeDigits(el) {
+      el.value = el.value.replace(/[^\d]/g, "");
+    }
+    latPrefixEl.addEventListener("input", () => sanitizeDigits(latPrefixEl));
+    lngPrefixEl.addEventListener("input", () => sanitizeDigits(lngPrefixEl));
+
     searchBtn.addEventListener("click", () => {
       if (giftFound) return;
 
       const latPrefix = (latPrefixEl.value || "").trim();
       const lngPrefix = (lngPrefixEl.value || "").trim();
 
-      // Basic validation (digits only)
       if (!/^\d{2}$/.test(latPrefix) || !/^\d{3}$/.test(lngPrefix)) {
         setResult(
           "bad",
           "Input not complete",
-          "Latitude needs 2 digits, Longitude needs 3 digits. Example: 35 and 139.",
+          "Latitude needs 2 digits; Longitude needs 3 digits.",
           false
         );
         return;
@@ -784,11 +759,9 @@
       const lat = parseFloat(`${latPrefix}.442006`);
       const lng = parseFloat(`${lngPrefix}.630649`);
 
-      // Remove old marker
       clearGuessMarker();
 
       if (isCorrectGuess(lat, lng)) {
-        // Correct: zoom to real place, show name + pictures + win overlay
         const ll = L.latLng(lat, lng);
         map.setView(ll, 18);
 
@@ -806,7 +779,6 @@
         lockMap();
         showWin();
       } else {
-        // Wrong: jump to random place, show try again
         const rnd = randomLatLngNotNear(targetRestaurant.lat, targetRestaurant.lng);
         const ll = L.latLng(rnd.lat, rnd.lng);
         map.setView(ll, 5);
