@@ -5,6 +5,7 @@
 <title>Memory Door · Level 33</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
+<!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Shippori+Mincho:wght@500;700&family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
@@ -15,26 +16,48 @@
   --ui-font: "Inter", "Zen Maru Gothic", system-ui, sans-serif;
 }
 
+/* ================== BASE ================== */
 html,body{
-  margin:0; padding:0; height:100%;
+  margin:0;
+  padding:0;
+  height:100%;
   background:#000;
   overflow:hidden;
   font-family:var(--ui-font);
 }
 
-#intro{ position:fixed; inset:0; background:#000; }
-
-/* ===== Title ===== */
-#title-layer{
-  position:absolute; inset:0;
-  display:flex; align-items:center; justify-content:center;
-  text-align:center; color:#fff;
-  z-index:10; pointer-events:none;
-  transition:opacity .4s ease;
-  background: radial-gradient(circle at 50% 35%, rgba(255,255,255,.12), rgba(0,0,0,.90) 65%);
+/* ================== INTRO ================== */
+#intro{
+  position:fixed;
+  inset:0;
+  background:#000;
 }
-.title-wrap{ max-width:780px; padding:24px; }
-.kicker{ letter-spacing:.35em; font-size:12px; opacity:.75; margin-bottom:16px; }
+
+/* ---------- Title ---------- */
+#title-layer{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  color:#fff;
+  z-index:3;
+  pointer-events:none;
+  transition:opacity .4s ease;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(255,255,255,.12), rgba(0,0,0,.9) 65%);
+}
+
+.title-wrap{ max-width:760px; padding:24px; }
+
+.kicker{
+  letter-spacing:.35em;
+  font-size:12px;
+  opacity:.75;
+  margin-bottom:16px;
+}
+
 .title{
   font-family:var(--title-font);
   font-size:clamp(44px,6vw,68px);
@@ -42,13 +65,37 @@ html,body{
   line-height:1.05;
   text-shadow:0 20px 80px rgba(0,0,0,.8);
 }
-.subtitle{ margin-top:14px; font-size:14px; opacity:.8; }
-.scroll{ margin-top:26px; display:flex; flex-direction:column; align-items:center; gap:10px; opacity:.9; }
-.scroll-mouse{ width:22px;height:34px; border-radius:999px; border:1px solid rgba(255,255,255,.45); position:relative; }
+
+.subtitle{
+  margin-top:14px;
+  font-size:14px;
+  opacity:.8;
+}
+
+/* Scroll indicator */
+.scroll{
+  margin-top:26px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  opacity:.9;
+}
+.scroll-mouse{
+  width:22px;height:34px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.45);
+  position:relative;
+}
 .scroll-mouse::after{
-  content:""; position:absolute; left:50%; top:6px;
-  width:3px; height:6px; border-radius:999px; background:#fff;
-  transform:translateX(-50%); animation:wheel 1.2s infinite;
+  content:"";
+  position:absolute;
+  left:50%;top:6px;
+  width:3px;height:6px;
+  border-radius:999px;
+  background:#fff;
+  transform:translateX(-50%);
+  animation:wheel 1.2s infinite;
 }
 @keyframes wheel{
   0%{opacity:.2;transform:translate(-50%,0)}
@@ -56,154 +103,129 @@ html,body{
   100%{opacity:.2;transform:translate(-50%,10px)}
 }
 
-/* ===== Scene ===== */
+/* ================== SCENE ================== */
 #scene{
-  position:absolute; inset:0;
-  opacity:0; transition:opacity .5s ease;
-}
-
-/* camera is transformed -> no drift */
-#camera{
-  position:absolute; inset:0;
-  transform-origin:50% 50%;
-  will-change:transform;
+  position:absolute;
+  inset:0;
+  opacity:0;
+  transition:opacity .5s ease;
 }
 
 #scene-img{
   width:100%;
   height:100%;
   object-fit:cover;
-  display:block;
+  transform-origin:50% 50%;
+  will-change:transform;
 }
 
-/* ===== Hotspots ===== */
+/* ================== HOTSPOTS ================== */
 .hotspot{
   position:absolute;
   border:none;
   background:transparent;
   cursor:pointer;
-  z-index:2;
+  z-index:4;
 }
 
-/* Door hotspot (invisible) */
-.hotspot.door{ background: rgba(255,255,255,0); }
-
-/* Bell hotspot (invisible; not weird) */
-.hotspot.bell{ background: rgba(255,255,255,0); }
-
-/* ===== Elegant bell marker (visible, small, pretty) ===== */
-#bell-marker{
-  position:absolute;
-  z-index:3;
-  transform: translate(-50%,-50%);
-  pointer-events:none;
-  display:flex;
-  align-items:center;
-  gap:8px;
+/* Door */
+#door-hotspot{
+  left:34%;
+  top:18%;
+  width:28%;
+  height:66%;
 }
 
-.bell-dot{
-  width:18px; height:18px;
-  border-radius:999px;
-  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(255,210,150,.55) 50%, rgba(255,255,255,0) 70%);
-  box-shadow: 0 10px 30px rgba(0,0,0,.35);
-  position:relative;
+/* Bell – visible + pulsing */
+#bell-hotspot{
+  left:56%;
+  top:43%;
+  width:9%;
+  height:14%;
+  border-radius:16px;
+  background:radial-gradient(circle at 40% 35%,
+    rgba(255,255,255,.35),
+    rgba(255,255,255,.08) 55%,
+    rgba(255,255,255,0) 70%);
+  animation:bellPulse 1.6s ease-in-out infinite;
 }
-.bell-dot::after{
-  content:"";
-  position:absolute;
-  inset:-10px;
-  border-radius:999px;
-  border:1px solid rgba(255,220,160,.22);
-  animation: ring 1.6s ease-in-out infinite;
-}
-@keyframes ring{
-  0%{ transform: scale(0.85); opacity:.15; }
-  50%{ transform: scale(1.15); opacity:.35; }
-  100%{ transform: scale(0.85); opacity:.15; }
+@keyframes bellPulse{
+  0%{box-shadow:0 0 0 0 rgba(255,210,140,0)}
+  50%{box-shadow:0 0 28px 6px rgba(255,210,140,.28)}
+  100%{box-shadow:0 0 0 0 rgba(255,210,140,0)}
 }
 
-.bell-text{
-  font-size:12px;
-  color: rgba(255,255,255,.92);
-  background: rgba(0,0,0,.38);
-  border: 1px solid rgba(255,255,255,.14);
-  padding: 8px 10px;
-  border-radius: 999px;
-  backdrop-filter: blur(6px);
-}
-
-/* ===== Lock panel (smaller + has exit) ===== */
+/* ================== LOCK (ON DOOR) ================== */
 #door-lock{
   position:absolute;
-  z-index:5;
+  left:50%;
+  top:38%;
+  transform:translate(-50%,-50%);
+  width:min(440px,92vw);
+  background:rgba(255,255,255,.9);
+  border-radius:18px;
+  padding:14px;
   display:none;
-  width: min(320px, 76vw);
-  padding: 12px 12px 10px;
-  border-radius: 16px;
-  background: rgba(255,255,255,.90);
-  border: 1px solid rgba(255,255,255,.45);
-  box-shadow: 0 24px 70px rgba(0,0,0,.42);
-  backdrop-filter: blur(10px);
+  z-index:6;
+  box-shadow:0 30px 90px rgba(0,0,0,.45);
+  backdrop-filter:blur(10px);
 }
 
 #door-lock.show{ display:block; }
 
-.lock-top{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
+.lock-title{
+  font-family:"Zen Maru Gothic";
+  font-weight:700;
+  font-size:16px;
   margin-bottom:6px;
 }
 
-.lock-title{
-  font-family:"Zen Maru Gothic";
-  font-weight:800;
-  font-size:14px;
-  color:#111827;
-}
-
-.lock-close{
-  width:32px; height:32px;
-  border-radius:999px;
-  border: 1px solid rgba(17,24,39,.10);
-  background: rgba(17,24,39,.05);
-  cursor:pointer;
-  font-weight:900;
-}
-
-.lock-sub{ font-size:12px; color:#374151; margin-bottom:8px; }
+.lock-sub{ font-size:13px; opacity:.8; }
 
 .lock-wheels{
-  display:flex; justify-content:center;
-  gap:10px; margin: 8px 0 8px;
+  display:flex;
+  justify-content:center;
+  gap:12px;
+  margin:12px 0;
 }
+
 .wheel{
-  width:42px; height:64px;
+  width:52px;height:78px;
   border-radius:14px;
   background:linear-gradient(#eef2ff,#dbeafe);
   border:1px solid #bfdbfe;
-  display:flex; align-items:center; justify-content:center;
-  font-family:"Zen Maru Gothic"; font-size:22px; font-weight:900;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:"Zen Maru Gothic";
+  font-size:26px;
+  font-weight:800;
   cursor:grab;
-  user-select:none;
 }
+
 .unlock-btn{
+  margin-top:6px;
   width:100%;
-  padding:9px 12px;
+  padding:10px;
   border-radius:999px;
   border:none;
-  font-weight:900;
+  font-weight:800;
   cursor:pointer;
   background:linear-gradient(135deg,#fde68a,#fb923c);
 }
-.hint-message{ margin-top:8px; color:#b91c1c; font-weight:800; min-height:16px; font-size:12px; }
 
-/* Toast */
+.hint-message{
+  margin-top:8px;
+  color:#b91c1c;
+  font-weight:700;
+  min-height:18px;
+}
+
+/* ================== TOAST ================== */
 #toast{
   position:absolute;
-  left:50%; bottom:28px;
+  left:50%;
+  bottom:32px;
   transform:translateX(-50%);
   padding:10px 14px;
   background:rgba(0,0,0,.6);
@@ -212,13 +234,14 @@ html,body{
   font-size:14px;
   opacity:0;
   transition:.2s;
-  z-index:20;
+  z-index:7;
 }
 #toast.show{ opacity:1; transform:translate(-50%,-6px); }
 </style>
 </head>
 
 <body>
+
 <div id="intro">
 
   <div id="title-layer">
@@ -226,215 +249,124 @@ html,body{
       <div class="kicker">LEVEL 33</div>
       <div class="title">Memory Door</div>
       <div class="subtitle">Scroll to approach.</div>
-      <div class="scroll"><div class="scroll-mouse"></div></div>
+      <div class="scroll">
+        <div class="scroll-mouse"></div>
+      </div>
     </div>
   </div>
 
   <div id="scene">
-    <div id="camera">
-      <img id="scene-img" src="door-bg.jpg" alt="Door hallway background"/>
+    <img id="scene-img" src="door-bg.jpg" />
 
-      <button id="door-hotspot" class="hotspot door" aria-label="Door"></button>
-      <button id="bell-hotspot" class="hotspot bell" aria-label="Doorbell"></button>
+    <button id="door-hotspot" class="hotspot"></button>
+    <button id="bell-hotspot" class="hotspot"></button>
 
-      <!-- Pretty marker that indicates where the bell is -->
-      <div id="bell-marker" aria-hidden="true">
-        <div class="bell-dot"></div>
-        <div class="bell-text">click</div>
-      </div>
-
-      <div id="door-lock" aria-hidden="true">
-        <div class="lock-top">
-          <div class="lock-title">It’s locked.</div>
-          <button id="lock-close" class="lock-close" aria-label="Close">✕</button>
-        </div>
-        <div class="lock-sub">Enter the first code.</div>
-        <div class="lock-wheels" id="lock-wheels"></div>
-        <button class="unlock-btn" id="unlock-btn">Unlock</button>
-        <div class="hint-message" id="hint-message"></div>
-      </div>
+    <div id="door-lock">
+      <div class="lock-title">It’s locked.</div>
+      <div class="lock-sub">Enter the first code.</div>
+      <div class="lock-wheels" id="lock-wheels"></div>
+      <button class="unlock-btn" id="unlock-btn">Unlock</button>
+      <div class="hint-message" id="hint-message"></div>
     </div>
 
-    <div id="toast" role="status" aria-live="polite"></div>
+    <div id="toast"></div>
   </div>
 </div>
 
 <audio id="song" src="song.m4a" preload="auto"></audio>
 
 <script>
-/* ===================== CONFIG ===================== */
-const CFG = {
-  code: "MEMORY",
-  focus: { x: 0.44, y: 0.52 },
-  zoomMax: 1.85,
+/* ================= CONFIG ================= */
+const CODE = "MEMORY";   // change freely
+const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+const DOOR_FOCUS = { x:0.44, y:0.52 };
+const ZOOM_MAX = 2.6;
 
-  // Door hotspot (normalized 0..1 in camera)
-  door: { x: 0.34, y: 0.18, w: 0.28, h: 0.66 },
-
-  // Bell hotspot: set this to be above the white light switch
-  bell: { x: 0.60, y: 0.46, w: 0.06, h: 0.09 },
-
-  // Where lock panel sits on the door
-  lock: { x: 0.50, y: 0.44 },
-
-  // Where the marker sits (usually same as bell center, slightly above)
-  bellMarker: { x: 0.60, y: 0.45 }
-};
-
-/* ===================== ELEMENTS ===================== */
-const scene = document.getElementById("scene");
-const titleLayer = document.getElementById("title-layer");
-const camera = document.getElementById("camera");
-
-const doorBtn = document.getElementById("door-hotspot");
-const bellBtn = document.getElementById("bell-hotspot");
-const bellMarker = document.getElementById("bell-marker");
-
-const lockPanel = document.getElementById("door-lock");
-const lockClose = document.getElementById("lock-close");
-const wheelsEl = document.getElementById("lock-wheels");
-const unlockBtn = document.getElementById("unlock-btn");
-const hintMsg = document.getElementById("hint-message");
-
-const toast = document.getElementById("toast");
-const song = document.getElementById("song");
-
-/* ===================== STATE ===================== */
+/* ================= STATE ================= */
 let progress = 0;
 let lockOpen = false;
 
-/* ===================== HELPERS ===================== */
-function clamp01(v){ return Math.max(0, Math.min(1, v)); }
-function showToast(msg){
-  toast.textContent = msg;
-  toast.classList.add("show");
-  setTimeout(() => toast.classList.remove("show"), 900);
-}
+/* ================= ELEMENTS ================= */
+const scene = document.getElementById("scene");
+const titleLayer = document.getElementById("title-layer");
+const img = document.getElementById("scene-img");
+const door = document.getElementById("door-hotspot");
+const bell = document.getElementById("bell-hotspot");
+const lock = document.getElementById("door-lock");
+const toast = document.getElementById("toast");
+const song = document.getElementById("song");
 
-function setRect(el, r){
-  el.style.left   = (r.x * 100) + "%";
-  el.style.top    = (r.y * 100) + "%";
-  el.style.width  = (r.w * 100) + "%";
-  el.style.height = (r.h * 100) + "%";
-}
-
-function setPoint(el, p){
-  el.style.left = (p.x * 100) + "%";
-  el.style.top  = (p.y * 100) + "%";
-  el.style.transform = "translate(-50%, -50%)";
-}
-
-/* Position everything once */
-setRect(doorBtn, CFG.door);
-setRect(bellBtn, CFG.bell);
-setPoint(lockPanel, CFG.lock);
-setPoint(bellMarker, CFG.bellMarker);
-
-/* ===================== CAMERA ===================== */
+/* ================= CAMERA ================= */
 function applyCamera(){
-  const show = clamp01((progress - 0.10) / 0.30);
-  scene.style.opacity = show.toFixed(3);
-  titleLayer.style.opacity = (1 - show).toFixed(3);
+  const show = Math.min(1, Math.max(0,(progress-.1)/.3));
+  scene.style.opacity = show;
+  titleLayer.style.opacity = 1-show;
 
-  const t = clamp01(progress);
-  const zoom = 1 + (CFG.zoomMax - 1) * (t * t);
+  const t = Math.min(1, Math.max(0,progress));
+  const zoom = 1 + (ZOOM_MAX-1)*t*t;
 
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-  const dx = (0.5 - CFG.focus.x) * vw * (zoom - 1);
-  const dy = (0.5 - CFG.focus.y) * vh * (zoom - 1);
+  const dx = (0.5-DOOR_FOCUS.x)*window.innerWidth*(zoom-1);
+  const dy = (0.5-DOOR_FOCUS.y)*window.innerHeight*(zoom-1);
 
-  camera.style.transform = `translate(${dx}px, ${dy}px) scale(${zoom})`;
+  img.style.transform = `translate(${dx}px,${dy}px) scale(${zoom})`;
 }
 
-window.addEventListener("resize", applyCamera);
-
-window.addEventListener("wheel", (e) => {
-  if (lockOpen) return;          // freeze zoom when lock open
+window.addEventListener("wheel",e=>{
+  if(lockOpen) return;
   e.preventDefault();
-  progress = clamp01(progress - e.deltaY * 0.0007);
+  progress = Math.max(0,Math.min(1,progress - e.deltaY*0.0007));
   applyCamera();
-}, { passive:false });
+},{passive:false});
 
 applyCamera();
 
-/* ===================== LOCK OPEN/CLOSE ===================== */
-function openLock(){
-  lockOpen = true;
-  lockPanel.classList.add("show");
-  lockPanel.setAttribute("aria-hidden", "false");
-  hintMsg.textContent = "";
+/* ================= UI ================= */
+function showToast(msg){
+  toast.textContent = msg;
+  toast.classList.add("show");
+  setTimeout(()=>toast.classList.remove("show"),900);
 }
 
-function closeLock(){
-  lockOpen = false;
-  lockPanel.classList.remove("show");
-  lockPanel.setAttribute("aria-hidden", "true");
-  hintMsg.textContent = "";
-}
-
-lockClose.addEventListener("click", closeLock);
-window.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && lockOpen) closeLock();
-});
-
-/* Click outside lock panel closes it (but not when clicking wheels etc.) */
-camera.addEventListener("pointerdown", (e) => {
-  if (!lockOpen) return;
-  const clickedInside = lockPanel.contains(e.target);
-  const clickedDoor = doorBtn.contains(e.target);
-  const clickedBell = bellBtn.contains(e.target);
-  if (!clickedInside && !clickedDoor && !clickedBell) closeLock();
-});
-
-/* ===================== INTERACTIONS ===================== */
-bellBtn.addEventListener("click", () => {
+bell.onclick = ()=>{
   showToast("🔔 Ding...");
-  try{
-    song.currentTime = 0;
-    song.play().catch(()=>{});
-  }catch(_){}
-});
+  song.currentTime = 0;
+  song.play().catch(()=>{});
+};
 
-doorBtn.addEventListener("click", () => {
+door.onclick = ()=>{
   showToast("The door is closed.");
-  openLock();
-});
+  lock.style.display = "block";
+  lockOpen = true;
+};
 
-/* ===================== LOCK WHEELS ===================== */
-const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-const CODE = CFG.code.toUpperCase();
-const wheelState = new Array(CODE.length).fill(0);
-
-function buildWheels(){
-  wheelsEl.innerHTML = "";
-  for(let i=0; i<CODE.length; i++){
-    const w = document.createElement("div");
-    w.className = "wheel";
-    w.textContent = letters[wheelState[i]];
-
-    w.addEventListener("wheel", (e) => {
-      e.preventDefault();
-      const dir = (e.deltaY > 0) ? -1 : 1;
-      wheelState[i] = (wheelState[i] + dir + 26) % 26;
-      w.textContent = letters[wheelState[i]];
-    }, { passive:false });
-
-    wheelsEl.appendChild(w);
-  }
+/* ================= LOCK ================= */
+const wheels = [];
+const container = document.getElementById("lock-wheels");
+for(let i=0;i<CODE.length;i++){
+  let pos = 0;
+  const w = document.createElement("div");
+  w.className="wheel";
+  w.textContent = letters[pos];
+  w.onwheel = e=>{
+    e.preventDefault();
+    pos = (pos + (e.deltaY>0?-1:1)+26)%26;
+    w.textContent = letters[pos];
+    wheels[i]=letters[pos];
+  };
+  container.appendChild(w);
+  wheels.push(letters[pos]);
 }
-function enteredCode(){ return wheelState.map(i => letters[i]).join(""); }
 
-buildWheels();
-
-unlockBtn.addEventListener("click", () => {
-  if (enteredCode() === CODE){
+document.getElementById("unlock-btn").onclick = ()=>{
+  if(wheels.join("")===CODE){
     showToast("Unlocked.");
-    closeLock();
-  } else {
-    hintMsg.textContent = "Not quite…";
+    lock.style.display="none";
+    lockOpen=false;
+  }else{
+    document.getElementById("hint-message").textContent="Not quite…";
   }
-});
+};
 </script>
+
 </body>
 </html>
