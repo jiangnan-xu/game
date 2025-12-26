@@ -62,14 +62,13 @@ html,body{
   opacity:0; transition:opacity .5s ease;
 }
 
-/* IMPORTANT: camera is the transformed layer */
+/* camera is transformed -> no drift */
 #camera{
   position:absolute; inset:0;
-  transform-origin: 50% 50%;
-  will-change: transform;
+  transform-origin:50% 50%;
+  will-change:transform;
 }
 
-/* Background image stays inside camera */
 #scene-img{
   width:100%;
   height:100%;
@@ -77,7 +76,7 @@ html,body{
   display:block;
 }
 
-/* Hotspots are INSIDE camera => no drifting */
+/* ===== Hotspots ===== */
 .hotspot{
   position:absolute;
   border:none;
@@ -86,42 +85,60 @@ html,body{
   z-index:2;
 }
 
-/* Doorbell hotspot: visible glow + pulse (findable) */
-.hotspot.bell{
-  border-radius:16px;
-  background:radial-gradient(circle at 40% 35%,
-    rgba(255,255,255,.35),
-    rgba(255,255,255,.08) 55%,
-    rgba(255,255,255,0) 70%);
-  animation:bellPulse 1.6s ease-in-out infinite;
-}
-@keyframes bellPulse{
-  0%{box-shadow:0 0 0 0 rgba(255,210,140,0)}
-  50%{box-shadow:0 0 28px 6px rgba(255,210,140,.28)}
-  100%{box-shadow:0 0 0 0 rgba(255,210,140,0)}
-}
+/* Door hotspot (invisible) */
+.hotspot.door{ background: rgba(255,255,255,0); }
 
-/* Hint (no music UI) */
-#bell-hint{
+/* Bell hotspot (invisible; not weird) */
+.hotspot.bell{ background: rgba(255,255,255,0); }
+
+/* ===== Elegant bell marker (visible, small, pretty) ===== */
+#bell-marker{
   position:absolute;
   z-index:3;
-  padding:10px 12px;
-  border-radius:999px;
-  color: rgba(255,255,255,0.92);
-  background: rgba(0,0,0,0.42);
-  border: 1px solid rgba(255,255,255,0.18);
-  box-shadow: 0 16px 60px rgba(0,0,0,0.55);
-  font-size: 13px;
-  backdrop-filter: blur(6px);
+  transform: translate(-50%,-50%);
   pointer-events:none;
+  display:flex;
+  align-items:center;
+  gap:8px;
 }
 
-/* ===== Smaller lock panel (on door) ===== */
+.bell-dot{
+  width:18px; height:18px;
+  border-radius:999px;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(255,210,150,.55) 50%, rgba(255,255,255,0) 70%);
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  position:relative;
+}
+.bell-dot::after{
+  content:"";
+  position:absolute;
+  inset:-10px;
+  border-radius:999px;
+  border:1px solid rgba(255,220,160,.22);
+  animation: ring 1.6s ease-in-out infinite;
+}
+@keyframes ring{
+  0%{ transform: scale(0.85); opacity:.15; }
+  50%{ transform: scale(1.15); opacity:.35; }
+  100%{ transform: scale(0.85); opacity:.15; }
+}
+
+.bell-text{
+  font-size:12px;
+  color: rgba(255,255,255,.92);
+  background: rgba(0,0,0,.38);
+  border: 1px solid rgba(255,255,255,.14);
+  padding: 8px 10px;
+  border-radius: 999px;
+  backdrop-filter: blur(6px);
+}
+
+/* ===== Lock panel (smaller + has exit) ===== */
 #door-lock{
   position:absolute;
-  z-index:4;
+  z-index:5;
   display:none;
-  width: min(320px, 76vw); /* smaller */
+  width: min(320px, 76vw);
   padding: 12px 12px 10px;
   border-radius: 16px;
   background: rgba(255,255,255,.90);
@@ -129,15 +146,33 @@ html,body{
   box-shadow: 0 24px 70px rgba(0,0,0,.42);
   backdrop-filter: blur(10px);
 }
+
 #door-lock.show{ display:block; }
+
+.lock-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:6px;
+}
 
 .lock-title{
   font-family:"Zen Maru Gothic";
   font-weight:800;
   font-size:14px;
   color:#111827;
-  margin-bottom:6px;
 }
+
+.lock-close{
+  width:32px; height:32px;
+  border-radius:999px;
+  border: 1px solid rgba(17,24,39,.10);
+  background: rgba(17,24,39,.05);
+  cursor:pointer;
+  font-weight:900;
+}
+
 .lock-sub{ font-size:12px; color:#374151; margin-bottom:8px; }
 
 .lock-wheels{
@@ -145,7 +180,7 @@ html,body{
   gap:10px; margin: 8px 0 8px;
 }
 .wheel{
-  width:42px; height:64px; /* smaller wheels */
+  width:42px; height:64px;
   border-radius:14px;
   background:linear-gradient(#eef2ff,#dbeafe);
   border:1px solid #bfdbfe;
@@ -196,20 +231,23 @@ html,body{
   </div>
 
   <div id="scene">
-    <!-- Everything that must stay aligned goes inside #camera -->
     <div id="camera">
       <img id="scene-img" src="door-bg.jpg" alt="Door hallway background"/>
 
-      <!-- Hotspots (positions set from JS config) -->
       <button id="door-hotspot" class="hotspot door" aria-label="Door"></button>
       <button id="bell-hotspot" class="hotspot bell" aria-label="Doorbell"></button>
 
-      <!-- Hint bubble (positioned near bell from JS config) -->
-      <div id="bell-hint">🔔 Tip: click the doorbell.</div>
+      <!-- Pretty marker that indicates where the bell is -->
+      <div id="bell-marker" aria-hidden="true">
+        <div class="bell-dot"></div>
+        <div class="bell-text">click</div>
+      </div>
 
-      <!-- Lock panel (positioned on door from JS config) -->
       <div id="door-lock" aria-hidden="true">
-        <div class="lock-title">It’s locked.</div>
+        <div class="lock-top">
+          <div class="lock-title">It’s locked.</div>
+          <button id="lock-close" class="lock-close" aria-label="Close">✕</button>
+        </div>
         <div class="lock-sub">Enter the first code.</div>
         <div class="lock-wheels" id="lock-wheels"></div>
         <button class="unlock-btn" id="unlock-btn">Unlock</button>
@@ -225,20 +263,22 @@ html,body{
 
 <script>
 /* ===================== CONFIG ===================== */
-/* Tune these once, everything stays aligned (no 移位). */
 const CFG = {
-  code: "MEMORY",                // 6 letters here; wheels auto-match length
-  focus: { x: 0.44, y: 0.52 },    // zoom focus point (door)
-  zoomMax: 1.85,                 // clamp zoom so it doesn't get too big
+  code: "MEMORY",
+  focus: { x: 0.44, y: 0.52 },
+  zoomMax: 1.85,
 
-  // Door hotspot (in normalized camera coords 0..1)
+  // Door hotspot (normalized 0..1 in camera)
   door: { x: 0.34, y: 0.18, w: 0.28, h: 0.66 },
 
-  // Doorbell hotspot: "above the white light switch" -> adjust x,y to match your image
-  bell: { x: 0.56, y: 0.43, w: 0.09, h: 0.14 },
+  // Bell hotspot: set this to be above the white light switch
+  bell: { x: 0.60, y: 0.46, w: 0.06, h: 0.09 },
 
-  // Lock panel position (on door). Smaller and anchored.
-  lock: { x: 0.50, y: 0.42 } // center-ish on door; adjust
+  // Where lock panel sits on the door
+  lock: { x: 0.50, y: 0.44 },
+
+  // Where the marker sits (usually same as bell center, slightly above)
+  bellMarker: { x: 0.60, y: 0.45 }
 };
 
 /* ===================== ELEMENTS ===================== */
@@ -248,9 +288,10 @@ const camera = document.getElementById("camera");
 
 const doorBtn = document.getElementById("door-hotspot");
 const bellBtn = document.getElementById("bell-hotspot");
-const bellHint = document.getElementById("bell-hint");
+const bellMarker = document.getElementById("bell-marker");
 
 const lockPanel = document.getElementById("door-lock");
+const lockClose = document.getElementById("lock-close");
 const wheelsEl = document.getElementById("lock-wheels");
 const unlockBtn = document.getElementById("unlock-btn");
 const hintMsg = document.getElementById("hint-message");
@@ -259,8 +300,8 @@ const toast = document.getElementById("toast");
 const song = document.getElementById("song");
 
 /* ===================== STATE ===================== */
-let progress = 0;       // 0..1
-let lockOpen = false;   // when true, zoom is frozen
+let progress = 0;
+let lockOpen = false;
 
 /* ===================== HELPERS ===================== */
 function clamp01(v){ return Math.max(0, Math.min(1, v)); }
@@ -283,49 +324,68 @@ function setPoint(el, p){
   el.style.transform = "translate(-50%, -50%)";
 }
 
-/* Place hotspots + hint + lock once (in camera coords) */
+/* Position everything once */
 setRect(doorBtn, CFG.door);
 setRect(bellBtn, CFG.bell);
-
-// hint bubble sits to the right of the bell
-bellHint.style.left = ((CFG.bell.x + CFG.bell.w + 0.01) * 100) + "%";
-bellHint.style.top  = ((CFG.bell.y + CFG.bell.h * 0.25) * 100) + "%";
-bellHint.style.transform = "translateY(-50%)";
-
-// lock panel anchored by center point on the door
 setPoint(lockPanel, CFG.lock);
+setPoint(bellMarker, CFG.bellMarker);
 
-/* ===================== CAMERA (NO DRIFT) ===================== */
+/* ===================== CAMERA ===================== */
 function applyCamera(){
-  // fade title -> scene
   const show = clamp01((progress - 0.10) / 0.30);
   scene.style.opacity = show.toFixed(3);
   titleLayer.style.opacity = (1 - show).toFixed(3);
 
-  // zoom curve
   const t = clamp01(progress);
   const zoom = 1 + (CFG.zoomMax - 1) * (t * t);
 
-  // pan to focus
   const vw = window.innerWidth;
   const vh = window.innerHeight;
   const dx = (0.5 - CFG.focus.x) * vw * (zoom - 1);
   const dy = (0.5 - CFG.focus.y) * vh * (zoom - 1);
 
-  // transform camera (image + hotspots + lock all together)
   camera.style.transform = `translate(${dx}px, ${dy}px) scale(${zoom})`;
 }
 
 window.addEventListener("resize", applyCamera);
 
 window.addEventListener("wheel", (e) => {
-  if (lockOpen) return;       // freeze zoom when lock open
+  if (lockOpen) return;          // freeze zoom when lock open
   e.preventDefault();
   progress = clamp01(progress - e.deltaY * 0.0007);
   applyCamera();
 }, { passive:false });
 
 applyCamera();
+
+/* ===================== LOCK OPEN/CLOSE ===================== */
+function openLock(){
+  lockOpen = true;
+  lockPanel.classList.add("show");
+  lockPanel.setAttribute("aria-hidden", "false");
+  hintMsg.textContent = "";
+}
+
+function closeLock(){
+  lockOpen = false;
+  lockPanel.classList.remove("show");
+  lockPanel.setAttribute("aria-hidden", "true");
+  hintMsg.textContent = "";
+}
+
+lockClose.addEventListener("click", closeLock);
+window.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && lockOpen) closeLock();
+});
+
+/* Click outside lock panel closes it (but not when clicking wheels etc.) */
+camera.addEventListener("pointerdown", (e) => {
+  if (!lockOpen) return;
+  const clickedInside = lockPanel.contains(e.target);
+  const clickedDoor = doorBtn.contains(e.target);
+  const clickedBell = bellBtn.contains(e.target);
+  if (!clickedInside && !clickedDoor && !clickedBell) closeLock();
+});
 
 /* ===================== INTERACTIONS ===================== */
 bellBtn.addEventListener("click", () => {
@@ -334,18 +394,14 @@ bellBtn.addEventListener("click", () => {
     song.currentTime = 0;
     song.play().catch(()=>{});
   }catch(_){}
-  bellHint.style.opacity = "0.72";
 });
 
 doorBtn.addEventListener("click", () => {
   showToast("The door is closed.");
-  lockOpen = true;
-  lockPanel.classList.add("show");
-  lockPanel.setAttribute("aria-hidden", "false");
-  hintMsg.textContent = "";
+  openLock();
 });
 
-/* ===================== LOCK ===================== */
+/* ===================== LOCK WHEELS ===================== */
 const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 const CODE = CFG.code.toUpperCase();
 const wheelState = new Array(CODE.length).fill(0);
@@ -367,19 +423,14 @@ function buildWheels(){
     wheelsEl.appendChild(w);
   }
 }
-
-function enteredCode(){
-  return wheelState.map(i => letters[i]).join("");
-}
+function enteredCode(){ return wheelState.map(i => letters[i]).join(""); }
 
 buildWheels();
 
 unlockBtn.addEventListener("click", () => {
   if (enteredCode() === CODE){
     showToast("Unlocked.");
-    lockPanel.classList.remove("show");
-    lockPanel.setAttribute("aria-hidden", "true");
-    lockOpen = false;
+    closeLock();
   } else {
     hintMsg.textContent = "Not quite…";
   }
