@@ -1,769 +1,482 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Find the Last Piece of Memory</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<!-- ====== OPENING / DOOR / LOCK / SONG (drop-in section) ====== -->
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
-
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background: radial-gradient(circle at top, #dbeafe 0, #eff6ff 35%, #e5e7eb 100%);
-      font-family: "Nunito", system-ui, sans-serif;
-    }
-    #map { height: 100%; width: 100%; }
-
-    h2 {
-      position: absolute;
-      z-index: 1000;
-      background: linear-gradient(135deg, rgba(191,219,254,0.95), rgba(236,252,203,0.98));
-      padding: 12px 22px;
-      margin: 10px;
-      border-radius: 999px;
-      font-size: 17px;
-      color: #1f2937;
-      box-shadow: 0 8px 24px rgba(15,23,42,0.25);
-      border: 1px solid rgba(59,130,246,0.35);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    h2 span.label {
-      font-family: "Zen Maru Gothic", system-ui, sans-serif;
-      font-size: 13px;
-      padding: 3px 10px;
-      border-radius: 999px;
-      background: rgba(59,130,246,0.1);
-      color: #1d4ed8;
-    }
-
-    .leaflet-container {
-      background: #bfdbfe;
-      font-family: "Nunito", system-ui, sans-serif;
-    }
-
-    /* overlays */
-    #hint-overlay {
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(circle at top, rgba(191,219,254,0.9) 0, rgba(219,234,254,0.95) 40%, rgba(239,246,255,0.95) 100%);
-      color: #111827;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 3000;
-    }
-    .hint-card {
-      background: rgba(255,255,255,0.96);
-      border-radius: 24px;
-      padding: 26px 26px 22px;
-      max-width: 560px;
-      width: 92%;
-      box-shadow: 0 24px 60px rgba(15,23,42,0.25);
-      border: 1px solid rgba(96,165,250,0.7);
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-    .hint-card::before {
-      content: "";
-      position: absolute;
-      inset: -40%;
-      background: radial-gradient(circle at 10% 0%, rgba(248,250,252,0.9), transparent 60%);
-      pointer-events: none;
-    }
-    .hint-title {
-      font-family: "Zen Maru Gothic", system-ui, sans-serif;
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 10px;
-      color: #1d4ed8;
-    }
-    .hint-subtitle {
-      font-size: 17px;
-      color: #374151;
-      margin-bottom: 16px;
-      line-height: 1.7;
-    }
-
-    .hint-audio-wrapper {
-      margin-bottom: 18px;
-      padding: 12px 12px 10px;
-      border-radius: 16px;
-      background: rgba(239,246,255,0.9);
-      border: 1px solid rgba(191,219,254,1);
-    }
-    .hint-audio-label {
-      font-size: 15px;
-      color: #4b5563;
-      margin-bottom: 6px;
-    }
-
-    /* scroll wheels */
-    .lock-wheels{
-      display:flex;
-      justify-content:center;
-      gap:12px;
-      margin:14px 0 8px;
-      user-select:none;
-      -webkit-user-select:none;
-      touch-action: pan-y;
-    }
-    .wheel{
-      width: 54px;
-      height: 78px;
-      border-radius: 16px;
-      background: linear-gradient(180deg, #eff6ff 0, #dbeafe 100%);
-      border: 1px solid #bfdbfe;
-      box-shadow: 0 12px 26px rgba(148,163,184,0.55);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      position:relative;
-      overflow:hidden;
-      cursor: grab;
-    }
-    .wheel:active{ cursor: grabbing; }
-    .wheel::before, .wheel::after{
-      content:"";
-      position:absolute;
-      left:0; right:0;
-      height: 22px;
-      pointer-events:none;
-    }
-    .wheel::before{
-      top:0;
-      background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0));
-    }
-    .wheel::after{
-      bottom:0;
-      background: linear-gradient(0deg, rgba(255,255,255,0.95), rgba(255,255,255,0));
-    }
-    .wheel .window-line{
-      position:absolute;
-      left:8px; right:8px;
-      height: 2px;
-      top: 50%;
-      transform: translateY(-1px);
-      background: rgba(59,130,246,0.25);
-      border-radius: 999px;
-      pointer-events:none;
-    }
-    .wheel-letter{
-      font-family: "Zen Maru Gothic", system-ui, sans-serif;
-      font-size: 26px;
-      font-weight: 800;
-      color:#111827;
-      transition: transform 0.06s ease;
-      will-change: transform;
-    }
-    .wheel-hint{
-      font-size: 12px;
-      color:#6b7280;
-      margin-top: 8px;
-    }
-
-    .hint-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 12px;
-      flex-wrap: wrap;
-    }
-    .btn {
-      border-radius: 999px;
-      border: none;
-      padding: 10px 18px;
-      font-size: 15px;
-      cursor: pointer;
-      font-weight: 800;
-      font-family: "Nunito", system-ui, sans-serif;
-      letter-spacing: 0.04em;
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, #fb923c, #facc15);
-      color: #111827;
-      box-shadow: 0 8px 18px rgba(251,146,60,0.4);
-    }
-    .btn:disabled { opacity: 0.55; cursor: default; box-shadow: none; }
-
-    .hint-message {
-      font-size: 16px;
-      min-height: 22px;
-      margin-top: 10px;
-      font-weight: 800;
-    }
-    .hint-message.error { color: #b91c1c; }
-
-    /* Step 2 */
-    #hint-step-text { display: none; }
-
-    .coord-card {
-      margin-top: 8px;
-      padding: 14px 14px 12px;
-      border-radius: 18px;
-      background: rgba(239,246,255,0.9);
-      border: 1px solid rgba(191,219,254,1);
-      text-align: left;
-    }
-    .coord-title {
-      font-family: "Zen Maru Gothic", system-ui, sans-serif;
-      font-weight: 800;
-      color: #1d4ed8;
-      margin-bottom: 10px;
-      font-size: 16px;
-      text-align: center;
-    }
-    .coord-line {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 10px;
-    }
-    .coord-bubble {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size: 16px;
-      padding: 8px 10px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.9);
-      border: 1px solid rgba(147,197,253,0.9);
-      color: #111827;
-    }
-    .coord-input {
-      width: 92px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size: 16px;
-      padding: 10px 10px;
-      border-radius: 14px;
-      border: 1px solid rgba(147,197,253,0.9);
-      outline: none;
-      background: white;
-      text-align: center;
-    }
-    .coord-input:focus {
-      box-shadow: 0 0 0 4px rgba(59,130,246,0.18);
-      border-color: rgba(59,130,246,0.65);
-    }
-
-    .coord-help {
-      font-size: 13px;
-      color: #374151;
-      line-height: 1.55;
-      margin-top: 8px;
-      background: rgba(255,255,255,0.9);
-      border: 1px solid rgba(147,197,253,0.9);
-      border-radius: 14px;
-      padding: 10px 12px;
-    }
-    .coord-help b { color: #1d4ed8; }
-
-    .result-box {
-      margin-top: 12px;
-      padding: 12px 14px;
-      border-radius: 14px;
-      background: rgba(255,255,255,0.95);
-      border: 1px solid rgba(147,197,253,0.9);
-      color: #111827;
-      font-size: 14px;
-      line-height: 1.55;
-      display: none;
-    }
-    .result-box.bad  { border-color: rgba(248,113,113,0.8); }
-    .result-box.good { border-color: rgba(74,222,128,0.85); }
-    .result-title {
-      font-weight: 900;
-      margin-bottom: 6px;
-      font-family: "Zen Maru Gothic", system-ui, sans-serif;
-    }
-    .result-photos {
-      margin-top: 10px;
-      display: none;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .result-photos img {
-      max-width: 230px;
-      width: 100%;
-      border-radius: 16px;
-      border: 1px solid rgba(191,219,254,0.9);
-      box-shadow: 0 14px 36px rgba(15,23,42,0.18);
-    }
-
-    .guess-icon {
-      width: 42px;
-      height: 42px;
-      border-radius: 999px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      color: #fff;
-      border: 1px solid rgba(255,255,255,0.85);
-      box-shadow: 0 12px 26px rgba(15,23,42,0.35);
-    }
-    .guess-good { background: radial-gradient(circle at 30% 0%, #bbf7d0 0, #22c55e 60%, #16a34a 100%); }
-    .guess-bad  { background: radial-gradient(circle at 30% 0%, #fecaca 0, #ef4444 60%, #b91c1c 100%); }
-
-    /* Win overlay: slightly transparent so the real map is visible behind it */
-    #win-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(219,234,254,0.60);
-      backdrop-filter: blur(4px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 4000;
-    }
-    .win-card {
-      background: rgba(255,255,255,0.98);
-      border-radius: 24px;
-      padding: 26px 24px 22px;
-      max-width: 460px;
-      width: 92%;
-      text-align: center;
-      border: 1px solid rgba(129,140,248,0.7);
-      box-shadow: 0 24px 60px rgba(15,23,42,0.3);
-      color: #111827;
-      position: relative;
-      overflow: hidden;
-    }
-    .win-card::before {
-      content: "";
-      position: absolute;
-      inset: -40%;
-      background: radial-gradient(circle at 10% 0%, rgba(239,246,255,0.8), transparent 60%);
-      pointer-events: none;
-    }
-    .win-emoji { font-size: 36px; margin-bottom: 10px; }
-    .win-title {
-      font-size: 20px;
-      font-weight: 900;
-      margin-bottom: 8px;
-      font-family: "Zen Maru Gothic", system-ui, sans-serif;
-    }
-    .win-subtitle {
-      font-size: 16px;
-      color: #374151;
-      margin-bottom: 14px;
-      line-height: 1.7;
-    }
-    .win-place {
-      font-size: 16px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      margin-bottom: 12px;
-      color: #1f2937;
-      font-weight: 800;
-    }
-    .win-images {
-      margin-top: 10px;
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .win-images img {
-      max-width: 230px;
-      width: 100%;
-      border-radius: 16px;
-      border: 1px solid rgba(191,219,254,0.9);
-      box-shadow: 0 14px 36px rgba(15,23,42,0.18);
-    }
-    .win-note {
-      font-size: 15px;
-      color: #4b5563;
-      margin-top: 10px;
-      line-height: 1.6;
-      font-weight: 700;
-    }
-  </style>
-</head>
-
-<body>
-  <h2>
-    <span class="label">Memory Quest</span>
-    Search the missing coordinate prefixes to reveal the place…
-  </h2>
-
-  <div id="map"></div>
-
-  <div id="hint-overlay">
-    <div class="hint-card">
-
-      <!-- STEP 1 -->
-      <div id="hint-step-lock">
-        <div class="hint-title">Prologue · The Sealed Memory</div>
-        <div class="hint-subtitle">
-          A memory piece is still wandering in its own place, and you have to collect it before leveling up to Level 33.
-          Unlock this first.<br/>
-          Then a coordinate riddle will appear.
-        </div>
-
-        <div class="hint-audio-wrapper">
-          <div class="hint-audio-label">This audio might help 🎵</div>
-          <audio id="hint-audio" src="song.m4a" controls preload="auto"></audio>
-        </div>
-
-        <div id="lock-wheels" class="lock-wheels"></div>
-        <div class="wheel-hint">Tip: scroll / swipe each wheel (mouse wheel works too).</div>
-
-        <div class="hint-buttons">
-          <button id="unlock-btn" class="btn btn-primary">Unlock</button>
-        </div>
-
-        <div id="hint-message" class="hint-message"></div>
-      </div>
-
-      <!-- STEP 2 -->
-      <div id="hint-step-text">
-        <div class="hint-title">Clue Unlocked · Coordinate Riddles</div>
-
-        <div class="coord-card">
-          <div class="coord-title">Complete the Coordinates of the Place</div>
-
-          <div class="coord-line">
-            <span class="coord-bubble">Lat</span>
-            <input id="lat-prefix" class="coord-input" inputmode="numeric" maxlength="2" placeholder="??" />
-            <span class="coord-bubble">.442006</span>
-            <span class="coord-bubble">,</span>
-            <span class="coord-bubble">Lng</span>
-            <input id="lng-prefix" class="coord-input" inputmode="numeric" maxlength="3" placeholder="???" />
-            <span class="coord-bubble">.630649</span>
-          </div>
-
-          <div class="hint-buttons" style="margin-top: 6px;">
-            <button id="search-btn" class="btn btn-primary">Search on Map</button>
-          </div>
-
-          <div class="coord-help">
-            <b>Latitude prefix (2 digits):</b><br/>
-            “Your favorite paper — the number you see before <i>‘essentially.’</i>”<br/><br/>
-            <b>Longitude prefix (3 digits):</b><br/>
-            “Prof. Kim entered a classroom with 8 seats in a row. 
-            From left to right, the 2nd–4th seats are empty, the 6th one is also empty, but the others are full.”<br/>
-            (extra hint: er jin zhi)
-          </div>
-
-          <div id="result-box" class="result-box">
-            <div id="result-title" class="result-title"></div>
-            <div id="result-text"></div>
-
-            <div id="result-photos" class="result-photos">
-              <!-- <img src="place.png" alt="The real place photo (place.png)" /> -->
-              <img src="hint.png" alt="Ramen Place" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
+<div id="intro">
+  <div class="intro-title">
+    <div class="intro-sub">GAME TITLE</div>
+    <div class="intro-main">Level 33 memory</div>
+    <div class="intro-hint">Scroll to begin</div>
   </div>
 
-  <div id="win-overlay">
-    <div class="win-card">
-      <div class="win-emoji">🎂🎉🎁</div>
-      <div class="win-title">You found it!</div>
-      <div class="win-subtitle">
-        You found the memory piece!
-      </div>
-      <div class="win-place" id="win-place"></div>
+  <div id="scene">
+    <img id="scene-img" src="door-bg.jpg" alt="Door scene" />
 
-      <div class="win-images">
-        <!-- <img src="place.png" alt="The real place photo (place.png)" /> -->
-        <img src="hint.png" alt="Ramen Place" />
-      </div>
+    <!-- Hotspots (positions are %; tune to match your image precisely) -->
+    <button id="door-hotspot" class="hotspot" aria-label="Door"></button>
+    <button id="ring-hotspot" class="hotspot ring" aria-label="Ring / Doorbell"></button>
 
-      <div class="win-note">
-        I’ll give you the physical gift in person.<br/>
-        Thank you for playing through this little world I made for you. ✨
-      </div>
-    </div>
+    <!-- Small toast message -->
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
   </div>
 
-  <audio id="gift-sound" src="win.m4a" preload="auto"></audio>
+  <!-- Lock popup -->
+  <div id="lock-modal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-title">The door is closed.</div>
+      <div class="modal-sub">Enter the first reality code.</div>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script>
-    // ============================
-    // 1) Letter lock
-    // ============================
-    const CORRECT_CODE = "REALITY";
-    const NUM_WHEELS = 7;
-    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+      <div class="audio-row">
+        <button id="ring-btn" class="ring-btn">🔔 Ring (play song)</button>
+      </div>
 
-    const lockWheelsContainer = document.getElementById("lock-wheels");
-    const unlockBtn = document.getElementById("unlock-btn");
-    const hintMessage = document.getElementById("hint-message");
-    const hintAudio = document.getElementById("hint-audio");
+      <div id="lock-wheels" class="lock-wheels"></div>
 
-    const hintStepLock = document.getElementById("hint-step-lock");
-    const hintStepText = document.getElementById("hint-step-text");
+      <div class="modal-actions">
+        <button id="unlock-btn" class="btn-primary">Unlock</button>
+        <button id="close-modal" class="btn-ghost">Close</button>
+      </div>
 
-    const wheelPositions = new Array(NUM_WHEELS).fill(0);
+      <div id="hint-message" class="hint-message"></div>
+    </div>
+  </div>
+</div>
 
-    function clampWheel(i) {
-      if (i < 0) return letters.length - 1;
-      if (i >= letters.length) return 0;
-      return i;
-    }
+<audio id="hint-audio" src="song.m4a" preload="auto"></audio>
 
-    function getEnteredCode() {
-      return wheelPositions.map((pos) => letters[pos]).join("");
-    }
+<style>
+  /* Fullscreen black opening */
+  #intro{
+    position: fixed;
+    inset: 0;
+    background: #000;
+    overflow: hidden;
+    z-index: 9999;
+    font-family: "Nunito", system-ui, sans-serif;
+  }
 
-    function showHintMessage(text) {
-      hintMessage.textContent = text;
-      hintMessage.classList.add("error");
-    }
+  .intro-title{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    text-align:center;
+    pointer-events:none;
+    transition: opacity 300ms ease;
+  }
+  .intro-sub{ letter-spacing:.25em; opacity:.75; font-size:12px; margin-bottom:10px; }
+  .intro-main{ font-family:"Zen Maru Gothic", system-ui, sans-serif; font-size:44px; font-weight:800; }
+  .intro-hint{ margin-top:14px; font-size:14px; opacity:.75; }
 
-    function createScrollWheel(index) {
-      const wheel = document.createElement("div");
-      wheel.className = "wheel";
+  /* Scene container (revealed by scroll) */
+  #scene{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    opacity: 0;                 /* revealed by scroll */
+    transition: opacity 400ms ease;
+  }
 
-      const windowLine = document.createElement("div");
-      windowLine.className = "window-line";
+  /* We transform the image for zoom/pan */
+  #scene-img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform-origin: 50% 50%;
+    will-change: transform;
+    user-select:none;
+    -webkit-user-drag:none;
+  }
 
-      const letterEl = document.createElement("div");
-      letterEl.className = "wheel-letter";
+  /* Hotspots (in % relative to viewport; adjust) */
+  .hotspot{
+    position:absolute;
+    border:none;
+    background: rgba(255,255,255,0);
+    cursor: pointer;
+  }
+
+  /* Door area — tune these */
+  #door-hotspot{
+    left: 34%;
+    top: 18%;
+    width: 28%;
+    height: 66%;
+  }
+
+  /* Doorbell / ring — tune these */
+  #ring-hotspot{
+    left: 56%;
+    top: 43%;
+    width: 6%;
+    height: 10%;
+  }
+
+  /* Optional: show hotspot when debugging */
+  /* .hotspot{ outline: 2px dashed rgba(255,255,255,0.35); } */
+
+  .toast{
+    position:absolute;
+    left:50%;
+    bottom: 40px;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.65);
+    color:#fff;
+    padding: 10px 14px;
+    border-radius: 999px;
+    font-size: 14px;
+    opacity: 0;
+    pointer-events:none;
+    transition: opacity 180ms ease, transform 180ms ease;
+  }
+  .toast.show{
+    opacity: 1;
+    transform: translateX(-50%) translateY(-6px);
+  }
+
+  /* Modal */
+  .modal{
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(4px);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index: 10000;
+  }
+  .modal.show{ display:flex; }
+
+  .modal-card{
+    width: min(520px, 92vw);
+    border-radius: 20px;
+    background: rgba(255,255,255,0.96);
+    border: 1px solid rgba(255,255,255,0.25);
+    box-shadow: 0 30px 90px rgba(0,0,0,0.45);
+    padding: 18px 18px 16px;
+    text-align:center;
+  }
+  .modal-title{
+    font-family:"Zen Maru Gothic", system-ui, sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    color:#111827;
+    margin-bottom: 6px;
+  }
+  .modal-sub{
+    font-size: 14px;
+    color:#374151;
+    margin-bottom: 12px;
+  }
+
+  .audio-row{ display:flex; justify-content:center; margin: 8px 0 10px; }
+  .ring-btn{
+    border:none;
+    border-radius: 999px;
+    padding: 10px 14px;
+    cursor:pointer;
+    font-weight: 800;
+    background: linear-gradient(135deg, #93c5fd, #fbcfe8);
+  }
+
+  .modal-actions{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    margin-top: 14px;
+    flex-wrap:wrap;
+  }
+  .btn-primary{
+    border:none;
+    border-radius: 999px;
+    padding: 10px 18px;
+    cursor:pointer;
+    font-weight: 900;
+    background: linear-gradient(135deg, #fde68a, #fb923c);
+  }
+  .btn-ghost{
+    border: 1px solid rgba(17,24,39,0.15);
+    border-radius: 999px;
+    padding: 10px 18px;
+    cursor:pointer;
+    font-weight: 900;
+    background: rgba(255,255,255,0.75);
+  }
+
+  /* Wheels (kept close to your original) */
+  .lock-wheels{
+    display:flex;
+    justify-content:center;
+    gap:12px;
+    margin: 10px 0 6px;
+    user-select:none;
+    -webkit-user-select:none;
+    touch-action: pan-y;
+  }
+  .wheel{
+    width: 54px;
+    height: 78px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #eff6ff 0, #dbeafe 100%);
+    border: 1px solid #bfdbfe;
+    box-shadow: 0 12px 26px rgba(148,163,184,0.55);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    overflow:hidden;
+    cursor: grab;
+  }
+  .wheel:active{ cursor: grabbing; }
+  .wheel::before, .wheel::after{
+    content:"";
+    position:absolute;
+    left:0; right:0;
+    height: 22px;
+    pointer-events:none;
+  }
+  .wheel::before{ top:0; background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0)); }
+  .wheel::after { bottom:0; background: linear-gradient(0deg, rgba(255,255,255,0.95), rgba(255,255,255,0)); }
+  .wheel .window-line{
+    position:absolute;
+    left:8px; right:8px;
+    height: 2px;
+    top: 50%;
+    transform: translateY(-1px);
+    background: rgba(59,130,246,0.25);
+    border-radius: 999px;
+    pointer-events:none;
+  }
+  .wheel-letter{
+    font-family: "Zen Maru Gothic", system-ui, sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    color:#111827;
+    transition: transform 0.06s ease;
+    will-change: transform;
+  }
+
+  .hint-message{
+    margin-top: 10px;
+    min-height: 18px;
+    font-weight: 900;
+    color: #b91c1c;
+  }
+</style>
+
+<script>
+  // ========= CONFIG =========
+  const CORRECT_CODE = "REALITY";
+  const NUM_WHEELS = 7;
+  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+  // Zoom target: where the camera should end up (door center) in normalized coords (0..1)
+  // Tune these to match your door location in the image.
+  const DOOR_FOCUS = { x: 0.44, y: 0.52 };   // center-ish on door
+  const ZOOM_MIN = 1.0;
+  const ZOOM_MAX = 2.6;
+
+  // ========= ELEMENTS =========
+  const introTitle = document.querySelector(".intro-title");
+  const scene = document.getElementById("scene");
+  const sceneImg = document.getElementById("scene-img");
+
+  const doorHotspot = document.getElementById("door-hotspot");
+  const ringHotspot = document.getElementById("ring-hotspot");
+  const toast = document.getElementById("toast");
+
+  const modal = document.getElementById("lock-modal");
+  const closeModalBtn = document.getElementById("close-modal");
+  const unlockBtn = document.getElementById("unlock-btn");
+  const hintMessage = document.getElementById("hint-message");
+
+  const ringBtn = document.getElementById("ring-btn");
+  const hintAudio = document.getElementById("hint-audio");
+
+  const lockWheelsContainer = document.getElementById("lock-wheels");
+
+  // ========= TOAST =========
+  let toastT = null;
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add("show");
+    clearTimeout(toastT);
+    toastT = setTimeout(() => toast.classList.remove("show"), 900);
+  }
+
+  // ========= SCROLL-TO-REVEAL + ZOOM =========
+  let progress = 0; // 0..1
+  let rafPending = false;
+
+  function clamp01(v){ return Math.max(0, Math.min(1, v)); }
+
+  function applyCamera(){
+    // fade from black title -> scene
+    const sceneAlpha = clamp01((progress - 0.05) / 0.25);
+    scene.style.opacity = sceneAlpha.toFixed(3);
+    introTitle.style.opacity = (1 - sceneAlpha).toFixed(3);
+
+    // zoom curve
+    const t = clamp01((progress - 0.10) / 0.90);
+    const zoom = ZOOM_MIN + (ZOOM_MAX - ZOOM_MIN) * (t * t); // ease in
+
+    // pan so that DOOR_FOCUS sits at center
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const offsetX = (0.5 - DOOR_FOCUS.x) * vw * (zoom - 1);
+    const offsetY = (0.5 - DOOR_FOCUS.y) * vh * (zoom - 1);
+
+    sceneImg.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${zoom})`;
+  }
+
+  function requestApply(){
+    if (rafPending) return;
+    rafPending = true;
+    requestAnimationFrame(() => {
+      rafPending = false;
+      applyCamera();
+    });
+  }
+
+  window.addEventListener("wheel", (e) => {
+    // scroll controls progress
+    e.preventDefault();
+    const delta = -e.deltaY;              // wheel down -> negative
+    progress = clamp01(progress + delta * 0.0007);
+    requestApply();
+  }, { passive: false });
+
+  window.addEventListener("resize", requestApply);
+  applyCamera();
+
+  // ========= MODAL OPEN/CLOSE =========
+  function openModal(){
+    modal.classList.add("show");
+    modal.setAttribute("aria-hidden", "false");
+  }
+  function closeModal(){
+    modal.classList.remove("show");
+    modal.setAttribute("aria-hidden", "true");
+  }
+  closeModalBtn.addEventListener("click", closeModal);
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  // ========= AUDIO (ring click required) =========
+  function playSong(){
+    try{
+      hintAudio.currentTime = 0;
+      hintAudio.play().catch(()=>{});
+    }catch(_){}
+  }
+  ringHotspot.addEventListener("click", () => {
+    showToast("🔔 Ring...");
+    playSong();
+  });
+  ringBtn.addEventListener("click", () => {
+    showToast("🎵 Playing song");
+    playSong();
+  });
+
+  // ========= DOOR CLICK =========
+  doorHotspot.addEventListener("click", () => {
+    showToast("The door is closed.");
+    openModal();
+  });
+
+  // ========= LETTER LOCK (your wheel logic, compact) =========
+  const wheelPositions = new Array(NUM_WHEELS).fill(0);
+
+  function clampWheel(i){
+    if (i < 0) return letters.length - 1;
+    if (i >= letters.length) return 0;
+    return i;
+  }
+  function getEnteredCode(){
+    return wheelPositions.map((pos) => letters[pos]).join("");
+  }
+  function showLockMessage(text){
+    hintMessage.textContent = text;
+  }
+
+  function createScrollWheel(index){
+    const wheel = document.createElement("div");
+    wheel.className = "wheel";
+
+    const windowLine = document.createElement("div");
+    windowLine.className = "window-line";
+
+    const letterEl = document.createElement("div");
+    letterEl.className = "wheel-letter";
+    letterEl.textContent = letters[wheelPositions[index]];
+
+    function step(direction){
+      wheelPositions[index] = clampWheel(wheelPositions[index] + direction);
       letterEl.textContent = letters[wheelPositions[index]];
-
-      function step(direction) {
-        wheelPositions[index] = clampWheel(wheelPositions[index] + direction);
-        letterEl.textContent = letters[wheelPositions[index]];
-        letterEl.style.transform = `translateY(${direction > 0 ? -8 : 8}px)`;
-        setTimeout(() => (letterEl.style.transform = "translateY(0)"), 60);
-      }
-
-      wheel.addEventListener("wheel", (e) => {
-        e.preventDefault();
-        const direction = e.deltaY > 0 ? -1 : 1;
-        step(direction);
-      }, { passive: false });
-
-      const STEP_PX = 14;
-      let dragging = false;
-      let lastY = 0;
-      let accumulatedDy = 0;
-
-      wheel.addEventListener("pointerdown", (e) => {
-        dragging = true;
-        wheel.setPointerCapture(e.pointerId);
-        lastY = e.clientY;
-        accumulatedDy = 0;
-        e.preventDefault();
-      });
-
-      wheel.addEventListener("pointermove", (e) => {
-        if (!dragging) return;
-        e.preventDefault();
-
-        const dy = e.clientY - lastY;
-        lastY = e.clientY;
-        accumulatedDy += dy;
-
-        while (accumulatedDy <= -STEP_PX) {
-          step(+1);
-          accumulatedDy += STEP_PX;
-        }
-        while (accumulatedDy >= STEP_PX) {
-          step(-1);
-          accumulatedDy -= STEP_PX;
-        }
-      });
-
-      function endDrag() {
-        dragging = false;
-        accumulatedDy = 0;
-      }
-
-      wheel.addEventListener("pointerup", endDrag);
-      wheel.addEventListener("pointercancel", endDrag);
-      wheel.addEventListener("pointerleave", endDrag);
-
-      wheel.appendChild(windowLine);
-      wheel.appendChild(letterEl);
-      return wheel;
+      letterEl.style.transform = `translateY(${direction > 0 ? -8 : 8}px)`;
+      setTimeout(() => (letterEl.style.transform = "translateY(0)"), 60);
     }
 
-    for (let i = 0; i < NUM_WHEELS; i++) {
-      lockWheelsContainer.appendChild(createScrollWheel(i));
-    }
+    wheel.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const direction = e.deltaY > 0 ? -1 : 1;
+      step(direction);
+    }, { passive:false });
 
-    unlockBtn.addEventListener("click", () => {
-      const entered = getEnteredCode();
-      if (entered === CORRECT_CODE) {
-        hintMessage.textContent = "";
-        hintStepLock.style.display = "none";
-        hintStepText.style.display = "block";
-      } else {
-        showHintMessage("Not quite… try again.");
-      }
+    const STEP_PX = 14;
+    let dragging = false, lastY = 0, accumulatedDy = 0;
+
+    wheel.addEventListener("pointerdown", (e) => {
+      dragging = true;
+      wheel.setPointerCapture(e.pointerId);
+      lastY = e.clientY;
+      accumulatedDy = 0;
+      e.preventDefault();
     });
 
-    // ============================
-    // 2) Map + Coordinate Search
-    // ============================
-    const targetRestaurant = {
-      name: "Ramen Jiro Yokohama Kannai",
-      lat: 35.442006,
-      lng: 139.630649
-    };
+    wheel.addEventListener("pointermove", (e) => {
+      if (!dragging) return;
+      e.preventDefault();
+      const dy = e.clientY - lastY;
+      lastY = e.clientY;
+      accumulatedDy += dy;
 
-    const map = L.map("map", {
-      minZoom: 2,
-      maxZoom: 18,
-      worldCopyJump: false,
-      maxBounds: [[-90, -180],[90, 180]],
-      maxBoundsViscosity: 1.0
-    }).setView([20, 0], 2);
-
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      noWrap: true,
-      continuousWorld: false,
-      attribution: "© OpenStreetMap"
-    }).addTo(map);
-
-    const hintOverlay = document.getElementById("hint-overlay");
-    const giftSound = document.getElementById("gift-sound");
-    const winOverlay = document.getElementById("win-overlay");
-    const winPlace = document.getElementById("win-place");
-
-    const latPrefixEl = document.getElementById("lat-prefix");
-    const lngPrefixEl = document.getElementById("lng-prefix");
-    const searchBtn = document.getElementById("search-btn");
-
-    const resultBox = document.getElementById("result-box");
-    const resultTitle = document.getElementById("result-title");
-    const resultText = document.getElementById("result-text");
-    const resultPhotos = document.getElementById("result-photos");
-
-    let activeGuessMarker = null;
-    let giftFound = false;
-
-    function playWinSound() {
-      try {
-        giftSound.currentTime = 0;
-        giftSound.play().catch(() => {});
-      } catch (_) {}
-    }
-
-    function lockMap() {
-      map.dragging.disable();
-      map.touchZoom.disable();
-      map.doubleClickZoom.disable();
-      map.scrollWheelZoom.disable();
-      map.boxZoom.disable();
-      map.keyboard.disable();
-      if (map.zoomControl) map.zoomControl.remove();
-    }
-
-    function setResult(type, title, text, showPics) {
-      resultBox.style.display = "block";
-      resultBox.classList.remove("bad", "good");
-      resultBox.classList.add(type === "good" ? "good" : "bad");
-      resultTitle.textContent = title;
-      resultText.textContent = text;
-      resultPhotos.style.display = showPics ? "flex" : "none";
-    }
-
-    function clearGuessMarker() {
-      if (activeGuessMarker && map.hasLayer(activeGuessMarker)) map.removeLayer(activeGuessMarker);
-      activeGuessMarker = null;
-    }
-
-    function makeGuessIcon(isGood) {
-      return L.divIcon({
-        className: "",
-        html: `<div class="guess-icon ${isGood ? "guess-good" : "guess-bad"}">${isGood ? "✨" : "❌"}</div>`,
-        iconSize: [42, 42],
-        iconAnchor: [21, 42]
-      });
-    }
-
-    function randomLatLngNotNear(targetLat, targetLng) {
-      for (let tries = 0; tries < 60; tries++) {
-        const lat = (Math.random() * 170) - 85;
-        const lng = (Math.random() * 360) - 180;
-        const dLat = lat - targetLat;
-        const dLng = lng - targetLng;
-        const dist = Math.sqrt(dLat*dLat + dLng*dLng);
-        if (dist > 10) return { lat, lng };
-      }
-      return { lat: 0, lng: 0 };
-    }
-
-    function isCorrectGuess(lat, lng) {
-      const tol = 0.00005;
-      return Math.abs(lat - targetRestaurant.lat) <= tol &&
-             Math.abs(lng - targetRestaurant.lng) <= tol;
-    }
-
-    function showWin() {
-      winPlace.textContent = targetRestaurant.name + " – Yokohama, Japan";
-      winOverlay.style.display = "flex";
-    }
-
-    function sanitizeDigits(el) {
-      el.value = el.value.replace(/[^\d]/g, "");
-    }
-    latPrefixEl.addEventListener("input", () => sanitizeDigits(latPrefixEl));
-    lngPrefixEl.addEventListener("input", () => sanitizeDigits(lngPrefixEl));
-
-    searchBtn.addEventListener("click", () => {
-      if (giftFound) return;
-
-      const latPrefix = (latPrefixEl.value || "").trim();
-      const lngPrefix = (lngPrefixEl.value || "").trim();
-
-      if (!/^\d{2}$/.test(latPrefix) || !/^\d{3}$/.test(lngPrefix)) {
-        setResult("bad", "Input not complete", "Latitude needs 2 digits; Longitude needs 3 digits.", false);
-        return;
-      }
-
-      const lat = parseFloat(`${latPrefix}.442006`);
-      const lng = parseFloat(`${lngPrefix}.630649`);
-
-      clearGuessMarker();
-
-      if (isCorrectGuess(lat, lng)) {
-        // ✅ Close hint overlay so the real map is visible
-        hintOverlay.style.display = "none";
-        try { hintAudio.pause(); } catch (_) {}
-
-        const ll = L.latLng(lat, lng);
-
-        // ✅ Show the real restaurant map (fly + high zoom)
-        map.flyTo(ll, 18, { duration: 1.2 });
-
-        // ✅ Place a marker at the real location
-        activeGuessMarker = L.marker(ll, { icon: makeGuessIcon(true) }).addTo(map);
-
-        setResult("good", "Correct! Memory located.", `${targetRestaurant.name} — you found the true coordinates.`, true);
-
-        giftFound = true;
-        playWinSound();
-        lockMap();   // lock interactions so they can't zoom away
-        showWin();   // win overlay on top, map remains at real location behind it
-      } else {
-        const rnd = randomLatLngNotNear(targetRestaurant.lat, targetRestaurant.lng);
-        const ll = L.latLng(rnd.lat, rnd.lng);
-        map.setView(ll, 5);
-        activeGuessMarker = L.marker(ll, { icon: makeGuessIcon(false) }).addTo(map);
-        setResult("bad", "Not quite…", "That coordinate leads somewhere else. Try again and search again!", false);
-      }
+      while (accumulatedDy <= -STEP_PX) { step(+1); accumulatedDy += STEP_PX; }
+      while (accumulatedDy >=  STEP_PX) { step(-1); accumulatedDy -= STEP_PX; }
     });
-  </script>
-</body>
-</html>
+
+    function endDrag(){ dragging = false; accumulatedDy = 0; }
+    wheel.addEventListener("pointerup", endDrag);
+    wheel.addEventListener("pointercancel", endDrag);
+    wheel.addEventListener("pointerleave", endDrag);
+
+    wheel.appendChild(windowLine);
+    wheel.appendChild(letterEl);
+    return wheel;
+  }
+
+  // init wheels once
+  lockWheelsContainer.innerHTML = "";
+  for (let i=0; i<NUM_WHEELS; i++){
+    lockWheelsContainer.appendChild(createScrollWheel(i));
+  }
+
+  // unlock check
+  unlockBtn.addEventListener("click", () => {
+    const entered = getEnteredCode();
+    if (entered === CORRECT_CODE){
+      showLockMessage("");
+      closeModal();
+      showToast("Unlocked.");
+      // Next step (map) should start after this — you’ll hook it here.
+      // Example: document.getElementById("hint-overlay").style.display = "none";
+      // Or: intro can fade out: document.getElementById("intro").style.display = "none";
+    } else {
+      showLockMessage("Not quite…");
+    }
+  });
+</script>
