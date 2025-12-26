@@ -1,43 +1,43 @@
-<!-- ====== CINEMATIC OPENING + DOOR + ON-DOOR LOCK (drop-in section) ====== -->
+<!-- ====== OPENING / DOOR / ON-DOOR LOCK (NO MUSIC UI) ====== -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Shippori+Mincho:wght@500;700&family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
 
 <div id="intro">
-  <!-- Title layer -->
+  <!-- Title -->
   <div id="title-layer">
     <div class="title-wrap">
-      <div class="kicker">A SMALL WORLD · LEVEL 33</div>
+      <div class="kicker">LEVEL 33</div>
       <div class="title">Memory Door</div>
-      <div class="subtitle">Scroll to approach the first reality.</div>
+      <div class="subtitle">Scroll to approach.</div>
 
       <div class="scroll-indicator" aria-hidden="true">
         <div class="scroll-mouse"></div>
-        <div class="scroll-text">Scroll</div>
+        <div class="scroll-text">SCROLL</div>
       </div>
     </div>
   </div>
 
   <!-- Scene -->
-  <div id="scene" aria-label="Door scene">
+  <div id="scene">
     <img id="scene-img" src="door-bg.jpg" alt="Door hallway background" />
 
-    <!-- Door hotspots (tune to your image) -->
+    <!-- Hotspots (tune to your image) -->
     <button id="door-hotspot" class="hotspot door" aria-label="Door"></button>
     <button id="bell-hotspot" class="hotspot bell" aria-label="Doorbell"></button>
 
-    <!-- Bell hint (no music UI) -->
-    <div id="bell-hint" class="bell-hint">
-      Click the doorbell for a hint 🎵
-    </div>
+    <!-- Only a hint (NO play UI) -->
+    <div id="bell-hint" class="bell-hint">🔔 Tip: click the doorbell.</div>
 
-    <!-- On-door lock panel (initially hidden) -->
+    <!-- On-door lock -->
     <div id="door-lock" class="door-lock" aria-hidden="true">
       <div class="lock-header">
-        <div class="lock-title">The door is closed.</div>
-        <button id="lock-close" class="lock-close" aria-label="Close lock">✕</button>
+        <div class="lock-title">It’s locked.</div>
+        <button id="lock-close" class="lock-close" aria-label="Close">✕</button>
       </div>
 
-      <div class="lock-sub">
-        Enter the first reality code.
-      </div>
+      <div class="lock-sub">Enter the first code.</div>
 
       <div id="lock-wheels" class="lock-wheels"></div>
 
@@ -48,35 +48,38 @@
       <div id="hint-message" class="hint-message"></div>
     </div>
 
-    <!-- Toast -->
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-    <!-- Atmosphere layer -->
+    <!-- Atmosphere -->
     <div class="grain"></div>
     <div class="dust" aria-hidden="true"></div>
     <div class="vignette"></div>
   </div>
 </div>
 
-<!-- audio (no controls) -->
+<!-- Audio exists, but no UI controls. Only doorbell click triggers play. -->
 <audio id="hint-audio" src="song.m4a" preload="auto"></audio>
 
 <style>
-  /* ===== Layout ===== */
+  :root{
+    --title-font: "Shippori Mincho", "Zen Maru Gothic", serif;
+    --ui-font: "Inter", "Zen Maru Gothic", system-ui, sans-serif;
+  }
+
   #intro{
     position: fixed;
     inset: 0;
     background: #000;
     overflow: hidden;
     z-index: 9999;
-    font-family: "Nunito", system-ui, sans-serif;
+    font-family: var(--ui-font);
   }
 
   #scene{
     position:absolute;
     inset:0;
     opacity:0;
-    transition: opacity 500ms ease;
+    transition: opacity 520ms ease;
   }
 
   #scene-img{
@@ -89,7 +92,7 @@
     -webkit-user-drag:none;
   }
 
-  /* ===== Title (cinematic) ===== */
+  /* Title */
   #title-layer{
     position:absolute;
     inset:0;
@@ -100,38 +103,41 @@
     text-align:center;
     pointer-events:none;
     z-index: 3;
-    transition: opacity 400ms ease;
+    transition: opacity 420ms ease;
     background:
-      radial-gradient(circle at 50% 35%, rgba(255,255,255,0.10), rgba(0,0,0,0.85) 60%),
-      linear-gradient(180deg, rgba(0,0,0,0.95), rgba(0,0,0,0.80));
+      radial-gradient(circle at 50% 35%, rgba(255,255,255,0.10), rgba(0,0,0,0.88) 62%),
+      linear-gradient(180deg, rgba(0,0,0,0.96), rgba(0,0,0,0.80));
   }
 
   .title-wrap{
-    width:min(760px, 92vw);
-    padding: 24px 18px;
+    width:min(820px, 92vw);
+    padding: 26px 18px;
   }
 
   .kicker{
-    letter-spacing: .28em;
+    font-family: var(--ui-font);
+    letter-spacing: .34em;
     text-transform: uppercase;
     font-size: 12px;
-    opacity: .75;
-    margin-bottom: 12px;
+    opacity: .78;
+    margin-bottom: 14px;
   }
 
   .title{
-    font-family: "Zen Maru Gothic", system-ui, sans-serif;
-    font-size: clamp(42px, 6vw, 64px);
-    font-weight: 800;
+    font-family: var(--title-font);
+    font-size: clamp(44px, 6vw, 68px);
+    font-weight: 700;
+    letter-spacing: .02em;
     line-height: 1.05;
-    text-shadow: 0 18px 60px rgba(0,0,0,0.65);
+    text-shadow: 0 18px 70px rgba(0,0,0,0.70);
   }
 
   .subtitle{
-    margin-top: 12px;
-    font-size: 15px;
-    opacity: .78;
-    line-height: 1.6;
+    margin-top: 14px;
+    font-family: var(--ui-font);
+    font-size: 14px;
+    opacity: .80;
+    letter-spacing: .04em;
   }
 
   .scroll-indicator{
@@ -140,7 +146,7 @@
     flex-direction:column;
     align-items:center;
     gap:10px;
-    opacity:.9;
+    opacity:.92;
   }
   .scroll-mouse{
     width: 22px;
@@ -166,9 +172,14 @@
     50%{ opacity:1; }
     100%{ opacity:.2; transform: translateX(-50%) translateY(10px); }
   }
-  .scroll-text{ font-size: 12px; opacity:.7; letter-spacing:.12em; }
+  .scroll-text{
+    font-size: 11px;
+    opacity:.7;
+    letter-spacing:.22em;
+    font-family: var(--ui-font);
+  }
 
-  /* ===== Hotspots ===== */
+  /* Hotspots */
   .hotspot{
     position:absolute;
     border:none;
@@ -176,12 +187,11 @@
     cursor: pointer;
     z-index: 4;
   }
-
-  /* tune to your image */
+  /* tune these */
   #door-hotspot{ left: 34%; top: 18%; width: 28%; height: 66%; }
   #bell-hotspot{ left: 56%; top: 43%; width: 6%; height: 10%; }
 
-  /* ===== Bell hint ===== */
+  /* Hint */
   .bell-hint{
     position:absolute;
     left: calc(56% + 7%);
@@ -191,15 +201,16 @@
     border-radius: 999px;
     color: rgba(255,255,255,0.92);
     background: rgba(0,0,0,0.45);
-    border: 1px solid rgba(255,255,255,0.20);
+    border: 1px solid rgba(255,255,255,0.18);
     box-shadow: 0 16px 60px rgba(0,0,0,0.55);
     font-size: 13px;
     z-index: 6;
     backdrop-filter: blur(6px);
     pointer-events:none;
+    font-family: var(--ui-font);
   }
 
-  /* ===== On-door Lock Panel ===== */
+  /* On-door Lock */
   .door-lock{
     position:absolute;
     left: 50%;
@@ -214,6 +225,7 @@
     z-index: 7;
     display:none;
     backdrop-filter: blur(10px);
+    font-family: var(--ui-font);
   }
   .door-lock.show{ display:block; }
 
@@ -225,7 +237,7 @@
     margin-bottom: 6px;
   }
   .lock-title{
-    font-family:"Zen Maru Gothic", system-ui, sans-serif;
+    font-family: "Zen Maru Gothic", var(--ui-font);
     font-weight: 800;
     font-size: 16px;
     color:#111827;
@@ -246,7 +258,7 @@
     margin-bottom: 10px;
   }
 
-  /* Wheels (same feel as your original, compact) */
+  /* Wheels */
   .lock-wheels{
     display:flex;
     justify-content:center;
@@ -311,6 +323,7 @@
     cursor:pointer;
     font-weight: 900;
     background: linear-gradient(135deg, #fde68a, #fb923c);
+    font-family: var(--ui-font);
   }
 
   .hint-message{
@@ -320,7 +333,7 @@
     color: #b91c1c;
   }
 
-  /* ===== Toast ===== */
+  /* Toast */
   .toast{
     position:absolute;
     left:50%;
@@ -336,13 +349,14 @@
     transition: opacity 180ms ease, transform 180ms ease;
     z-index: 8;
     backdrop-filter: blur(6px);
+    font-family: var(--ui-font);
   }
   .toast.show{
     opacity: 1;
     transform: translateX(-50%) translateY(-6px);
   }
 
-  /* ===== Atmosphere overlays ===== */
+  /* Atmosphere */
   .vignette{
     position:absolute; inset:0;
     background: radial-gradient(circle at 50% 40%, rgba(0,0,0,0.0), rgba(0,0,0,0.55));
@@ -377,12 +391,12 @@
 </style>
 
 <script>
-  // ========= CONFIG =========
-  const CORRECT_CODE = "REALITY";
+  // ========= CONFIG (no "reality" naming) =========
+  const CORRECT_CODE = "REALITY"; // <-- Change this to your new secret word if you also want to remove it from code logic.
   const NUM_WHEELS = 7;
   const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
-  // Where the camera should end up (tune for your image)
+  // Camera target (tune to your door)
   const DOOR_FOCUS = { x: 0.44, y: 0.52 };
   const ZOOM_MIN = 1.0;
   const ZOOM_MAX = 2.6;
@@ -394,7 +408,6 @@
 
   const doorHotspot = document.getElementById("door-hotspot");
   const bellHotspot = document.getElementById("bell-hotspot");
-
   const bellHint = document.getElementById("bell-hint");
   const toast = document.getElementById("toast");
 
@@ -407,11 +420,10 @@
   const hintAudio = document.getElementById("hint-audio");
 
   // ========= STATE =========
-  let progress = 0;           // 0..1 controls reveal + zoom
+  let progress = 0;     // 0..1
   let rafPending = false;
-  let lockOpen = false;       // IMPORTANT: when true, bg must not zoom on wheel
+  let lockOpen = false; // when lock is open, background zoom must stop
 
-  // ========= HELPERS =========
   function clamp01(v){ return Math.max(0, Math.min(1, v)); }
 
   let toastT = null;
@@ -423,12 +435,10 @@
   }
 
   function applyCamera(){
-    // Title fades out, scene fades in
     const sceneAlpha = clamp01((progress - 0.05) / 0.25);
     scene.style.opacity = sceneAlpha.toFixed(3);
     titleLayer.style.opacity = (1 - sceneAlpha).toFixed(3);
 
-    // Zoom/pan toward the door as progress increases
     const t = clamp01((progress - 0.10) / 0.90);
     const zoom = ZOOM_MIN + (ZOOM_MAX - ZOOM_MIN) * (t * t);
 
@@ -449,12 +459,9 @@
     });
   }
 
-  // ========= SCROLL CONTROL (disabled when lock is open) =========
+  // Scroll only controls camera when lock is NOT open
   window.addEventListener("wheel", (e) => {
-    if (lockOpen) {
-      // Lock UI open: DO NOT zoom background; allow wheel to affect only the wheels (inside lock)
-      return;
-    }
+    if (lockOpen) return;
     e.preventDefault();
     const delta = -e.deltaY;
     progress = clamp01(progress + delta * 0.0007);
@@ -464,7 +471,7 @@
   window.addEventListener("resize", requestApply);
   applyCamera();
 
-  // ========= AUDIO (only on doorbell click) =========
+  // Song only plays on doorbell click (no UI)
   function playHintSong(){
     try{
       hintAudio.currentTime = 0;
@@ -475,31 +482,30 @@
   bellHotspot.addEventListener("click", () => {
     showToast("🔔 Ding...");
     playHintSong();
-    // subtle feedback: fade hint a bit after first click
-    bellHint.style.opacity = "0.75";
+    bellHint.style.opacity = "0.70";
   });
 
-  // ========= ON-DOOR LOCK UI =========
   function openLock(){
     lockOpen = true;
     doorLock.classList.add("show");
     doorLock.setAttribute("aria-hidden", "false");
   }
+
   function closeLock(){
     lockOpen = false;
     doorLock.classList.remove("show");
     doorLock.setAttribute("aria-hidden", "true");
     hintMessage.textContent = "";
   }
+
   lockClose.addEventListener("click", closeLock);
 
-  // Door click: show “closed” + lock on the door
   doorHotspot.addEventListener("click", () => {
     showToast("The door is closed.");
     openLock();
   });
 
-  // ========= LETTER LOCK =========
+  // ===== Letter lock wheels =====
   const wheelPositions = new Array(NUM_WHEELS).fill(0);
 
   function clampWheel(i){
@@ -529,14 +535,12 @@
       setTimeout(() => (letterEl.style.transform = "translateY(0)"), 60);
     }
 
-    // wheel scroll changes letters
     wheel.addEventListener("wheel", (e) => {
       e.preventDefault();
       const direction = e.deltaY > 0 ? -1 : 1;
       step(direction);
     }, { passive:false });
 
-    // drag / swipe
     const STEP_PX = 14;
     let dragging = false, lastY = 0, accumulatedDy = 0;
 
@@ -569,13 +573,11 @@
     return wheel;
   }
 
-  // init wheels
   lockWheelsContainer.innerHTML = "";
   for (let i=0; i<NUM_WHEELS; i++){
     lockWheelsContainer.appendChild(createScrollWheel(i));
   }
 
-  // unlock
   unlockBtn.addEventListener("click", () => {
     const entered = getEnteredCode();
     if (entered === CORRECT_CODE){
@@ -583,10 +585,8 @@
       showToast("Unlocked.");
       closeLock();
 
-      // Hook your next scene here (e.g. reveal your map overlay / step 2)
-      // Example:
-      // document.getElementById("intro").style.display = "none";
-      // document.getElementById("hint-overlay").style.display = "none";
+      // Hook next scene here
+      // e.g. document.getElementById("intro").style.display = "none";
     } else {
       hintMessage.textContent = "Not quite…";
     }
