@@ -10,15 +10,27 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Shippori+Mincho:wght@500;700&family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
+/* =========================
+   GLOBAL
+   ========================= */
 :root{
   --title-font: "Shippori Mincho", serif;
   --ui-font: "Inter", "Zen Maru Gothic", system-ui, sans-serif;
 }
+html,body{
+  margin:0; padding:0; height:100%;
+  overflow:hidden;
+  font-family:var(--ui-font);
+  background:#000;
+}
+button{ font-family:inherit; }
 
-html,body{ margin:0; padding:0; height:100%; background:#000; overflow:hidden; font-family:var(--ui-font); }
+/* =========================
+   ROOM 1 (Door)
+   ========================= */
 #intro{ position:fixed; inset:0; background:#000; }
 
-/* ===== Title ===== */
+/* Title */
 #title-layer{
   position:absolute; inset:0;
   display:flex; align-items:center; justify-content:center;
@@ -39,7 +51,7 @@ html,body{ margin:0; padding:0; height:100%; background:#000; overflow:hidden; f
 .subtitle{ margin-top:14px; font-size:14px; opacity:.82; }
 .subhint{ margin-top:18px; font-size:12px; opacity:.6; }
 
-/* ===== Scene ===== */
+/* Scene */
 #scene{ position:absolute; inset:0; opacity:0; transition:opacity .6s ease; }
 
 /* camera moves/zooms; UI is outside camera */
@@ -50,14 +62,13 @@ html,body{ margin:0; padding:0; height:100%; background:#000; overflow:hidden; f
 }
 #scene-img{ width:100%; height:100%; object-fit:cover; display:block; }
 
-/* ===== Hotspots (VISIBLE) ===== */
+/* Visible hotspots (debug-visible by request) */
 .hotspot{
   position:absolute;
   border:none;
   cursor:pointer;
   z-index:4;
 
-  /* show area */
   background: rgba(255,255,255,0.06);
   outline: 2px solid rgba(255,255,255,0.20);
   border-radius: 14px;
@@ -72,10 +83,10 @@ html,body{ margin:0; padding:0; height:100%; background:#000; overflow:hidden; f
   background: rgba(255,255,255,0.08);
 }
 
-/* anchor point in camera */
+/* Anchor point in camera (invisible) */
 .anchor{ position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
 
-/* ===== Lock panel overlay (NOT zoomed) ===== */
+/* Lock panel overlay (NOT zoomed) */
 #door-lock{
   position:absolute;
   z-index:30;
@@ -108,6 +119,11 @@ html,body{ margin:0; padding:0; height:100%; background:#000; overflow:hidden; f
   display:flex; align-items:center; justify-content:center;
   font-family:"Zen Maru Gothic"; font-size:22px; font-weight:900;
   cursor:grab; user-select:none;
+  outline:none;
+}
+.wheel:focus{
+  outline: 2px solid rgba(0,0,0,0.25);
+  box-shadow: 0 0 0 4px rgba(59,130,246,0.18);
 }
 .unlock-btn{
   width:100%;
@@ -120,7 +136,7 @@ html,body{ margin:0; padding:0; height:100%; background:#000; overflow:hidden; f
 }
 .hint-message{ margin-top:8px; color:#b91c1c; font-weight:900; min-height:16px; font-size:12px; }
 
-/* ===== NPC bubble overlay ===== */
+/* NPC bubble overlay */
 #npc-bubble{
   position:absolute;
   left:50%;
@@ -143,7 +159,7 @@ html,body{ margin:0; padding:0; height:100%; background:#000; overflow:hidden; f
 .npc-name{ font-family:"Zen Maru Gothic"; font-size:12px; font-weight:900; letter-spacing:.1em; opacity:.9; margin-bottom:6px; }
 .npc-text{ font-size:14px; line-height:1.65; }
 
-/* ===== Toast ===== */
+/* Toast */
 #toast{
   position:absolute;
   left:50%;
@@ -160,10 +176,277 @@ html,body{ margin:0; padding:0; height:100%; background:#000; overflow:hidden; f
   pointer-events:none;
 }
 #toast.show{ opacity:1; transform:translate(-50%,-6px); }
+
+/* =========================
+   ROOM 2 (White letter room)
+   Scoped under #room2 so it doesn't fight Room 1 styles
+   ========================= */
+#room2{
+  position:fixed; inset:0;
+  display:none;
+  background:#fff;
+  overflow:hidden;
+  color:#111827;
+}
+
+#room2 .world{
+  position:absolute; inset:0;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+#room2 .frame{
+  position:absolute; inset:0;
+  pointer-events:none;
+  box-shadow: inset 0 0 140px rgba(0,0,0,0.06);
+}
+
+#room2 .hud{
+  position:absolute; left:18px; top:16px;
+  z-index:50;
+  display:flex; flex-direction:column; gap:8px;
+  pointer-events:none;
+}
+#room2 .hud-pill{
+  width: fit-content;
+  background: rgba(255,255,255,0.72);
+  border: 1px solid rgba(17,24,39,0.10);
+  border-radius: 999px;
+  padding: 10px 12px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 14px 60px rgba(0,0,0,0.08);
+  font-size: 13px;
+  color: rgba(17,24,39,0.85);
+}
+
+#room2 .assembly{
+  position:absolute;
+  left:50%;
+  bottom: 84px;
+  transform: translateX(-50%);
+  width: min(900px, 92vw);
+  height: 92px;
+  border-radius: 22px;
+  background: rgba(255,255,255,0.82);
+  border: 1px solid rgba(17,24,39,0.10);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 22px 90px rgba(0,0,0,0.12);
+  z-index:40;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap: 10px;
+  padding: 12px 14px;
+}
+
+#room2 .slots{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+#room2 .slot{
+  width: 38px;
+  height: 54px;
+  border-radius: 14px;
+  border: 1px dashed rgba(17,24,39,0.20);
+  background: rgba(17,24,39,0.02);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight: 800;
+  font-size: 18px;
+  color: rgba(17,24,39,0.35);
+}
+
+#room2 .slot.space{
+  width: 18px;
+  border:none;
+  background:transparent;
+}
+#room2 .slot.correct{
+  border-style: solid;
+  border-color: rgba(16,185,129,0.45);
+  background: rgba(16,185,129,0.10);
+  color: rgba(16,185,129,0.95);
+}
+#room2 .slot.filled{
+  border-style: solid;
+  border-color: rgba(17,24,39,0.18);
+  background: rgba(17,24,39,0.04);
+  color: rgba(17,24,39,0.85);
+}
+
+#room2 .tile{
+  position:absolute;
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(17,24,39,0.12);
+  box-shadow: 0 18px 60px rgba(0,0,0,0.10);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight: 900;
+  font-size: 20px;
+  user-select:none;
+  cursor: grab;
+  touch-action: none;
+}
+#room2 .tile:active{ cursor: grabbing; }
+#room2 .tile.locked{
+  background: rgba(16,185,129,0.12);
+  border-color: rgba(16,185,129,0.45);
+  color: rgba(16,185,129,0.95);
+  cursor: default;
+}
+
+#room2 .postHint{
+  position:absolute;
+  left:50%;
+  top: 18px;
+  transform: translateX(-50%);
+  z-index:60;
+  opacity:0;
+  pointer-events:none;
+  transition: opacity .35s ease, transform .35s ease;
+}
+#room2 .postHint.show{
+  opacity:1;
+  transform: translateX(-50%) translateY(2px);
+}
+#room2 .postHint .card{
+  background: rgba(255,255,255,0.78);
+  border: 1px solid rgba(17,24,39,0.10);
+  border-radius: 18px;
+  padding: 12px 14px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 18px 70px rgba(0,0,0,0.10);
+  display:flex;
+  align-items:center;
+  gap: 12px;
+}
+#room2 .postHint .hintTitle{
+  font-weight: 900;
+  font-size: 12px;
+  letter-spacing: .12em;
+  opacity: .75;
+}
+#room2 .postHint .hintText{
+  font-size: 13px;
+  opacity: .88;
+  white-space: nowrap;
+}
+
+#room2 .escapeLock{
+  position:absolute;
+  left:50%;
+  top: 88px;
+  transform: translateX(-50%);
+  z-index:60;
+  opacity:0;
+  pointer-events:none;
+  transition: opacity .35s ease, transform .35s ease;
+}
+#room2 .escapeLock.show{
+  opacity:1;
+  pointer-events:auto;
+  transform: translateX(-50%) translateY(2px);
+}
+#room2 .lockCard{
+  width: min(360px, 92vw);
+  background: rgba(255,255,255,0.86);
+  border: 1px solid rgba(17,24,39,0.10);
+  border-radius: 18px;
+  padding: 12px 12px 10px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 20px 80px rgba(0,0,0,0.12);
+}
+#room2 .lockRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom: 8px;
+}
+#room2 .lockTitle{
+  font-weight: 900;
+  font-size: 13px;
+  letter-spacing: .10em;
+  opacity: .86;
+}
+#room2 .digits{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  margin: 8px 0 8px;
+}
+#room2 .digit{
+  width: 56px;
+  height: 72px;
+  border-radius: 18px;
+  background: linear-gradient(#f8fafc,#eef2ff);
+  border: 1px solid rgba(59,130,246,0.22);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight: 900;
+  font-size: 28px;
+  user-select:none;
+  cursor: grab;
+  outline:none;
+}
+#room2 .digit:focus{
+  outline: 2px solid rgba(59,130,246,0.35);
+  box-shadow: 0 0 0 5px rgba(59,130,246,0.12);
+}
+#room2 .lockBtn{
+  width:100%;
+  border:none;
+  border-radius: 999px;
+  padding: 10px 12px;
+  font-weight: 900;
+  cursor:pointer;
+  background: linear-gradient(135deg, #fde68a, #fb923c);
+}
+#room2 .lockMsg{
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  min-height: 16px;
+  color: #b91c1c;
+}
+
+#room2 .toast{
+  position:absolute;
+  left:50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  padding:10px 14px;
+  border-radius:999px;
+  background: rgba(17,24,39,0.70);
+  color:#fff;
+  font-size: 13px;
+  opacity:0;
+  transition: opacity .2s ease, transform .2s ease;
+  z-index:80;
+  pointer-events:none;
+}
+#room2 .toast.show{
+  opacity:1;
+  transform: translateX(-50%) translateY(-6px);
+}
 </style>
 </head>
 
 <body>
+
+<!-- =========================
+     ROOM 1
+     ========================= -->
 <div id="intro">
   <div id="title-layer">
     <div class="title-wrap">
@@ -178,12 +461,15 @@ html,body{ margin:0; padding:0; height:100%; background:#000; overflow:hidden; f
     <div id="camera">
       <img id="scene-img" src="door-bg.jpg" alt="Door hallway"/>
 
+      <!-- visible hotspot boxes -->
       <button id="door-hotspot" class="hotspot" aria-label="Door"></button>
       <button id="bell-hotspot" class="hotspot" aria-label="Intercom"></button>
 
+      <!-- anchor for overlay lock UI -->
       <div id="lock-anchor" class="anchor"></div>
     </div>
 
+    <!-- overlay lock (not zoomed) -->
     <div id="door-lock" aria-hidden="true">
       <div class="lock-top">
         <div class="lock-title">Locked.</div>
@@ -206,249 +492,586 @@ html,body{ margin:0; padding:0; height:100%; background:#000; overflow:hidden; f
 
 <audio id="song" src="song.m4a" preload="auto"></audio>
 
+<!-- =========================
+     ROOM 2
+     ========================= -->
+<div id="room2" aria-hidden="true">
+  <div class="world" id="r2-world">
+    <div class="hud">
+      <div class="hud-pill">Drag the letters into place.</div>
+      <div class="hud-pill">Zoom: mouse wheel</div>
+    </div>
+
+    <div id="r2-tiles"></div>
+
+    <div class="assembly">
+      <div class="slots" id="r2-slots"></div>
+    </div>
+
+    <div class="frame"></div>
+  </div>
+
+  <div class="postHint" id="r2-postHint">
+    <div class="card">
+      <div class="hintTitle">HINT</div>
+      <div class="hintText">the number before “essentially”</div>
+    </div>
+  </div>
+
+  <div class="escapeLock" id="r2-escapeLock">
+    <div class="lockCard">
+      <div class="lockRow">
+        <div class="lockTitle">ESCAPE LOCK</div>
+        <div style="font-size:12px; opacity:.75;">2 digits</div>
+      </div>
+      <div class="digits" id="r2-digits"></div>
+      <button class="lockBtn" id="r2-escapeBtn">Continue</button>
+      <div class="lockMsg" id="r2-lockMsg"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="r2-toast"></div>
+</div>
+
 <script>
-/* ===== CONFIG ===== */
-const CFG = {
-  code: "REALITY",
+/* =========================================================
+   SIMPLE SCENE SWITCH (Room 1 -> Room 2, no way back)
+   ========================================================= */
+let ACTIVE_ROOM = 1; // 1 or 2
 
-  // Framing (adjustable)
-  focus: { x: 0.49, y: 0.50 },
+function enterRoom2(){
+  ACTIVE_ROOM = 2;
 
-  // Zoom range once the opening is finished
-  zoomMin: 1.0,
-  zoomMax: 1.55,     // your “locked-in” close view
+  // hide room 1 completely
+  const intro = document.getElementById("intro");
+  intro.style.display = "none";
 
-  // Opening: only zoom IN until you reach openingEnd
-  openingEnd: 1.0,   // normalized progress cap for opening
+  // show room 2
+  const room2 = document.getElementById("room2");
+  room2.style.display = "block";
+  room2.setAttribute("aria-hidden", "false");
 
-  // Hotspots (smaller)
-  door: { x: 0.438, y: 0.470, w: 0.050, h: 0.100 },
-  bell: { x: 0.516, y: 0.385, w: 0.024, h: 0.070 },
-
-  // Lock overlay anchor near handle
-  lockAnchor: { x: 0.505, y: 0.545 },
-};
-
-/* ===== ELEMENTS ===== */
-const scene = document.getElementById("scene");
-const titleLayer = document.getElementById("title-layer");
-const camera = document.getElementById("camera");
-const doorBtn = document.getElementById("door-hotspot");
-const bellBtn = document.getElementById("bell-hotspot");
-const lockAnchor = document.getElementById("lock-anchor");
-const lockPanel = document.getElementById("door-lock");
-const lockClose = document.getElementById("lock-close");
-const wheelsEl = document.getElementById("lock-wheels");
-const unlockBtn = document.getElementById("unlock-btn");
-const hintMsg = document.getElementById("hint-message");
-const npcBubble = document.getElementById("npc-bubble");
-const toast = document.getElementById("toast");
-const song = document.getElementById("song");
-
-/* ===== STATE ===== */
-let progress = 0;        // 0..1
-let openingDone = false; // once true, you can zoom both ways
-let lockOpen = false;
-
-/* ===== HELPERS ===== */
-const clamp01 = v => Math.max(0, Math.min(1, v));
-function showToast(t){
-  toast.textContent = t;
-  toast.classList.add("show");
-  setTimeout(()=>toast.classList.remove("show"), 900);
-}
-function setRect(el,r){
-  el.style.left=(r.x*100)+"%";
-  el.style.top=(r.y*100)+"%";
-  el.style.width=(r.w*100)+"%";
-  el.style.height=(r.h*100)+"%";
-}
-function setPoint(el,p){
-  el.style.left=(p.x*100)+"%";
-  el.style.top=(p.y*100)+"%";
-}
-function positionLockOverlay(){
-  const r = lockAnchor.getBoundingClientRect();
-  lockPanel.style.left = (r.left + r.width/2) + "px";
-  lockPanel.style.top  = (r.top  + r.height/2) + "px";
+  // init Room 2 once
+  if (!enterRoom2._inited){
+    initRoom2();
+    enterRoom2._inited = true;
+  }
 }
 
-/* Place hotspots + anchor */
-setRect(doorBtn, CFG.door);
-setRect(bellBtn, CFG.bell);
-setPoint(lockAnchor, CFG.lockAnchor);
+/* =========================================================
+   ROOM 1 SCRIPT (Door)
+   ========================================================= */
+(function room1(){
+  const CFG = {
+    code: "REALITY",
 
-/* ===== CAMERA ===== */
-function applyCamera(){
-  // fade title -> scene during early approach
-  const show = clamp01((progress - 0.10) / 0.30);
-  scene.style.opacity = show.toFixed(3);
-  titleLayer.style.opacity = (1 - show).toFixed(3);
+    focus: { x: 0.49, y: 0.50 },
+    zoomMin: 1.0,
+    zoomMax: 1.55,
 
-  const z = CFG.zoomMin + (CFG.zoomMax - CFG.zoomMin) * (progress * progress);
-  const dx = (0.5 - CFG.focus.x) * innerWidth  * (z - 1);
-  const dy = (0.5 - CFG.focus.y) * innerHeight * (z - 1);
-  camera.style.transform = `translate(${dx}px, ${dy}px) scale(${z})`;
+    openingEnd: 1.0,
 
-  if (lockOpen) positionLockOverlay();
-}
-applyCamera();
-window.addEventListener("resize", applyCamera);
+    // Smaller hotspots (tuned for a mid-zoom framing; tweak if needed)
+    door: { x: 0.338, y: 0.180, w: 0.165, h: 0.635 },
+    bell: { x: 0.588, y: 0.458, w: 0.024, h: 0.070 },
 
-/* ===== SCROLL =====
-   - During opening: ONLY zoom IN (no zoom out)
-   - After openingDone: zoom in/out, BUT never below start (progress >= 0) and never above 1 */
-window.addEventListener("wheel", (e) => {
-  e.preventDefault();
+    lockAnchor: { x: 0.505, y: 0.545 },
+  };
 
-  // If lock panel is open, don't allow camera changes
-  if (lockOpen) return;
+  const scene = document.getElementById("scene");
+  const titleLayer = document.getElementById("title-layer");
+  const camera = document.getElementById("camera");
+  const doorBtn = document.getElementById("door-hotspot");
+  const bellBtn = document.getElementById("bell-hotspot");
+  const lockAnchor = document.getElementById("lock-anchor");
+  const lockPanel = document.getElementById("door-lock");
+  const lockClose = document.getElementById("lock-close");
+  const wheelsEl = document.getElementById("lock-wheels");
+  const unlockBtn = document.getElementById("unlock-btn");
+  const hintMsg = document.getElementById("hint-message");
+  const npcBubble = document.getElementById("npc-bubble");
+  const toast = document.getElementById("toast");
+  const song = document.getElementById("song");
 
-  const delta = e.deltaY;
+  let progress = 0;
+  let openingDone = false;
+  let lockOpen = false;
 
-  if (!openingDone){
-    // Opening: only allow wheel down to zoom in
-    if (delta > 0){
-      progress = clamp01(progress + Math.min(0.09, delta * 0.0007));
-      if (progress >= CFG.openingEnd){
-        progress = CFG.openingEnd;
-        openingDone = true;
-
-        doorBtn.classList.add("enabled");
-        bellBtn.classList.add("enabled");
-        showToast("…");
-      }
-      applyCamera();
-    }
-    return;
+  const clamp01 = v => Math.max(0, Math.min(1, v));
+  function showToast(t){
+    toast.textContent = t;
+    toast.classList.add("show");
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(()=>toast.classList.remove("show"), 900);
+  }
+  function setRect(el,r){
+    el.style.left=(r.x*100)+"%";
+    el.style.top=(r.y*100)+"%";
+    el.style.width=(r.w*100)+"%";
+    el.style.height=(r.h*100)+"%";
+  }
+  function setPoint(el,p){
+    el.style.left=(p.x*100)+"%";
+    el.style.top=(p.y*100)+"%";
+  }
+  function positionLockOverlay(){
+    const r = lockAnchor.getBoundingClientRect();
+    lockPanel.style.left = (r.left + r.width/2) + "px";
+    lockPanel.style.top  = (r.top  + r.height/2) + "px";
   }
 
-  // After opening: allow both directions (zoom in/out)
-  progress = clamp01(progress + (-delta) * 0.0007); // wheel up -> zoom in, wheel down -> zoom out (natural)
+  setRect(doorBtn, CFG.door);
+  setRect(bellBtn, CFG.bell);
+  setPoint(lockAnchor, CFG.lockAnchor);
+
+  function applyCamera(){
+    const show = clamp01((progress - 0.10) / 0.30);
+    scene.style.opacity = show.toFixed(3);
+    titleLayer.style.opacity = (1 - show).toFixed(3);
+
+    const z = CFG.zoomMin + (CFG.zoomMax - CFG.zoomMin) * (progress * progress);
+    const dx = (0.5 - CFG.focus.x) * innerWidth  * (z - 1);
+    const dy = (0.5 - CFG.focus.y) * innerHeight * (z - 1);
+    camera.style.transform = `translate(${dx}px, ${dy}px) scale(${z})`;
+
+    if (lockOpen) positionLockOverlay();
+  }
   applyCamera();
-}, { passive:false });
+  window.addEventListener("resize", () => { if (ACTIVE_ROOM === 1) applyCamera(); });
 
-/* ===== INTERACTIONS ===== */
-bellBtn.addEventListener("click", () => {
-  showToast("🔔");
-  try{
-    song.currentTime = 0;
-    song.play().catch(()=>{});
-  }catch(_){}
-});
+  // Scroll handler (Room 1 only)
+  window.addEventListener("wheel", (e) => {
+    if (ACTIVE_ROOM !== 1) return;
+    e.preventDefault();
+    if (lockOpen) return;
 
-function openNPC(){
-  npcBubble.classList.add("show");
-  npcBubble.setAttribute("aria-hidden", "false");
-  clearTimeout(openNPC._t);
-  openNPC._t = setTimeout(()=>{
-    npcBubble.classList.remove("show");
-    npcBubble.setAttribute("aria-hidden", "true");
-  }, 2600);
-}
+    const delta = e.deltaY;
 
-function openLock(){
-  lockOpen = true;
-  hintMsg.textContent = "";
-  positionLockOverlay();
-  lockPanel.classList.add("show");
-  lockPanel.setAttribute("aria-hidden", "false");
-}
+    // Opening: only zoom IN (wheel down)
+    if (!openingDone){
+      if (delta > 0){
+        progress = clamp01(progress + Math.min(0.09, delta * 0.0007));
+        if (progress >= CFG.openingEnd){
+          progress = CFG.openingEnd;
+          openingDone = true;
+          doorBtn.classList.add("enabled");
+          bellBtn.classList.add("enabled");
+          showToast("…");
+        }
+        applyCamera();
+      }
+      return;
+    }
 
-function closeLock(){
-  lockOpen = false;
-  lockPanel.classList.remove("show");
-  lockPanel.setAttribute("aria-hidden", "true");
-  hintMsg.textContent = "";
-}
+    // After opening: allow zoom both ways (within this room only)
+    progress = clamp01(progress + (-delta) * 0.0007);
+    applyCamera();
+  }, { passive:false });
 
-doorBtn.addEventListener("click", () => {
-  showToast("The door is closed.");
-  openNPC();
-  openLock();
-});
+  // Interactions
+  bellBtn.addEventListener("click", () => {
+    if (ACTIVE_ROOM !== 1) return;
+    showToast("🔔");
+    try{
+      song.currentTime = 0;
+      song.play().catch(()=>{});
+    }catch(_){}
+  });
 
-lockClose.addEventListener("click", closeLock);
-window.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && lockOpen) closeLock();
-});
-document.addEventListener("pointerdown", (e) => {
-  if (!lockOpen) return;
-  if (!lockPanel.contains(e.target) && e.target !== doorBtn) closeLock();
-});
+  function openNPC(){
+    npcBubble.classList.add("show");
+    npcBubble.setAttribute("aria-hidden", "false");
+    clearTimeout(openNPC._t);
+    openNPC._t = setTimeout(()=>{
+      npcBubble.classList.remove("show");
+      npcBubble.setAttribute("aria-hidden", "true");
+    }, 2600);
+  }
+  function openLock(){
+    lockOpen = true;
+    hintMsg.textContent = "";
+    positionLockOverlay();
+    lockPanel.classList.add("show");
+    lockPanel.setAttribute("aria-hidden", "false");
+    // focus first wheel for keyboard arrows
+    setTimeout(()=> wheelsEl.children[0]?.focus(), 0);
+  }
+  function closeLock(){
+    lockOpen = false;
+    lockPanel.classList.remove("show");
+    lockPanel.setAttribute("aria-hidden", "true");
+    hintMsg.textContent = "";
+  }
 
-/* ===== LOCK WHEELS ===== */
-const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-const CODE = CFG.code.toUpperCase();
-const wheelState = new Array(CODE.length).fill(0);
+  doorBtn.addEventListener("click", () => {
+    if (ACTIVE_ROOM !== 1) return;
+    showToast("The door is closed.");
+    openNPC();
+    openLock();
+  });
 
-function buildWheels(){
-  wheelsEl.innerHTML = "";
+  lockClose.addEventListener("click", closeLock);
+  window.addEventListener("keydown", (e) => {
+    if (ACTIVE_ROOM !== 1) return;
+    if (e.key === "Escape" && lockOpen) closeLock();
+  });
+  document.addEventListener("pointerdown", (e) => {
+    if (ACTIVE_ROOM !== 1) return;
+    if (!lockOpen) return;
+    if (!lockPanel.contains(e.target) && e.target !== doorBtn) closeLock();
+  });
 
-  for (let i = 0; i < CODE.length; i++){
-    const w = document.createElement("div");
-    w.className = "wheel";
-    w.textContent = letters[wheelState[i]];
+  // Lock wheels (with arrow control)
+  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+  const CODE = CFG.code.toUpperCase();
+  const wheelState = new Array(CODE.length).fill(0);
 
-    // make it keyboard focusable
-    w.tabIndex = 0;
-    w.setAttribute("role", "spinbutton");
-    w.setAttribute("aria-label", `Letter ${i + 1}`);
-    w.setAttribute("aria-valuemin", "0");
-    w.setAttribute("aria-valuemax", "25");
-    w.setAttribute("aria-valuenow", String(wheelState[i]));
-
-    function setVal(next){
-      wheelState[i] = (next + 26) % 26;
+  function buildWheels(){
+    wheelsEl.innerHTML = "";
+    for (let i = 0; i < CODE.length; i++){
+      const w = document.createElement("div");
+      w.className = "wheel";
       w.textContent = letters[wheelState[i]];
-      w.setAttribute("aria-valuenow", String(wheelState[i]));
+
+      w.tabIndex = 0;
+      w.setAttribute("role","spinbutton");
+      w.setAttribute("aria-label",`Letter ${i+1}`);
+
+      function setVal(next){
+        wheelState[i] = (next + 26) % 26;
+        w.textContent = letters[wheelState[i]];
+      }
+      function step(dir){ setVal(wheelState[i] + dir); }
+
+      w.addEventListener("wheel", (e) => {
+        e.preventDefault();
+        step(e.deltaY > 0 ? -1 : +1);
+      }, { passive:false });
+
+      w.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowUp")    { e.preventDefault(); step(+1); }
+        if (e.key === "ArrowDown")  { e.preventDefault(); step(-1); }
+        if (e.key === "ArrowRight") { e.preventDefault(); wheelsEl.children[Math.min(CODE.length-1, i+1)].focus(); }
+        if (e.key === "ArrowLeft")  { e.preventDefault(); wheelsEl.children[Math.max(0, i-1)].focus(); }
+        if (e.key === "Home") { e.preventDefault(); setVal(0); }
+        if (e.key === "End")  { e.preventDefault(); setVal(25); }
+      });
+
+      w.addEventListener("pointerdown", () => w.focus());
+
+      wheelsEl.appendChild(w);
     }
+  }
+  function enteredCode(){ return wheelState.map(i => letters[i]).join(""); }
+  buildWheels();
 
-    function step(dir){
-      // dir: +1 forward (A->B), -1 backward (B->A)
-      setVal(wheelState[i] + dir);
+  unlockBtn.addEventListener("click", () => {
+    if (ACTIVE_ROOM !== 1) return;
+
+    if (enteredCode() === CODE){
+      showToast("Unlocked.");
+      closeLock();
+
+      // Clean switch to Room 2 (no going back)
+      setTimeout(() => enterRoom2(), 650);
+    } else {
+      hintMsg.textContent = "Not quite…";
     }
+  });
+})();
 
-    // mouse wheel
-    w.addEventListener("wheel", (e) => {
-      e.preventDefault();
-      step(e.deltaY > 0 ? -1 : +1);
-    }, { passive:false });
+/* =========================================================
+   ROOM 2 SCRIPT (White letter room)
+   ========================================================= */
+function initRoom2(){
+  const TARGET = "FAVORITE PAPER";
+  const ESCAPE_CODE = "35";
 
-    // keyboard
-    w.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowUp")    { e.preventDefault(); step(+1); }
-      if (e.key === "ArrowDown")  { e.preventDefault(); step(-1); }
+  const world = document.getElementById("r2-world");
+  const tilesWrap = document.getElementById("r2-tiles");
+  const slotsWrap = document.getElementById("r2-slots");
+  const postHint = document.getElementById("r2-postHint");
+  const escapeLock = document.getElementById("r2-escapeLock");
+  const digitsEl = document.getElementById("r2-digits");
+  const lockMsg = document.getElementById("r2-lockMsg");
+  const escapeBtn = document.getElementById("r2-escapeBtn");
+  const toast = document.getElementById("r2-toast");
 
-      // move between wheels
-      if (e.key === "ArrowRight") { e.preventDefault(); wheelsEl.children[Math.min(CODE.length-1, i+1)].focus(); }
-      if (e.key === "ArrowLeft")  { e.preventDefault(); wheelsEl.children[Math.max(0, i-1)].focus(); }
+  // zoom
+  let zoom = 1.0;
+  const ZOOM_MIN = 0.85;
+  const ZOOM_MAX = 1.65;
+  const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+  function applyZoom(){ world.style.transform = `scale(${zoom})`; }
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add("show");
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(()=>toast.classList.remove("show"), 900);
+  }
 
-      // jump
-      if (e.key === "Home") { e.preventDefault(); setVal(0); }   // A
-      if (e.key === "End")  { e.preventDefault(); setVal(25); }  // Z
+  // slots
+  const targetChars = [...TARGET];
+  const placed = new Array(targetChars.length).fill(null);
+  const slotEls = [];
+
+  function isSpace(i){ return targetChars[i] === " "; }
+  function buildSlots(){
+    slotsWrap.innerHTML = "";
+    slotEls.length = 0;
+    for (let i=0;i<targetChars.length;i++){
+      const s = document.createElement("div");
+      s.className = "slot" + (isSpace(i) ? " space" : "");
+      s.textContent = "";
+      slotsWrap.appendChild(s);
+      slotEls.push(s);
+    }
+  }
+  buildSlots();
+
+  // tiles
+  const lettersOnly = targetChars.map((c,idx)=>({c,idx})).filter(x=>x.c!==" ");
+  function shuffle(arr){
+    for (let i=arr.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+    return arr;
+  }
+
+  const tiles = []; // {id,char,el,x,y,vx,vy,locked}
+  let nextId = 1;
+  let dragging = null;
+
+  function spawnTiles(){
+    tilesWrap.innerHTML = "";
+    tiles.length = 0;
+
+    const shuffled = shuffle([...lettersOnly]);
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+
+    shuffled.forEach((item,k)=>{
+      const el = document.createElement("div");
+      el.className = "tile";
+      el.textContent = item.c;
+      tilesWrap.appendChild(el);
+
+      const id = nextId++;
+      const x = w*0.18 + (k % 9) * 70 + (Math.random()*14-7);
+      const y = h*0.18 + Math.floor(k/9) * 70 + (Math.random()*14-7);
+
+      const t = {
+        id, char:item.c, el,
+        x, y,
+        vx:(Math.random()*0.6-0.3),
+        vy:(Math.random()*0.6-0.3),
+        locked:false
+      };
+      tiles.push(t);
+      el.style.left = x + "px";
+      el.style.top  = y + "px";
+
+      enableDrag(t);
+    });
+  }
+
+  function enableDrag(t){
+    t.el.addEventListener("pointerdown", (e)=>{
+      if (ACTIVE_ROOM !== 2) return;
+      if (t.locked) return;
+      t.el.setPointerCapture(e.pointerId);
+      dragging = { id:t.id, ox: e.clientX - t.x, oy: e.clientY - t.y };
     });
 
-    // click focuses (nice UX)
-    w.addEventListener("pointerdown", () => w.focus());
+    t.el.addEventListener("pointermove", (e)=>{
+      if (ACTIVE_ROOM !== 2) return;
+      if (!dragging || dragging.id !== t.id) return;
+      t.x = e.clientX - dragging.ox;
+      t.y = e.clientY - dragging.oy;
+      t.el.style.left = t.x + "px";
+      t.el.style.top  = t.y + "px";
+    });
 
-    wheelsEl.appendChild(w);
+    t.el.addEventListener("pointerup", ()=>{
+      if (ACTIVE_ROOM !== 2) return;
+      if (!dragging || dragging.id !== t.id) return;
+      dragging = null;
+      tryPlace(t);
+    });
   }
+
+  function tick(){
+    if (ACTIVE_ROOM !== 2){
+      requestAnimationFrame(tick);
+      return;
+    }
+
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+
+    for (const t of tiles){
+      if (t.locked) continue;
+      if (dragging && dragging.id === t.id) continue;
+
+      t.x += t.vx;
+      t.y += t.vy;
+
+      if (t.x < 30 || t.x > w - 90) t.vx *= -1;
+      if (t.y < 30 || t.y > h - 240) t.vy *= -1;
+
+      t.el.style.left = t.x + "px";
+      t.el.style.top  = t.y + "px";
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function nextRequiredSlot(){
+    for (let i=0;i<targetChars.length;i++){
+      if (isSpace(i)) continue;
+      if (placed[i] === null) return i;
+    }
+    return -1;
+  }
+  function slotCenter(i){
+    const r = slotEls[i].getBoundingClientRect();
+    return { cx:r.left + r.width/2, cy:r.top + r.height/2 };
+  }
+
+  function updateSlots(){
+    for (let i=0;i<slotEls.length;i++){
+      const s = slotEls[i];
+      if (isSpace(i)) continue;
+      s.classList.remove("correct","filled");
+      if (placed[i] !== null){
+        const tile = tiles.find(x=>x.id===placed[i]);
+        s.textContent = tile ? tile.char : "";
+        s.classList.add("filled");
+      } else {
+        s.textContent = "";
+      }
+    }
+    // correct prefix (green)
+    for (let i=0;i<targetChars.length;i++){
+      if (isSpace(i)) continue;
+      if (placed[i] !== null){
+        slotEls[i].classList.add("correct");
+      } else break;
+    }
+  }
+
+  function checkComplete(){
+    for (let i=0;i<targetChars.length;i++){
+      if (isSpace(i)) continue;
+      if (placed[i] === null) return false;
+    }
+    return true;
+  }
+
+  function tryPlace(t){
+    const req = nextRequiredSlot();
+    if (req === -1) return;
+
+    const sc = slotCenter(req);
+    const dx = (t.x + 28) - sc.cx;
+    const dy = (t.y + 28) - sc.cy;
+    const dist = Math.hypot(dx,dy);
+
+    if (dist > 120){ showToast("Bring it closer."); return; }
+
+    const needed = targetChars[req];
+    if (t.char !== needed){ showToast("That doesn’t fit yet."); return; }
+
+    placed[req] = t.id;
+    t.locked = true;
+    t.el.classList.add("locked");
+
+    t.x = sc.cx - 28;
+    t.y = sc.cy - 28;
+    t.el.style.left = t.x + "px";
+    t.el.style.top  = t.y + "px";
+
+    updateSlots();
+
+    if (checkComplete()){
+      showToast("…complete.");
+      postHint.classList.add("show");
+      escapeLock.classList.add("show");
+      buildDigits();
+    }
+  }
+
+  // escape lock
+  let digitState = [0,0];
+
+  function buildDigits(){
+    digitsEl.innerHTML = "";
+
+    for (let i=0;i<2;i++){
+      const d = document.createElement("div");
+      d.className = "digit";
+      d.tabIndex = 0;
+      d.textContent = String(digitState[i]);
+
+      function setVal(v){
+        digitState[i] = (v + 10) % 10;
+        d.textContent = String(digitState[i]);
+      }
+      function step(dir){ setVal(digitState[i] + dir); }
+
+      d.addEventListener("wheel", (e)=>{
+        e.preventDefault();
+        step(e.deltaY > 0 ? -1 : +1);
+      }, { passive:false });
+
+      d.addEventListener("keydown", (e)=>{
+        if (e.key === "ArrowUp")   { e.preventDefault(); step(+1); }
+        if (e.key === "ArrowDown") { e.preventDefault(); step(-1); }
+        if (e.key === "ArrowRight"){ e.preventDefault(); digitsEl.children[Math.min(1,i+1)].focus(); }
+        if (e.key === "ArrowLeft") { e.preventDefault(); digitsEl.children[Math.max(0,i-1)].focus(); }
+        if (e.key === "Home")      { e.preventDefault(); setVal(0); }
+        if (e.key === "End")       { e.preventDefault(); setVal(9); }
+      });
+
+      d.addEventListener("pointerdown", ()=> d.focus());
+
+      digitsEl.appendChild(d);
+    }
+    setTimeout(()=>digitsEl.children[0]?.focus(), 0);
+  }
+
+  escapeBtn.addEventListener("click", ()=>{
+    const attempt = digitState.join("");
+    if (attempt === ESCAPE_CODE){
+      lockMsg.textContent = "";
+      showToast("Unlocked.");
+      // TODO: enterRoom3();
+    } else {
+      lockMsg.textContent = "Not quite…";
+    }
+  });
+
+  // Room 2 zoom wheel (only when in room 2; and only if event wasn't used by wheels)
+  window.addEventListener("wheel", (e)=>{
+    if (ACTIVE_ROOM !== 2) return;
+    if (e.defaultPrevented) return;
+    e.preventDefault();
+    zoom = clamp(zoom - e.deltaY * 0.0007, ZOOM_MIN, ZOOM_MAX);
+    applyZoom();
+  }, { passive:false });
+
+  window.addEventListener("resize", ()=>{
+    if (ACTIVE_ROOM !== 2) return;
+    applyZoom();
+  });
+
+  // init
+  spawnTiles();
+  updateSlots();
+  applyZoom();
+  requestAnimationFrame(tick);
 }
-
-function enteredCode(){ return wheelState.map(i => letters[i]).join(""); }
-
-buildWheels();
-
-unlockBtn.addEventListener("click", () => {
-  if (enteredCode() === CODE){
-    showToast("Unlocked.");
-    closeLock();
-    // hook next scene here
-  } else {
-    hintMsg.textContent = "Not quite…";
-  }
-});
 </script>
+
 </body>
 </html>
