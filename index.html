@@ -16,7 +16,9 @@
 }
 
 html,body{
-  margin:0; padding:0; height:100%;
+  margin:0;
+  padding:0;
+  height:100%;
   background:#000;
   overflow:hidden;
   font-family:var(--ui-font);
@@ -24,17 +26,21 @@ html,body{
 
 #intro{ position:fixed; inset:0; background:#000; }
 
-/* ===== Title ===== */
+/* ===== TITLE ===== */
 #title-layer{
   position:absolute; inset:0;
   display:flex; align-items:center; justify-content:center;
-  text-align:center; color:#fff;
-  z-index:10; pointer-events:none;
-  transition:opacity .55s ease;
-  background: radial-gradient(circle at 50% 35%, rgba(255,255,255,.10), rgba(0,0,0,.93) 65%);
+  text-align:center;
+  color:#fff;
+  z-index:10;
+  pointer-events:none;
+  transition:opacity .6s ease;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(255,255,255,.10), rgba(0,0,0,.93) 65%);
 }
+
 .title-wrap{ max-width:820px; padding:24px; }
-.kicker{ letter-spacing:.35em; font-size:12px; opacity:.70; margin-bottom:16px; }
+.kicker{ letter-spacing:.35em; font-size:12px; opacity:.7; margin-bottom:16px; }
 .title{
   font-family:var(--title-font);
   font-size:clamp(44px,6vw,72px);
@@ -42,32 +48,23 @@ html,body{
   line-height:1.05;
   text-shadow:0 20px 90px rgba(0,0,0,.85);
 }
-.subtitle{
-  margin-top:14px;
-  font-size:14px;
-  opacity:.82;
-  letter-spacing:.02em;
-}
-.subhint{
-  margin-top:18px;
-  font-size:12px;
-  opacity:.65;
-  letter-spacing:.18em;
-}
+.subtitle{ margin-top:14px; font-size:14px; opacity:.82; }
+.subhint{ margin-top:18px; font-size:12px; opacity:.6; }
 
-/* ===== Scene ===== */
+/* ===== SCENE ===== */
 #scene{
   position:absolute; inset:0;
   opacity:0;
-  transition:opacity .65s ease;
+  transition:opacity .6s ease;
 }
 
-/* Transform this layer so image + hotspots + lock never drift */
+/* Camera = only thing that moves */
 #camera{
   position:absolute; inset:0;
-  transform-origin: 50% 50%;
-  will-change: transform;
+  transform-origin:50% 50%;
+  will-change:transform;
 }
+
 #scene-img{
   width:100%;
   height:100%;
@@ -75,7 +72,7 @@ html,body{
   display:block;
 }
 
-/* Hotspots invisible until camera locked */
+/* ===== HOTSPOTS ===== */
 .hotspot{
   position:absolute;
   border:none;
@@ -84,145 +81,134 @@ html,body{
   z-index:4;
   opacity:0;
   pointer-events:none;
-  transition: opacity .25s ease;
 }
 .hotspot.enabled{
-  opacity:1; /* still invisible, but active */
+  opacity:1;
   pointer-events:auto;
 }
-.hotspot.enabled:hover{
-  outline: 1px solid rgba(255,255,255,0.08);
-  border-radius: 16px;
-}
 
-/* Tiny bell indicator (subtle) */
-#bell-indicator{
-  position:absolute;
-  transform: translate(-50%,-50%);
-  z-index:5;
-  pointer-events:none;
-  opacity:0;
-  transition: opacity .25s ease;
-  color: rgba(255,255,255,0.82);
-  font-size: 14px;
-  text-shadow: 0 10px 30px rgba(0,0,0,0.55);
-}
-#bell-indicator.enabled{ opacity:1; }
-
-/* ===== Lock panel (on door) ===== */
+/* ===== LOCK UI ===== */
 #door-lock{
   position:absolute;
-  z-index:7;
+  z-index:6;
   display:none;
-  width: min(320px, 76vw);
-  padding: 12px 12px 10px;
-  border-radius: 16px;
-  background: rgba(255,255,255,.92);
-  border: 1px solid rgba(255,255,255,.45);
-  box-shadow: 0 26px 80px rgba(0,0,0,.46);
-  backdrop-filter: blur(10px);
+  width:min(320px,76vw);
+  padding:12px;
+  border-radius:16px;
+  background:rgba(255,255,255,.92);
+  border:1px solid rgba(255,255,255,.45);
+  box-shadow:0 26px 80px rgba(0,0,0,.45);
+  backdrop-filter:blur(10px);
 }
 #door-lock.show{ display:block; }
 
 .lock-top{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:6px;
+  display:flex; justify-content:space-between; align-items:center;
 }
 .lock-title{
-  font-family:"Zen Maru Gothic", var(--ui-font);
+  font-family:"Zen Maru Gothic";
   font-weight:900;
   font-size:14px;
-  color:#111827;
 }
 .lock-close{
-  width:32px;height:32px;
-  border-radius:999px;
-  border: 1px solid rgba(17,24,39,.10);
-  background: rgba(17,24,39,.05);
+  width:30px;height:30px;
+  border-radius:50%;
+  border:1px solid rgba(0,0,0,.1);
+  background:#f3f4f6;
   cursor:pointer;
-  font-weight:900;
 }
-.lock-sub{ font-size:12px; color:#374151; margin-bottom:8px; }
+
+.lock-sub{ font-size:12px; opacity:.8; margin:6px 0; }
 
 .lock-wheels{
-  display:flex; justify-content:center;
-  gap:10px; margin: 8px 0 8px;
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  margin:8px 0;
 }
 .wheel{
-  width:42px; height:64px;
+  width:42px;height:64px;
   border-radius:14px;
   background:linear-gradient(#eef2ff,#dbeafe);
   border:1px solid #bfdbfe;
-  display:flex; align-items:center; justify-content:center;
-  font-family:"Zen Maru Gothic"; font-size:22px; font-weight:900;
-  cursor:grab; user-select:none;
+  font-family:"Zen Maru Gothic";
+  font-size:22px;
+  font-weight:900;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:grab;
 }
+
 .unlock-btn{
   width:100%;
-  padding:9px 12px;
+  padding:9px;
   border-radius:999px;
   border:none;
   font-weight:900;
   cursor:pointer;
   background:linear-gradient(135deg,#fde68a,#fb923c);
 }
-.hint-message{ margin-top:8px; color:#b91c1c; font-weight:900; min-height:16px; font-size:12px; }
 
-/* ===== One NPC bubble (only appears on door click) ===== */
+.hint-message{
+  margin-top:6px;
+  font-size:12px;
+  font-weight:800;
+  color:#b91c1c;
+  min-height:16px;
+}
+
+/* ===== NPC BUBBLE ===== */
 #npc-bubble{
   position:absolute;
   left:50%;
-  bottom: 26px;
-  transform: translateX(-50%) translateY(10px);
-  z-index:30;
-  width: min(760px, 92vw);
-  border-radius: 18px;
-  padding: 14px 16px 12px;
-  color: rgba(255,255,255,0.92);
-  background: rgba(0,0,0,0.46);
-  border: 1px solid rgba(255,255,255,0.14);
-  box-shadow: 0 26px 90px rgba(0,0,0,0.50);
-  backdrop-filter: blur(10px);
+  bottom:26px;
+  transform:translateX(-50%) translateY(10px);
+  width:min(760px,92vw);
+  padding:14px 16px;
+  border-radius:18px;
+  background:rgba(0,0,0,.46);
+  border:1px solid rgba(255,255,255,.14);
+  color:rgba(255,255,255,.92);
+  backdrop-filter:blur(10px);
+  box-shadow:0 26px 90px rgba(0,0,0,.5);
   opacity:0;
   pointer-events:none;
-  transition: opacity .25s ease, transform .25s ease;
+  transition:.25s ease;
+  z-index:20;
 }
 #npc-bubble.show{
   opacity:1;
-  transform: translateX(-50%) translateY(0);
+  transform:translateX(-50%) translateY(0);
 }
 .npc-name{
-  font-family: "Zen Maru Gothic", var(--ui-font);
-  font-weight: 900;
-  font-size: 12px;
-  letter-spacing: .10em;
-  opacity: .88;
-  margin-bottom: 6px;
+  font-family:"Zen Maru Gothic";
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.1em;
+  margin-bottom:6px;
 }
 .npc-text{
-  font-size: 14px;
-  line-height: 1.65;
+  font-size:14px;
+  line-height:1.65;
 }
 
-/* Toast */
+/* ===== TOAST ===== */
 #toast{
   position:absolute;
-  left:50%; top: 18px;
+  left:50%;
+  top:18px;
   transform:translateX(-50%);
   padding:10px 14px;
-  background:rgba(0,0,0,.60);
+  background:rgba(0,0,0,.6);
   color:#fff;
   border-radius:999px;
   font-size:14px;
   opacity:0;
   transition:.2s;
-  z-index:40;
-  pointer-events:none;
+  z-index:30;
 }
-#toast.show{ opacity:1; transform:translate(-50%, -6px); }
+#toast.show{ opacity:1; transform:translate(-50%,-6px); }
 </style>
 </head>
 
@@ -240,17 +226,15 @@ html,body{
 
   <div id="scene">
     <div id="camera">
-      <img id="scene-img" src="door-bg.jpg" alt="Door hallway background"/>
+      <img id="scene-img" src="door-bg.jpg" alt="Door hallway"/>
 
       <button id="door-hotspot" class="hotspot" aria-label="Door"></button>
-      <button id="bell-hotspot" class="hotspot" aria-label="Doorbell"></button>
+      <button id="bell-hotspot" class="hotspot" aria-label="Intercom"></button>
 
-      <div id="bell-indicator" aria-hidden="true">🔔</div>
-
-      <div id="door-lock" aria-hidden="true">
+      <div id="door-lock">
         <div class="lock-top">
           <div class="lock-title">Locked.</div>
-          <button id="lock-close" class="lock-close" aria-label="Close">✕</button>
+          <button id="lock-close" class="lock-close">✕</button>
         </div>
         <div class="lock-sub">Enter the first code.</div>
         <div class="lock-wheels" id="lock-wheels"></div>
@@ -259,227 +243,153 @@ html,body{
       </div>
     </div>
 
-    <!-- One NPC bubble -->
-    <div id="npc-bubble" aria-hidden="true">
+    <div id="npc-bubble">
       <div class="npc-name">???</div>
-      <div class="npc-text" id="npc-text"></div>
+      <div class="npc-text">The door is closed… maybe the bell can help.</div>
     </div>
 
-    <div id="toast" role="status" aria-live="polite"></div>
+    <div id="toast"></div>
   </div>
 </div>
 
 <audio id="song" src="song.m4a" preload="auto"></audio>
 
 <script>
-/* ===================== CONFIG ===================== */
+/* ===== CONFIG (CALIBRATED TO YOUR IMAGE) ===== */
 const CFG = {
-  code: "MEMORY",                 // change freely
-  focus: { x: 0.44, y: 0.52 },     // door focus point
+  focus: { x: 0.44, y: 0.52 },
   zoomMin: 1.0,
   zoomMax: 1.85,
-  lockProgress: 1.0,              // stop here forever
 
-  // Hotspots (normalized coords in camera)
-  door: { x: 0.34, y: 0.18, w: 0.28, h: 0.66 },
-  bell: { x: 0.60, y: 0.46, w: 0.06, h: 0.09 }, // above white switch
-  lock: { x: 0.50, y: 0.44 },
-  bellIndicator: { x: 0.60, y: 0.45 },
+  door: { x: 0.317, y: 0.135, w: 0.205, h: 0.715 },
+  bell: { x: 0.576, y: 0.429, w: 0.035, h: 0.110 },
+  lock: { x: 0.510, y: 0.535 },
 
-  npcLine: "The door is closed… maybe the bell can help."
+  code: "MEMORY"
 };
 
-/* ===================== ELEMENTS ===================== */
+/* ===== ELEMENTS ===== */
 const scene = document.getElementById("scene");
 const titleLayer = document.getElementById("title-layer");
 const camera = document.getElementById("camera");
-
 const doorBtn = document.getElementById("door-hotspot");
 const bellBtn = document.getElementById("bell-hotspot");
-const bellIndicator = document.getElementById("bell-indicator");
-
 const lockPanel = document.getElementById("door-lock");
 const lockClose = document.getElementById("lock-close");
 const wheelsEl = document.getElementById("lock-wheels");
 const unlockBtn = document.getElementById("unlock-btn");
 const hintMsg = document.getElementById("hint-message");
-
 const npcBubble = document.getElementById("npc-bubble");
-const npcText = document.getElementById("npc-text");
-
 const toast = document.getElementById("toast");
 const song = document.getElementById("song");
 
-/* ===================== STATE ===================== */
-let progress = 0;             // 0..1
-let cameraLocked = false;
+/* ===== STATE ===== */
+let progress = 0;
+let locked = false;
 let lockOpen = false;
 
-/* ===================== HELPERS ===================== */
-function clamp01(v){ return Math.max(0, Math.min(1, v)); }
-function showToast(msg){
-  toast.textContent = msg;
+/* ===== HELPERS ===== */
+const clamp01 = v => Math.max(0,Math.min(1,v));
+function showToast(t){
+  toast.textContent = t;
   toast.classList.add("show");
-  setTimeout(() => toast.classList.remove("show"), 900);
+  setTimeout(()=>toast.classList.remove("show"),900);
+}
+function setRect(el,r){
+  el.style.left=(r.x*100)+"%";
+  el.style.top=(r.y*100)+"%";
+  el.style.width=(r.w*100)+"%";
+  el.style.height=(r.h*100)+"%";
+}
+function setPoint(el,p){
+  el.style.left=(p.x*100)+"%";
+  el.style.top=(p.y*100)+"%";
+  el.style.transform="translate(-50%,-50%)";
 }
 
-function setRect(el, r){
-  el.style.left   = (r.x * 100) + "%";
-  el.style.top    = (r.y * 100) + "%";
-  el.style.width  = (r.w * 100) + "%";
-  el.style.height = (r.h * 100) + "%";
-}
-function setPoint(el, p){
-  el.style.left = (p.x * 100) + "%";
-  el.style.top  = (p.y * 100) + "%";
-  el.style.transform = "translate(-50%, -50%)";
-}
+/* ===== POSITION UI ===== */
+setRect(doorBtn,CFG.door);
+setRect(bellBtn,CFG.bell);
+setPoint(lockPanel,CFG.lock);
 
-function enableLockedUI(on){
-  doorBtn.classList.toggle("enabled", on);
-  bellBtn.classList.toggle("enabled", on);
-  bellIndicator.classList.toggle("enabled", on);
-}
-
-function showNPCLine(){
-  npcText.textContent = CFG.npcLine;
-  npcBubble.classList.add("show");
-  npcBubble.setAttribute("aria-hidden", "false");
-  clearTimeout(showNPCLine._t);
-  showNPCLine._t = setTimeout(() => {
-    npcBubble.classList.remove("show");
-    npcBubble.setAttribute("aria-hidden", "true");
-  }, 2600);
-}
-
-/* ===================== CAMERA ===================== */
+/* ===== CAMERA ===== */
 function applyCamera(){
-  const show = clamp01((progress - 0.10) / 0.30);
-  scene.style.opacity = show.toFixed(3);
-  titleLayer.style.opacity = (1 - show).toFixed(3);
+  const show=clamp01((progress-.1)/.3);
+  scene.style.opacity=show;
+  titleLayer.style.opacity=1-show;
 
-  const t = clamp01(progress);
-  const zoom = CFG.zoomMin + (CFG.zoomMax - CFG.zoomMin) * (t * t);
-
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-  const dx = (0.5 - CFG.focus.x) * vw * (zoom - 1);
-  const dy = (0.5 - CFG.focus.y) * vh * (zoom - 1);
-
-  camera.style.transform = `translate(${dx}px, ${dy}px) scale(${zoom})`;
+  const z=CFG.zoomMin+(CFG.zoomMax-CFG.zoomMin)*(progress*progress);
+  const dx=(.5-CFG.focus.x)*innerWidth*(z-1);
+  const dy=(.5-CFG.focus.y)*innerHeight*(z-1);
+  camera.style.transform=`translate(${dx}px,${dy}px) scale(${z})`;
 }
-
-function lockCameraIfReached(){
-  if (cameraLocked) return;
-  if (progress >= CFG.lockProgress){
-    progress = CFG.lockProgress;
-    cameraLocked = true;
-    enableLockedUI(true);
-    showToast("…");
-  }
-}
-
-/* Position UI */
-setRect(doorBtn, CFG.door);
-setRect(bellBtn, CFG.bell);
-setPoint(lockPanel, CFG.lock);
-setPoint(bellIndicator, CFG.bellIndicator);
-
-enableLockedUI(false);
 applyCamera();
 
-window.addEventListener("resize", applyCamera);
-
-/* ===================== SCROLL: ONLY ZOOM IN ===================== */
-window.addEventListener("wheel", (e) => {
+/* ===== SCROLL (ZOOM IN ONLY) ===== */
+window.addEventListener("wheel",e=>{
   e.preventDefault();
-
-  if (cameraLocked) return; // once locked, never zoom down again
-
-  // only allow zooming IN on wheel down
-  if (e.deltaY > 0){
-    progress = clamp01(progress + Math.min(0.08, e.deltaY * 0.0007));
+  if(locked) return;
+  if(e.deltaY>0){
+    progress=clamp01(progress+e.deltaY*0.0007);
     applyCamera();
-    lockCameraIfReached();
+    if(progress>=1){
+      locked=true;
+      doorBtn.classList.add("enabled");
+      bellBtn.classList.add("enabled");
+      showToast("…");
+    }
   }
-}, { passive:false });
+},{passive:false});
 
-/* ===================== INTERACTIONS ===================== */
-bellBtn.addEventListener("click", () => {
+/* ===== INTERACTIONS ===== */
+bellBtn.onclick=()=>{
   showToast("🔔");
-  try{
-    song.currentTime = 0;
-    song.play().catch(()=>{});
-  }catch(_){}
-});
+  song.currentTime=0;
+  song.play().catch(()=>{});
+};
 
-function openLock(){
-  lockOpen = true;
+doorBtn.onclick=()=>{
+  npcBubble.classList.add("show");
+  setTimeout(()=>npcBubble.classList.remove("show"),2600);
   lockPanel.classList.add("show");
-  lockPanel.setAttribute("aria-hidden", "false");
-  hintMsg.textContent = "";
-}
+  lockOpen=true;
+};
 
+lockClose.onclick=closeLock;
+window.addEventListener("keydown",e=>{ if(e.key==="Escape") closeLock(); });
+camera.addEventListener("pointerdown",e=>{
+  if(lockOpen && !lockPanel.contains(e.target)) closeLock();
+});
 function closeLock(){
-  lockOpen = false;
+  lockOpen=false;
   lockPanel.classList.remove("show");
-  lockPanel.setAttribute("aria-hidden", "true");
-  hintMsg.textContent = "";
 }
 
-doorBtn.addEventListener("click", () => {
-  showToast("The door is closed.");
-  showNPCLine();      // <-- NPC pops only here
-  openLock();
+/* ===== LOCK WHEELS ===== */
+const letters="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+const CODE=CFG.code;
+const state=[...CODE].map(()=>0);
+
+state.forEach((_,i)=>{
+  const w=document.createElement("div");
+  w.className="wheel";
+  w.textContent=letters[0];
+  w.onwheel=e=>{
+    e.preventDefault();
+    state[i]=(state[i]+(e.deltaY>0?-1:1)+26)%26;
+    w.textContent=letters[state[i]];
+  };
+  wheelsEl.appendChild(w);
 });
 
-lockClose.addEventListener("click", closeLock);
-window.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && lockOpen) closeLock();
-});
-
-// click outside lock panel closes it
-camera.addEventListener("pointerdown", (e) => {
-  if (!lockOpen) return;
-  if (!lockPanel.contains(e.target)) closeLock();
-});
-
-/* ===================== LOCK WHEELS ===================== */
-const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-const CODE = CFG.code.toUpperCase();
-const wheelState = new Array(CODE.length).fill(0);
-
-function buildWheels(){
-  wheelsEl.innerHTML = "";
-  for(let i=0; i<CODE.length; i++){
-    const w = document.createElement("div");
-    w.className = "wheel";
-    w.textContent = letters[wheelState[i]];
-
-    w.addEventListener("wheel", (e) => {
-      e.preventDefault();
-      const dir = (e.deltaY > 0) ? -1 : 1;
-      wheelState[i] = (wheelState[i] + dir + 26) % 26;
-      w.textContent = letters[wheelState[i]];
-    }, { passive:false });
-
-    wheelsEl.appendChild(w);
-  }
-}
-function enteredCode(){ return wheelState.map(i => letters[i]).join(""); }
-
-buildWheels();
-
-unlockBtn.addEventListener("click", () => {
-  if (enteredCode() === CODE){
+unlockBtn.onclick=()=>{
+  if(state.map(i=>letters[i]).join("")===CODE){
     showToast("Unlocked.");
     closeLock();
-    // Hook next scene here
-    // document.getElementById("intro").style.display = "none";
-  } else {
-    hintMsg.textContent = "Not quite…";
+  }else{
+    hintMsg.textContent="Not quite…";
   }
-});
+};
 </script>
 </body>
 </html>
