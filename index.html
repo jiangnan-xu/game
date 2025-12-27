@@ -384,21 +384,58 @@ const wheelState = new Array(CODE.length).fill(0);
 
 function buildWheels(){
   wheelsEl.innerHTML = "";
-  for (let i=0; i<CODE.length; i++){
+
+  for (let i = 0; i < CODE.length; i++){
     const w = document.createElement("div");
     w.className = "wheel";
-    w.textContent = letters[0];
+    w.textContent = letters[wheelState[i]];
 
+    // make it keyboard focusable
+    w.tabIndex = 0;
+    w.setAttribute("role", "spinbutton");
+    w.setAttribute("aria-label", `Letter ${i + 1}`);
+    w.setAttribute("aria-valuemin", "0");
+    w.setAttribute("aria-valuemax", "25");
+    w.setAttribute("aria-valuenow", String(wheelState[i]));
+
+    function setVal(next){
+      wheelState[i] = (next + 26) % 26;
+      w.textContent = letters[wheelState[i]];
+      w.setAttribute("aria-valuenow", String(wheelState[i]));
+    }
+
+    function step(dir){
+      // dir: +1 forward (A->B), -1 backward (B->A)
+      setVal(wheelState[i] + dir);
+    }
+
+    // mouse wheel
     w.addEventListener("wheel", (e) => {
       e.preventDefault();
-      const dir = (e.deltaY > 0) ? -1 : 1;
-      wheelState[i] = (wheelState[i] + dir + 26) % 26;
-      w.textContent = letters[wheelState[i]];
+      step(e.deltaY > 0 ? -1 : +1);
     }, { passive:false });
+
+    // keyboard
+    w.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowUp")    { e.preventDefault(); step(+1); }
+      if (e.key === "ArrowDown")  { e.preventDefault(); step(-1); }
+
+      // move between wheels
+      if (e.key === "ArrowRight") { e.preventDefault(); wheelsEl.children[Math.min(CODE.length-1, i+1)].focus(); }
+      if (e.key === "ArrowLeft")  { e.preventDefault(); wheelsEl.children[Math.max(0, i-1)].focus(); }
+
+      // jump
+      if (e.key === "Home") { e.preventDefault(); setVal(0); }   // A
+      if (e.key === "End")  { e.preventDefault(); setVal(25); }  // Z
+    });
+
+    // click focuses (nice UX)
+    w.addEventListener("pointerdown", () => w.focus());
 
     wheelsEl.appendChild(w);
   }
 }
+
 function enteredCode(){ return wheelState.map(i => letters[i]).join(""); }
 
 buildWheels();
