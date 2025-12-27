@@ -216,48 +216,50 @@ button{ font-family:inherit; }
   box-shadow: inset 0 0 180px rgba(0,0,0,0.05);
 }
 
-/* floating letters: NO border, just text + shadow */
+/* floating letters: BIG, no border, with depth vars set by JS */
 #room2 .tile{
   position:absolute;
-  width: 150px;
-  height: 150px;
+  width: 260px;
+  height: 260px;
   display:flex;
   align-items:center;
   justify-content:center;
 
   font-weight: 900;
-  font-size: 92px;
+  font-size: 180px;
   letter-spacing: 0.02em;
 
-  color: rgba(17,24,39,0.85);
-  text-shadow:
-    0 28px 60px rgba(0,0,0,0.14),
-    0 10px 18px rgba(0,0,0,0.08);
+  color: rgba(17,24,39,0.86);
 
   user-select:none;
   cursor: grab;
   touch-action:none;
 
-  transform: translateZ(0);
-  transition: transform .18s ease, opacity .18s ease;
-}
-#room2 .tile:hover{
-  transform: translateY(-2px);
-}
-#room2 .tile:active{
-  cursor: grabbing;
-}
+  transform: translateY(var(--lift, 0px)) scale(var(--scale, 1));
+  filter: blur(var(--blur, 0px));
+  opacity: var(--opa, 1);
 
-/* locked letters become calm green-ish and stop moving */
+  text-shadow:
+    0 calc(30px * var(--shadow, 1)) calc(72px * var(--shadow, 1)) rgba(0,0,0,0.14),
+    0 calc(12px * var(--shadow, 1)) calc(22px * var(--shadow, 1)) rgba(0,0,0,0.08);
+
+  transition: transform .14s ease;
+}
+#room2 .tile:hover{ --lift: -4px; }
+#room2 .tile:active{ cursor: grabbing; --lift: -1px; }
+
 #room2 .tile.locked{
   color: rgba(16,185,129,0.92);
-  text-shadow:
-    0 20px 50px rgba(16,185,129,0.10),
-    0 10px 18px rgba(0,0,0,0.06);
+  filter: blur(0px);
+  opacity: 1;
+  --lift: 0px;
   cursor: default;
+  text-shadow:
+    0 22px 55px rgba(16,185,129,0.10),
+    0 10px 18px rgba(0,0,0,0.06);
 }
 
-/* assembly area (subtle, no border heavy) */
+/* assembly area */
 #room2 .assembly{
   position:absolute;
   left:50%;
@@ -602,6 +604,7 @@ function enterRoom2BehindWhite(){
   const CFG = {
     code: "REALITY",
 
+    // framing (adjust freely; hotspots are fixed)
     focus: { x: 0.44, y: 0.52 },
     zoomMin: 1.0,
     zoomMax: 1.55,
@@ -677,6 +680,9 @@ function enterRoom2BehindWhite(){
     if (ACTIVE_ROOM === 1) applyCamera();
   });
 
+  // Room 1 scroll behavior:
+  // - During opening: ONLY zoom in (wheel down)
+  // - After opening: can zoom in/out
   window.addEventListener("wheel", (e) => {
     if (ACTIVE_ROOM !== 1) return;
     e.preventDefault();
@@ -809,8 +815,10 @@ function enterRoom2BehindWhite(){
 
 /* =========================================================
    ROOM 2 SCRIPT (Room full of letters)
-   - Place letters in ANY order
-   - Must be placed into exact correct slot
+   - duplicates supported
+   - any order placement
+   - letters never float under assembly
+   - near/far depth effect
    ========================================================= */
 function initRoom2(){
   const TARGET = "FAVORITE PAPER";
@@ -824,6 +832,7 @@ function initRoom2(){
   const lockMsg = document.getElementById("r2-lockMsg");
   const escapeBtn = document.getElementById("r2-escapeBtn");
   const toast = document.getElementById("r2-toast");
+  const assembly = document.getElementById("r2-assembly");
 
   function showToast(msg){
     toast.textContent = msg;
@@ -851,20 +860,11 @@ function initRoom2(){
   }
   buildSlots();
 
-  function slotRect(i){
-    return slotEls[i].getBoundingClientRect();
-  }
   function slotCenter(i){
-    const r = slotRect(i);
+    const r = slotEls[i].getBoundingClientRect();
     return { cx:r.left + r.width/2, cy:r.top + r.height/2 };
   }
 
-  // Create tiles for each non-space position (duplicates handled naturally)
-  const tileSpecs = targetChars
-    .map((c, idx)=>({ c, idx }))
-    .filter(x=>x.c!==" ");
-
-  // Shuffle tile specs so letters are mixed
   function shuffle(arr){
     for (let i=arr.length-1;i>0;i--){
       const j = Math.floor(Math.random()*(i+1));
@@ -873,39 +873,63 @@ function initRoom2(){
     return arr;
   }
 
-  const tiles = []; // {id,char,correctIndex,el,x,y,vx,vy,locked}
+  const TILE_SIZE = 260; // must match CSS tile width/height
+  const tiles = []; // {id,char,el,x,y,vx,vy,locked,z}
   let nextId = 1;
   let dragging = null;
+
+  function setDepthStyle(el, z){
+    // z in [0.55..1.40]
+    const scale = z;
+    const blur = Math.max(0, (1.10 - z) * 2.2);  // far blur slightly
+    const opa  = 0.74 + (z - 0.55) * 0.30;       // near more visible
+    const shadow = 0.60 + (z - 0.55) * 0.90;     // near stronger
+
+    el.style.setProperty("--scale", scale.toFixed(3));
+    el.style.setProperty("--blur", blur.toFixed(2) + "px");
+    el.style.setProperty("--opa", opa.toFixed(3));
+    el.style.setProperty("--shadow", shadow.toFixed(3));
+  }
 
   function spawnTiles(){
     tilesWrap.innerHTML = "";
     tiles.length = 0;
 
-    const shuffled = shuffle([...tileSpecs]);
+    const tileChars = targetChars.filter(c => c !== " ");
+    const shuffled = shuffle([...tileChars]);
+
     const w = window.innerWidth;
     const h = window.innerHeight;
 
-    shuffled.forEach((spec)=>{
+    shuffled.forEach((ch)=>{
       const el = document.createElement("div");
       el.className = "tile";
-      el.textContent = spec.c;
+      el.textContent = ch;
       tilesWrap.appendChild(el);
 
       const id = nextId++;
 
+      // depth
+      const z = 0.55 + Math.random() * 0.85; // 0.55..1.40
+      setDepthStyle(el, z);
+
+      // spawn upper space (avoid assembly region)
       const cx = w * (0.10 + Math.random() * 0.80);
-      const cy = h * (0.08 + Math.random() * 0.62);
+      const cy = h * (0.08 + Math.random() * 0.48);
+
+      // drift speed: far moves a little faster, near calmer
+      const speed = 0.42 + (1.40 - z) * 0.55;
 
       const t = {
         id,
-        char: spec.c,
-        correctIndex: spec.idx, // each tile knows exactly which slot it belongs to
+        char: ch,
         el,
-        x: cx - 75,
-        y: cy - 75,
-        vx:(Math.random()*0.48-0.24),
-        vy:(Math.random()*0.48-0.24),
-        locked:false
+        x: cx - TILE_SIZE/2,
+        y: cy - TILE_SIZE/2,
+        vx:(Math.random()*0.50-0.25) * speed,
+        vy:(Math.random()*0.50-0.25) * speed,
+        locked:false,
+        z
       };
       tiles.push(t);
 
@@ -937,34 +961,8 @@ function initRoom2(){
       if (ACTIVE_ROOM !== 2) return;
       if (!dragging || dragging.id !== t.id) return;
       dragging = null;
-      trySnapToCorrectSlot(t);
+      trySnapToNearestMatchingSlot(t);
     });
-  }
-
-  // float motion
-  function tick(){
-    if (ACTIVE_ROOM !== 2){
-      requestAnimationFrame(tick);
-      return;
-    }
-
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-
-    for (const t of tiles){
-      if (t.locked) continue;
-      if (dragging && dragging.id === t.id) continue;
-
-      t.x += t.vx;
-      t.y += t.vy;
-
-      if (t.x < 14 || t.x > w - 170) t.vx *= -1;
-      if (t.y < 14 || t.y > h - 260) t.vy *= -1;
-
-      t.el.style.left = t.x + "px";
-      t.el.style.top  = t.y + "px";
-    }
-    requestAnimationFrame(tick);
   }
 
   function updateSlots(){
@@ -991,34 +989,40 @@ function initRoom2(){
     return true;
   }
 
-  function trySnapToCorrectSlot(t){
-    const idx = t.correctIndex;
+  function trySnapToNearestMatchingSlot(t){
+    // find candidate slots: same letter, empty
+    const candidates = [];
+    for (let i=0;i<targetChars.length;i++){
+      if (isSpace(i)) continue;
+      if (placed[i] !== null) continue;
+      if (targetChars[i] !== t.char) continue;
 
-    // if already filled by another tile, reject
-    if (placed[idx] !== null){
-      showToast("That place is already taken.");
+      const sc = slotCenter(i);
+      const dx = (t.x + TILE_SIZE/2) - sc.cx;
+      const dy = (t.y + TILE_SIZE/2) - sc.cy;
+      const dist = Math.hypot(dx,dy);
+      candidates.push({ i, sc, dist });
+    }
+
+    if (!candidates.length){
+      showToast("No place for this.");
       return;
     }
 
-    // must be dropped near its own correct slot
-    const sc = slotCenter(idx);
-    const dx = (t.x + 75) - sc.cx;
-    const dy = (t.y + 75) - sc.cy;
-    const dist = Math.hypot(dx,dy);
+    candidates.sort((a,b)=>a.dist-b.dist);
+    const best = candidates[0];
 
-    // snap radius (tight-ish)
-    if (dist > 115){
+    if (best.dist > 160){
       showToast("Not here.");
       return;
     }
 
-    // lock it
-    placed[idx] = t.id;
+    placed[best.i] = t.id;
     t.locked = true;
     t.el.classList.add("locked");
 
-    t.x = sc.cx - 75;
-    t.y = sc.cy - 75;
+    t.x = best.sc.cx - TILE_SIZE/2;
+    t.y = best.sc.cy - TILE_SIZE/2;
     t.el.style.left = t.x + "px";
     t.el.style.top  = t.y + "px";
 
@@ -1032,9 +1036,44 @@ function initRoom2(){
     }
   }
 
-  // 2-digit lock
-  let digitState = [0,0];
+  function tick(){
+    if (ACTIVE_ROOM !== 2){
+      requestAnimationFrame(tick);
+      return;
+    }
 
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+
+    // keep letters above assembly
+    const ar = assembly.getBoundingClientRect();
+    const maxY = Math.max(24, ar.top - TILE_SIZE - 18);
+
+    for (const t of tiles){
+      if (t.locked) continue;
+      if (dragging && dragging.id === t.id) continue;
+
+      t.x += t.vx;
+      t.y += t.vy;
+
+      const minX = 14;
+      const maxX = w - TILE_SIZE - 14;
+      const minY = 14;
+
+      if (t.x < minX || t.x > maxX) t.vx *= -1;
+      if (t.y < minY || t.y > maxY) t.vy *= -1;
+
+      t.x = Math.max(minX, Math.min(maxX, t.x));
+      t.y = Math.max(minY, Math.min(maxY, t.y));
+
+      t.el.style.left = t.x + "px";
+      t.el.style.top  = t.y + "px";
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // 2-digit lock (unchanged)
+  let digitState = [0,0];
   function buildDigits(){
     digitsEl.innerHTML = "";
 
@@ -1067,6 +1106,7 @@ function initRoom2(){
       d.addEventListener("pointerdown", ()=> d.focus());
       digitsEl.appendChild(d);
     }
+
     setTimeout(()=>digitsEl.children[0]?.focus(), 0);
   }
 
@@ -1081,16 +1121,18 @@ function initRoom2(){
     }
   });
 
-  // keep snap stable on resize
+  // on resize: re-snap locked tiles to their slot centers
   window.addEventListener("resize", ()=>{
     if (ACTIVE_ROOM !== 2) return;
-    // no need to move locked tiles; they stay visually fine
-    // but slot centers move; so we re-snap locked ones cleanly
-    for (const t of tiles){
-      if (!t.locked) continue;
-      const sc = slotCenter(t.correctIndex);
-      t.x = sc.cx - 75;
-      t.y = sc.cy - 75;
+    for (let i=0;i<targetChars.length;i++){
+      if (isSpace(i)) continue;
+      const tid = placed[i];
+      if (!tid) continue;
+      const t = tiles.find(x=>x.id===tid);
+      if (!t) continue;
+      const sc = slotCenter(i);
+      t.x = sc.cx - TILE_SIZE/2;
+      t.y = sc.cy - TILE_SIZE/2;
       t.el.style.left = t.x + "px";
       t.el.style.top  = t.y + "px";
     }
