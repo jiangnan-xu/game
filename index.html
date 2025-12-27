@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Level 33 Memory</title>
+<title>Level 33 memory</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,6 +24,19 @@ html,body{
   background:#000;
 }
 button{ font-family:inherit; }
+
+/* Transition overlay (bright blur -> clear) */
+#transition{
+  position:fixed; inset:0;
+  z-index:9999;
+  pointer-events:none;
+  opacity:0;
+  background: rgba(255,255,255,1);
+  filter: blur(0px);
+}
+#transition.show{
+  opacity:1;
+}
 
 /* =========================
    ROOM 1 (Door)
@@ -54,7 +67,7 @@ button{ font-family:inherit; }
 /* Scene */
 #scene{ position:absolute; inset:0; opacity:0; transition:opacity .6s ease; }
 
-/* camera moves/zooms; UI is outside camera */
+/* camera zooms; UI is outside camera */
 #camera{
   position:absolute; inset:0;
   transform-origin:50% 50%;
@@ -62,7 +75,7 @@ button{ font-family:inherit; }
 }
 #scene-img{ width:100%; height:100%; object-fit:cover; display:block; }
 
-/* Visible hotspots (debug-visible by request) */
+/* Visible hotspots (you asked to show area) */
 .hotspot{
   position:absolute;
   border:none;
@@ -86,7 +99,7 @@ button{ font-family:inherit; }
 /* Anchor point in camera (invisible) */
 .anchor{ position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
 
-/* Lock panel overlay (NOT zoomed) */
+/* Lock overlay (NOT zoomed) */
 #door-lock{
   position:absolute;
   z-index:30;
@@ -178,132 +191,170 @@ button{ font-family:inherit; }
 #toast.show{ opacity:1; transform:translate(-50%,-6px); }
 
 /* =========================
-   ROOM 2 (White letter room)
-   Scoped under #room2 so it doesn't fight Room 1 styles
+   ROOM 2 (Immersive letters room)
    ========================= */
 #room2{
   position:fixed; inset:0;
   display:none;
-  background:#fff;
   overflow:hidden;
+  background:
+    radial-gradient(circle at 50% 28%, rgba(0,0,0,0.03), rgba(255,255,255,1) 68%),
+    #fff;
   color:#111827;
 }
 
-#room2 .world{
+/* We will blur this at entry, then clear */
+#room2 .room2-inner{
   position:absolute; inset:0;
-  transform-origin: 50% 50%;
-  will-change: transform;
+  transition: filter 0.9s ease, opacity 0.9s ease;
+  filter: blur(18px);
+  opacity: 0.0;
 }
 
 #room2 .frame{
   position:absolute; inset:0;
   pointer-events:none;
-  box-shadow: inset 0 0 140px rgba(0,0,0,0.06);
+  box-shadow: inset 0 0 170px rgba(0,0,0,0.05);
 }
 
-#room2 .hud{
-  position:absolute; left:18px; top:16px;
-  z-index:50;
-  display:flex; flex-direction:column; gap:8px;
-  pointer-events:none;
-}
-#room2 .hud-pill{
-  width: fit-content;
-  background: rgba(255,255,255,0.72);
-  border: 1px solid rgba(17,24,39,0.10);
-  border-radius: 999px;
-  padding: 10px 12px;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 14px 60px rgba(0,0,0,0.08);
-  font-size: 13px;
-  color: rgba(17,24,39,0.85);
-}
-
+/* Assembly line */
 #room2 .assembly{
   position:absolute;
   left:50%;
-  bottom: 84px;
+  bottom: 90px;
   transform: translateX(-50%);
-  width: min(900px, 92vw);
-  height: 92px;
-  border-radius: 22px;
-  background: rgba(255,255,255,0.82);
+  width: min(980px, 94vw);
+  height: 116px;
+  border-radius: 28px;
+  background: rgba(255,255,255,0.80);
   border: 1px solid rgba(17,24,39,0.10);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 22px 90px rgba(0,0,0,0.12);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 28px 120px rgba(0,0,0,0.12);
   z-index:40;
   display:flex;
   align-items:center;
   justify-content:center;
-  gap: 10px;
-  padding: 12px 14px;
+  padding: 14px 16px;
+  overflow:hidden;
+}
+
+/* Bridge */
+#room2 .bridge{
+  position:absolute; inset:0;
+  z-index:1;
+  pointer-events:none;
+}
+#room2 .bridge path{
+  fill:none;
+  stroke: rgba(16,185,129,0.80);
+  stroke-width: 12;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 10px 18px rgba(16,185,129,0.18));
 }
 
 #room2 .slots{
   display:flex;
   align-items:center;
   justify-content:center;
-  gap: 6px;
+  gap: 10px;
   flex-wrap: wrap;
+  position: relative;
+  z-index: 2;
 }
 
+/* Slots bigger */
 #room2 .slot{
-  width: 38px;
-  height: 54px;
-  border-radius: 14px;
-  border: 1px dashed rgba(17,24,39,0.20);
+  width: 48px;
+  height: 70px;
+  border-radius: 18px;
+  border: 1px dashed rgba(17,24,39,0.18);
   background: rgba(17,24,39,0.02);
   display:flex;
   align-items:center;
   justify-content:center;
-  font-weight: 800;
-  font-size: 18px;
-  color: rgba(17,24,39,0.35);
+  font-weight: 900;
+  font-size: 22px;
+  color: rgba(17,24,39,0.32);
 }
-
 #room2 .slot.space{
-  width: 18px;
+  width: 22px;
   border:none;
   background:transparent;
 }
+#room2 .slot.filled{
+  border-style: solid;
+  border-color: rgba(17,24,39,0.16);
+  background: rgba(17,24,39,0.04);
+  color: rgba(17,24,39,0.88);
+}
 #room2 .slot.correct{
   border-style: solid;
-  border-color: rgba(16,185,129,0.45);
+  border-color: rgba(16,185,129,0.42);
   background: rgba(16,185,129,0.10);
   color: rgba(16,185,129,0.95);
 }
-#room2 .slot.filled{
-  border-style: solid;
-  border-color: rgba(17,24,39,0.18);
-  background: rgba(17,24,39,0.04);
-  color: rgba(17,24,39,0.85);
-}
 
+/* Big 3D-ish tiles */
 #room2 .tile{
   position:absolute;
-  width: 56px;
-  height: 56px;
-  border-radius: 18px;
-  background: rgba(255,255,255,0.92);
-  border: 1px solid rgba(17,24,39,0.12);
-  box-shadow: 0 18px 60px rgba(0,0,0,0.10);
+  width: 110px;
+  height: 110px;
+  border-radius: 30px;
+
+  background:
+    radial-gradient(circle at 28% 22%, rgba(255,255,255,0.96), rgba(255,255,255,0.70) 36%, rgba(255,255,255,0.28) 66%, rgba(255,255,255,0.16)),
+    linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.86));
+
+  border: 1px solid rgba(17,24,39,0.10);
+
+  box-shadow:
+    0 34px 120px rgba(0,0,0,0.12),
+    0 12px 26px rgba(0,0,0,0.08);
+
   display:flex;
   align-items:center;
   justify-content:center;
+
   font-weight: 900;
-  font-size: 20px;
+  font-size: 38px;
+  letter-spacing: 0.02em;
+  color: rgba(17,24,39,0.88);
+
   user-select:none;
   cursor: grab;
-  touch-action: none;
+  touch-action:none;
+
+  transform: perspective(900px) rotateX(10deg) rotateY(-10deg);
+  transition: transform .25s ease, box-shadow .25s ease;
 }
-#room2 .tile:active{ cursor: grabbing; }
+#room2 .tile:hover{
+  transform: perspective(900px) rotateX(6deg) rotateY(-6deg) translateY(-1px);
+}
+#room2 .tile:active{
+  cursor: grabbing;
+  transform: perspective(900px) rotateX(4deg) rotateY(-4deg);
+}
+#room2 .tile::after{
+  content:"";
+  position:absolute;
+  inset: 7px;
+  border-radius: 24px;
+  border: 1px solid rgba(255,255,255,0.60);
+  opacity: .55;
+  pointer-events:none;
+}
 #room2 .tile.locked{
-  background: rgba(16,185,129,0.12);
-  border-color: rgba(16,185,129,0.45);
+  background:
+    radial-gradient(circle at 28% 22%, rgba(255,255,255,0.92), rgba(16,185,129,0.14) 46%, rgba(16,185,129,0.10) 70%),
+    linear-gradient(180deg, rgba(240,253,250,0.95), rgba(209,250,229,0.70));
+  border-color: rgba(16,185,129,0.42);
   color: rgba(16,185,129,0.95);
   cursor: default;
+  transform: perspective(900px) rotateX(0deg) rotateY(0deg);
 }
 
+/* Hint + lock */
 #room2 .postHint{
   position:absolute;
   left:50%;
@@ -319,7 +370,7 @@ button{ font-family:inherit; }
   transform: translateX(-50%) translateY(2px);
 }
 #room2 .postHint .card{
-  background: rgba(255,255,255,0.78);
+  background: rgba(255,255,255,0.80);
   border: 1px solid rgba(17,24,39,0.10);
   border-radius: 18px;
   padding: 12px 14px;
@@ -358,7 +409,7 @@ button{ font-family:inherit; }
 }
 #room2 .lockCard{
   width: min(360px, 92vw);
-  background: rgba(255,255,255,0.86);
+  background: rgba(255,255,255,0.88);
   border: 1px solid rgba(17,24,39,0.10);
   border-radius: 18px;
   padding: 12px 12px 10px;
@@ -420,6 +471,7 @@ button{ font-family:inherit; }
   color: #b91c1c;
 }
 
+/* Room2 toast */
 #room2 .toast{
   position:absolute;
   left:50%;
@@ -444,6 +496,8 @@ button{ font-family:inherit; }
 
 <body>
 
+<div id="transition"></div>
+
 <!-- =========================
      ROOM 1
      ========================= -->
@@ -461,15 +515,12 @@ button{ font-family:inherit; }
     <div id="camera">
       <img id="scene-img" src="door-bg.jpg" alt="Door hallway"/>
 
-      <!-- visible hotspot boxes -->
       <button id="door-hotspot" class="hotspot" aria-label="Door"></button>
       <button id="bell-hotspot" class="hotspot" aria-label="Intercom"></button>
 
-      <!-- anchor for overlay lock UI -->
       <div id="lock-anchor" class="anchor"></div>
     </div>
 
-    <!-- overlay lock (not zoomed) -->
     <div id="door-lock" aria-hidden="true">
       <div class="lock-top">
         <div class="lock-title">Locked.</div>
@@ -496,15 +547,13 @@ button{ font-family:inherit; }
      ROOM 2
      ========================= -->
 <div id="room2" aria-hidden="true">
-  <div class="world" id="r2-world">
-    <div class="hud">
-      <div class="hud-pill">Drag the letters into place.</div>
-      <div class="hud-pill">Zoom: mouse wheel</div>
-    </div>
-
+  <div class="room2-inner" id="r2-inner">
     <div id="r2-tiles"></div>
 
-    <div class="assembly">
+    <div class="assembly" id="r2-assembly">
+      <svg class="bridge" id="r2-bridge" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <path id="r2-bridgePath" d="" />
+      </svg>
       <div class="slots" id="r2-slots"></div>
     </div>
 
@@ -535,14 +584,52 @@ button{ font-family:inherit; }
 
 <script>
 /* =========================================================
-   SIMPLE SCENE SWITCH (Room 1 -> Room 2, no way back)
+   SCENE SWITCH (Room 1 -> Room 2, no way back)
    ========================================================= */
 let ACTIVE_ROOM = 1; // 1 or 2
 
-function enterRoom2(){
+function brightTransitionToRoom2(){
+  const transition = document.getElementById("transition");
+  transition.classList.add("show");
+
+  // Start: very bright + blur
+  transition.style.opacity = "0";
+  transition.style.filter = "blur(0px)";
+  transition.style.background = "rgba(255,255,255,1)";
+
+  // animate up quickly
+  transition.animate(
+    [
+      { opacity: 0, filter: "blur(0px)" },
+      { opacity: 1, filter: "blur(14px)" }
+    ],
+    { duration: 420, easing: "ease-out", fill: "forwards" }
+  );
+
+  // after it becomes white, switch rooms behind it
+  setTimeout(() => {
+    enterRoom2BehindWhite();
+
+    // fade white out + clear blur
+    transition.animate(
+      [
+        { opacity: 1, filter: "blur(14px)" },
+        { opacity: 0, filter: "blur(0px)" }
+      ],
+      { duration: 700, easing: "ease-in-out", fill: "forwards" }
+    );
+
+    setTimeout(() => {
+      transition.classList.remove("show");
+    }, 720);
+
+  }, 360);
+}
+
+function enterRoom2BehindWhite(){
   ACTIVE_ROOM = 2;
 
-  // hide room 1 completely
+  // hide room 1 completely (no going back)
   const intro = document.getElementById("intro");
   intro.style.display = "none";
 
@@ -552,30 +639,40 @@ function enterRoom2(){
   room2.setAttribute("aria-hidden", "false");
 
   // init Room 2 once
-  if (!enterRoom2._inited){
+  if (!enterRoom2BehindWhite._inited){
     initRoom2();
-    enterRoom2._inited = true;
+    enterRoom2BehindWhite._inited = true;
   }
+
+  // blur -> clear the room content (cinematic)
+  const inner = document.getElementById("r2-inner");
+  inner.style.filter = "blur(18px)";
+  inner.style.opacity = "0.0";
+  requestAnimationFrame(() => {
+    // animate to clear
+    inner.style.filter = "blur(0px)";
+    inner.style.opacity = "1";
+  });
 }
 
 /* =========================================================
    ROOM 1 SCRIPT (Door)
+   - Hotspot numbers are EXACTLY what you gave.
    ========================================================= */
 (function room1(){
   const CFG = {
     code: "REALITY",
 
-    focus: { x: 0.49, y: 0.50 },
+    // framing (you can adjust these freely; hotspot numbers are fixed)
+    focus: { x: 0.44, y: 0.52 },
     zoomMin: 1.0,
     zoomMax: 1.55,
-
     openingEnd: 1.0,
 
-    // Smaller hotspots (tuned for a mid-zoom framing; tweak if needed)
-    door: { x: 0.338, y: 0.180, w: 0.165, h: 0.635 },
-    bell: { x: 0.588, y: 0.458, w: 0.024, h: 0.070 },
-
-    lockAnchor: { x: 0.505, y: 0.545 },
+    // IMPORTANT: EXACT numbers you provided
+    door: { x: 0.317, y: 0.135, w: 0.205, h: 0.715 },
+    bell: { x: 0.576, y: 0.429, w: 0.035, h: 0.110 },
+    lockAnchor: { x: 0.510, y: 0.535 },
   };
 
   const scene = document.getElementById("scene");
@@ -620,6 +717,7 @@ function enterRoom2(){
     lockPanel.style.top  = (r.top  + r.height/2) + "px";
   }
 
+  // Place hotspots + anchor using your numbers
   setRect(doorBtn, CFG.door);
   setRect(bellBtn, CFG.bell);
   setPoint(lockAnchor, CFG.lockAnchor);
@@ -637,9 +735,14 @@ function enterRoom2(){
     if (lockOpen) positionLockOverlay();
   }
   applyCamera();
-  window.addEventListener("resize", () => { if (ACTIVE_ROOM === 1) applyCamera(); });
 
-  // Scroll handler (Room 1 only)
+  window.addEventListener("resize", () => {
+    if (ACTIVE_ROOM === 1) applyCamera();
+  });
+
+  // Room 1 scroll behavior:
+  // - During opening: ONLY zoom in (wheel down)
+  // - After opening: can zoom in/out
   window.addEventListener("wheel", (e) => {
     if (ACTIVE_ROOM !== 1) return;
     e.preventDefault();
@@ -647,7 +750,6 @@ function enterRoom2(){
 
     const delta = e.deltaY;
 
-    // Opening: only zoom IN (wheel down)
     if (!openingDone){
       if (delta > 0){
         progress = clamp01(progress + Math.min(0.09, delta * 0.0007));
@@ -663,12 +765,12 @@ function enterRoom2(){
       return;
     }
 
-    // After opening: allow zoom both ways (within this room only)
+    // After opening: both directions
     progress = clamp01(progress + (-delta) * 0.0007);
     applyCamera();
   }, { passive:false });
 
-  // Interactions
+  // Bell
   bellBtn.addEventListener("click", () => {
     if (ACTIVE_ROOM !== 1) return;
     showToast("🔔");
@@ -678,6 +780,7 @@ function enterRoom2(){
     }catch(_){}
   });
 
+  // NPC
   function openNPC(){
     npcBubble.classList.add("show");
     npcBubble.setAttribute("aria-hidden", "false");
@@ -687,13 +790,14 @@ function enterRoom2(){
       npcBubble.setAttribute("aria-hidden", "true");
     }, 2600);
   }
+
+  // Lock UI
   function openLock(){
     lockOpen = true;
     hintMsg.textContent = "";
     positionLockOverlay();
     lockPanel.classList.add("show");
     lockPanel.setAttribute("aria-hidden", "false");
-    // focus first wheel for keyboard arrows
     setTimeout(()=> wheelsEl.children[0]?.focus(), 0);
   }
   function closeLock(){
@@ -721,7 +825,7 @@ function enterRoom2(){
     if (!lockPanel.contains(e.target) && e.target !== doorBtn) closeLock();
   });
 
-  // Lock wheels (with arrow control)
+  // Letter lock: arrow keys + mouse wheel
   const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
   const CODE = CFG.code.toUpperCase();
   const wheelState = new Array(CODE.length).fill(0);
@@ -732,10 +836,7 @@ function enterRoom2(){
       const w = document.createElement("div");
       w.className = "wheel";
       w.textContent = letters[wheelState[i]];
-
       w.tabIndex = 0;
-      w.setAttribute("role","spinbutton");
-      w.setAttribute("aria-label",`Letter ${i+1}`);
 
       function setVal(next){
         wheelState[i] = (next + 26) % 26;
@@ -758,7 +859,6 @@ function enterRoom2(){
       });
 
       w.addEventListener("pointerdown", () => w.focus());
-
       wheelsEl.appendChild(w);
     }
   }
@@ -772,8 +872,8 @@ function enterRoom2(){
       showToast("Unlocked.");
       closeLock();
 
-      // Clean switch to Room 2 (no going back)
-      setTimeout(() => enterRoom2(), 650);
+      // Bright blur transition into Room 2
+      setTimeout(() => brightTransitionToRoom2(), 380);
     } else {
       hintMsg.textContent = "Not quite…";
     }
@@ -781,13 +881,13 @@ function enterRoom2(){
 })();
 
 /* =========================================================
-   ROOM 2 SCRIPT (White letter room)
+   ROOM 2 SCRIPT (Immersive letters room)
+   - NO zoom
    ========================================================= */
 function initRoom2(){
   const TARGET = "FAVORITE PAPER";
   const ESCAPE_CODE = "35";
 
-  const world = document.getElementById("r2-world");
   const tilesWrap = document.getElementById("r2-tiles");
   const slotsWrap = document.getElementById("r2-slots");
   const postHint = document.getElementById("r2-postHint");
@@ -797,12 +897,11 @@ function initRoom2(){
   const escapeBtn = document.getElementById("r2-escapeBtn");
   const toast = document.getElementById("r2-toast");
 
-  // zoom
-  let zoom = 1.0;
-  const ZOOM_MIN = 0.85;
-  const ZOOM_MAX = 1.65;
+  const assembly = document.getElementById("r2-assembly");
+  const bridgeSvg = document.getElementById("r2-bridge");
+  const bridgePath = document.getElementById("r2-bridgePath");
+
   const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
-  function applyZoom(){ world.style.transform = `scale(${zoom})`; }
   function showToast(msg){
     toast.textContent = msg;
     toast.classList.add("show");
@@ -816,6 +915,7 @@ function initRoom2(){
   const slotEls = [];
 
   function isSpace(i){ return targetChars[i] === " "; }
+
   function buildSlots(){
     slotsWrap.innerHTML = "";
     slotEls.length = 0;
@@ -830,7 +930,7 @@ function initRoom2(){
   buildSlots();
 
   // tiles
-  const lettersOnly = targetChars.map((c,idx)=>({c,idx})).filter(x=>x.c!==" ");
+  const lettersOnly = targetChars.map((c)=>c).filter(c=>c!==" ");
   function shuffle(arr){
     for (let i=arr.length-1;i>0;i--){
       const j = Math.floor(Math.random()*(i+1));
@@ -851,26 +951,32 @@ function initRoom2(){
     const w = window.innerWidth;
     const h = window.innerHeight;
 
-    shuffled.forEach((item,k)=>{
+    shuffled.forEach((ch)=>{
       const el = document.createElement("div");
       el.className = "tile";
-      el.textContent = item.c;
+      el.textContent = ch;
       tilesWrap.appendChild(el);
 
       const id = nextId++;
-      const x = w*0.18 + (k % 9) * 70 + (Math.random()*14-7);
-      const y = h*0.18 + Math.floor(k/9) * 70 + (Math.random()*14-7);
+
+      // spread across “room space”
+      const cx = w * (0.12 + Math.random() * 0.76);
+      const cy = h * (0.10 + Math.random() * 0.55);
 
       const t = {
-        id, char:item.c, el,
-        x, y,
-        vx:(Math.random()*0.6-0.3),
-        vy:(Math.random()*0.6-0.3),
+        id,
+        char: ch,
+        el,
+        x: cx - 55,
+        y: cy - 55,
+        vx:(Math.random()*0.55-0.275),
+        vy:(Math.random()*0.55-0.275),
         locked:false
       };
       tiles.push(t);
-      el.style.left = x + "px";
-      el.style.top  = y + "px";
+
+      el.style.left = t.x + "px";
+      el.style.top  = t.y + "px";
 
       enableDrag(t);
     });
@@ -901,6 +1007,7 @@ function initRoom2(){
     });
   }
 
+  // float motion
   function tick(){
     if (ACTIVE_ROOM !== 2){
       requestAnimationFrame(tick);
@@ -917,8 +1024,9 @@ function initRoom2(){
       t.x += t.vx;
       t.y += t.vy;
 
-      if (t.x < 30 || t.x > w - 90) t.vx *= -1;
-      if (t.y < 30 || t.y > h - 240) t.vy *= -1;
+      // keep in bounds
+      if (t.x < 24 || t.x > w - 140) t.vx *= -1;
+      if (t.y < 24 || t.y > h - 260) t.vy *= -1;
 
       t.el.style.left = t.x + "px";
       t.el.style.top  = t.y + "px";
@@ -933,9 +1041,47 @@ function initRoom2(){
     }
     return -1;
   }
+
   function slotCenter(i){
     const r = slotEls[i].getBoundingClientRect();
     return { cx:r.left + r.width/2, cy:r.top + r.height/2 };
+  }
+
+  function updateBridge(){
+    let last = -1;
+    for (let i=0;i<targetChars.length;i++){
+      if (isSpace(i)) continue;
+      if (placed[i] !== null) last = i;
+      else break;
+    }
+    if (last < 0){
+      bridgePath.setAttribute("d","");
+      return;
+    }
+    let first = -1;
+    for (let i=0;i<targetChars.length;i++){
+      if (!isSpace(i)){ first = i; break; }
+    }
+
+    const a = slotCenter(first);
+    const b = slotCenter(last);
+
+    const ar = assembly.getBoundingClientRect();
+    const ax = a.cx - ar.left;
+    const ay = a.cy - ar.top + 30;
+    const bx = b.cx - ar.left;
+    const by = b.cy - ar.top + 30;
+
+    bridgeSvg.setAttribute("viewBox", `0 0 ${ar.width} ${ar.height}`);
+
+    const midx = (ax + bx) / 2;
+    const curve = Math.max(18, Math.min(52, Math.abs(bx - ax) * 0.14));
+
+    const d = `M ${ax} ${ay}
+               C ${midx} ${ay + curve},
+                 ${midx} ${by + curve},
+                 ${bx} ${by}`;
+    bridgePath.setAttribute("d", d);
   }
 
   function updateSlots(){
@@ -951,13 +1097,15 @@ function initRoom2(){
         s.textContent = "";
       }
     }
-    // correct prefix (green)
+
+    // correct prefix = green
     for (let i=0;i<targetChars.length;i++){
       if (isSpace(i)) continue;
-      if (placed[i] !== null){
-        slotEls[i].classList.add("correct");
-      } else break;
+      if (placed[i] !== null) slotEls[i].classList.add("correct");
+      else break;
     }
+
+    updateBridge();
   }
 
   function checkComplete(){
@@ -973,21 +1121,27 @@ function initRoom2(){
     if (req === -1) return;
 
     const sc = slotCenter(req);
-    const dx = (t.x + 28) - sc.cx;
-    const dy = (t.y + 28) - sc.cy;
+    const dx = (t.x + 55) - sc.cx;
+    const dy = (t.y + 55) - sc.cy;
     const dist = Math.hypot(dx,dy);
 
-    if (dist > 120){ showToast("Bring it closer."); return; }
+    if (dist > 150){
+      showToast("Bring it closer.");
+      return;
+    }
 
     const needed = targetChars[req];
-    if (t.char !== needed){ showToast("That doesn’t fit yet."); return; }
+    if (t.char !== needed){
+      showToast("Not yet.");
+      return;
+    }
 
     placed[req] = t.id;
     t.locked = true;
     t.el.classList.add("locked");
 
-    t.x = sc.cx - 28;
-    t.y = sc.cy - 28;
+    t.x = sc.cx - 55;
+    t.y = sc.cy - 55;
     t.el.style.left = t.x + "px";
     t.el.style.top  = t.y + "px";
 
@@ -1001,7 +1155,7 @@ function initRoom2(){
     }
   }
 
-  // escape lock
+  // 2-digit lock
   let digitState = [0,0];
 
   function buildDigits(){
@@ -1034,7 +1188,6 @@ function initRoom2(){
       });
 
       d.addEventListener("pointerdown", ()=> d.focus());
-
       digitsEl.appendChild(d);
     }
     setTimeout(()=>digitsEl.children[0]?.focus(), 0);
@@ -1051,24 +1204,15 @@ function initRoom2(){
     }
   });
 
-  // Room 2 zoom wheel (only when in room 2; and only if event wasn't used by wheels)
-  window.addEventListener("wheel", (e)=>{
-    if (ACTIVE_ROOM !== 2) return;
-    if (e.defaultPrevented) return;
-    e.preventDefault();
-    zoom = clamp(zoom - e.deltaY * 0.0007, ZOOM_MIN, ZOOM_MAX);
-    applyZoom();
-  }, { passive:false });
-
+  // keep bridge stable on resize
   window.addEventListener("resize", ()=>{
     if (ACTIVE_ROOM !== 2) return;
-    applyZoom();
+    updateBridge();
   });
 
   // init
   spawnTiles();
   updateSlots();
-  applyZoom();
   requestAnimationFrame(tick);
 }
 </script>
