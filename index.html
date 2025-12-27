@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Level 33 Memory</title>
+<title>Level 33 memory</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,32 +15,20 @@
   --ui-font: "Inter", "Zen Maru Gothic", system-ui, sans-serif;
 }
 
-html,body{
-  margin:0;
-  padding:0;
-  height:100%;
-  background:#000;
-  overflow:hidden;
-  font-family:var(--ui-font);
-}
-
+html,body{ margin:0; padding:0; height:100%; background:#000; overflow:hidden; font-family:var(--ui-font); }
 #intro{ position:fixed; inset:0; background:#000; }
 
-/* ===== TITLE ===== */
+/* ===== Title ===== */
 #title-layer{
   position:absolute; inset:0;
   display:flex; align-items:center; justify-content:center;
-  text-align:center;
-  color:#fff;
-  z-index:10;
-  pointer-events:none;
+  text-align:center; color:#fff;
+  z-index:10; pointer-events:none;
   transition:opacity .6s ease;
-  background:
-    radial-gradient(circle at 50% 35%, rgba(255,255,255,.10), rgba(0,0,0,.93) 65%);
+  background: radial-gradient(circle at 50% 35%, rgba(255,255,255,.10), rgba(0,0,0,.93) 65%);
 }
-
 .title-wrap{ max-width:820px; padding:24px; }
-.kicker{ letter-spacing:.35em; font-size:12px; opacity:.7; margin-bottom:16px; }
+.kicker{ letter-spacing:.35em; font-size:12px; opacity:.70; margin-bottom:16px; }
 .title{
   font-family:var(--title-font);
   font-size:clamp(44px,6vw,72px);
@@ -51,121 +39,96 @@ html,body{
 .subtitle{ margin-top:14px; font-size:14px; opacity:.82; }
 .subhint{ margin-top:18px; font-size:12px; opacity:.6; }
 
-/* ===== SCENE ===== */
-#scene{
-  position:absolute; inset:0;
-  opacity:0;
-  transition:opacity .6s ease;
-}
+/* ===== Scene ===== */
+#scene{ position:absolute; inset:0; opacity:0; transition:opacity .6s ease; }
 
-/* Camera = only thing that moves */
+/* camera moves/zooms; UI is outside camera */
 #camera{
   position:absolute; inset:0;
   transform-origin:50% 50%;
   will-change:transform;
 }
+#scene-img{ width:100%; height:100%; object-fit:cover; display:block; }
 
-#scene-img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  display:block;
-}
-
-/* ===== HOTSPOTS ===== */
+/* ===== Hotspots (VISIBLE) ===== */
 .hotspot{
   position:absolute;
   border:none;
-  background:transparent;
   cursor:pointer;
   z-index:4;
+
+  /* show area */
+  background: rgba(255,255,255,0.06);
+  outline: 2px solid rgba(255,255,255,0.20);
+  border-radius: 14px;
+
   opacity:0;
   pointer-events:none;
+  transition: opacity .25s ease;
 }
-.hotspot.enabled{
-  opacity:1;
-  pointer-events:auto;
+.hotspot.enabled{ opacity:1; pointer-events:auto; }
+.hotspot:hover{
+  outline-color: rgba(255,255,255,0.32);
+  background: rgba(255,255,255,0.08);
 }
 
-/* ===== LOCK UI ===== */
+/* anchor point in camera */
+.anchor{ position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
+
+/* ===== Lock panel overlay (NOT zoomed) ===== */
 #door-lock{
   position:absolute;
-  z-index:6;
+  z-index:30;
   display:none;
-  width:min(320px,76vw);
-  padding:12px;
-  border-radius:16px;
-  background:rgba(255,255,255,.92);
-  border:1px solid rgba(255,255,255,.45);
-  box-shadow:0 26px 80px rgba(0,0,0,.45);
-  backdrop-filter:blur(10px);
+  width: min(320px, 76vw);
+  padding: 12px 12px 10px;
+  border-radius: 16px;
+  background: rgba(255,255,255,.92);
+  border: 1px solid rgba(255,255,255,.45);
+  box-shadow: 0 26px 80px rgba(0,0,0,.46);
+  backdrop-filter: blur(10px);
+  transform: translate(-50%, -50%);
 }
 #door-lock.show{ display:block; }
 
-.lock-top{
-  display:flex; justify-content:space-between; align-items:center;
-}
-.lock-title{
-  font-family:"Zen Maru Gothic";
-  font-weight:900;
-  font-size:14px;
-}
+.lock-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px; }
+.lock-title{ font-family:"Zen Maru Gothic"; font-weight:900; font-size:14px; color:#111827; }
 .lock-close{
-  width:30px;height:30px;
-  border-radius:50%;
-  border:1px solid rgba(0,0,0,.1);
-  background:#f3f4f6;
-  cursor:pointer;
+  width:32px; height:32px; border-radius:999px;
+  border: 1px solid rgba(17,24,39,.10);
+  background: rgba(17,24,39,.05);
+  cursor:pointer; font-weight:900;
 }
-
-.lock-sub{ font-size:12px; opacity:.8; margin:6px 0; }
-
-.lock-wheels{
-  display:flex;
-  gap:10px;
-  justify-content:center;
-  margin:8px 0;
-}
+.lock-sub{ font-size:12px; color:#374151; margin-bottom:8px; }
+.lock-wheels{ display:flex; justify-content:center; gap:10px; margin: 8px 0; }
 .wheel{
-  width:42px;height:64px;
-  border-radius:14px;
+  width:42px; height:64px; border-radius:14px;
   background:linear-gradient(#eef2ff,#dbeafe);
   border:1px solid #bfdbfe;
-  font-family:"Zen Maru Gothic";
-  font-size:22px;
-  font-weight:900;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:grab;
+  display:flex; align-items:center; justify-content:center;
+  font-family:"Zen Maru Gothic"; font-size:22px; font-weight:900;
+  cursor:grab; user-select:none;
 }
-
 .unlock-btn{
   width:100%;
-  padding:9px;
+  padding:9px 12px;
   border-radius:999px;
   border:none;
   font-weight:900;
   cursor:pointer;
   background:linear-gradient(135deg,#fde68a,#fb923c);
 }
+.hint-message{ margin-top:8px; color:#b91c1c; font-weight:900; min-height:16px; font-size:12px; }
 
-.hint-message{
-  margin-top:6px;
-  font-size:12px;
-  font-weight:800;
-  color:#b91c1c;
-  min-height:16px;
-}
-
-/* ===== NPC BUBBLE ===== */
+/* ===== NPC bubble overlay ===== */
 #npc-bubble{
   position:absolute;
   left:50%;
   bottom:26px;
   transform:translateX(-50%) translateY(10px);
+  z-index:25;
   width:min(760px,92vw);
-  padding:14px 16px;
+  padding:14px 16px 12px;
   border-radius:18px;
   background:rgba(0,0,0,.46);
   border:1px solid rgba(255,255,255,.14);
@@ -174,26 +137,13 @@ html,body{
   box-shadow:0 26px 90px rgba(0,0,0,.5);
   opacity:0;
   pointer-events:none;
-  transition:.25s ease;
-  z-index:20;
+  transition: opacity .25s ease, transform .25s ease;
 }
-#npc-bubble.show{
-  opacity:1;
-  transform:translateX(-50%) translateY(0);
-}
-.npc-name{
-  font-family:"Zen Maru Gothic";
-  font-size:12px;
-  font-weight:900;
-  letter-spacing:.1em;
-  margin-bottom:6px;
-}
-.npc-text{
-  font-size:14px;
-  line-height:1.65;
-}
+#npc-bubble.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+.npc-name{ font-family:"Zen Maru Gothic"; font-size:12px; font-weight:900; letter-spacing:.1em; opacity:.9; margin-bottom:6px; }
+.npc-text{ font-size:14px; line-height:1.65; }
 
-/* ===== TOAST ===== */
+/* ===== Toast ===== */
 #toast{
   position:absolute;
   left:50%;
@@ -206,7 +156,8 @@ html,body{
   font-size:14px;
   opacity:0;
   transition:.2s;
-  z-index:30;
+  z-index:40;
+  pointer-events:none;
 }
 #toast.show{ opacity:1; transform:translate(-50%,-6px); }
 </style>
@@ -214,7 +165,6 @@ html,body{
 
 <body>
 <div id="intro">
-
   <div id="title-layer">
     <div class="title-wrap">
       <div class="kicker">LEVEL 33</div>
@@ -231,43 +181,53 @@ html,body{
       <button id="door-hotspot" class="hotspot" aria-label="Door"></button>
       <button id="bell-hotspot" class="hotspot" aria-label="Intercom"></button>
 
-      <div id="door-lock">
-        <div class="lock-top">
-          <div class="lock-title">Locked.</div>
-          <button id="lock-close" class="lock-close">✕</button>
-        </div>
-        <div class="lock-sub">Enter the first code.</div>
-        <div class="lock-wheels" id="lock-wheels"></div>
-        <button class="unlock-btn" id="unlock-btn">Unlock</button>
-        <div class="hint-message" id="hint-message"></div>
-      </div>
+      <div id="lock-anchor" class="anchor"></div>
     </div>
 
-    <div id="npc-bubble">
+    <div id="door-lock" aria-hidden="true">
+      <div class="lock-top">
+        <div class="lock-title">Locked.</div>
+        <button id="lock-close" class="lock-close" aria-label="Close">✕</button>
+      </div>
+      <div class="lock-sub">Enter the code.</div>
+      <div class="lock-wheels" id="lock-wheels"></div>
+      <button class="unlock-btn" id="unlock-btn">Unlock</button>
+      <div class="hint-message" id="hint-message"></div>
+    </div>
+
+    <div id="npc-bubble" aria-hidden="true">
       <div class="npc-name">???</div>
       <div class="npc-text">The door is closed… maybe the bell can help.</div>
     </div>
 
-    <div id="toast"></div>
+    <div id="toast" role="status" aria-live="polite"></div>
   </div>
 </div>
 
 <audio id="song" src="song.m4a" preload="auto"></audio>
 
 <script>
-/* ===== CONFIG (CALIBRATED TO YOUR IMAGE) ===== */
+/* ===== CONFIG ===== */
 const CFG = {
-  focus: { x: 0.44, y: 0.52 },
+  code: "REALITY",
+
+  // Framing (adjustable)
+  focus: { x: 0.49, y: 0.50 },
+
+  // Zoom range once the opening is finished
   zoomMin: 1.0,
-  zoomMax: 1.85,
+  zoomMax: 1.55,     // your “locked-in” close view
 
-  door: { x: 0.200, y: 0.100, w: 0.2, h: 0.3 },
-  bell: { x: 0.400, y: 0.400, w: 0.035, h: 0.110 },
-  lock: { x: 0.510, y: 0.535 },
+  // Opening: only zoom IN until you reach openingEnd
+  openingEnd: 1.0,   // normalized progress cap for opening
 
-  code: "MEMORY"
+  // Hotspots (smaller)
+  door: { x: 0.338, y: 0.180, w: 0.165, h: 0.635 },
+  bell: { x: 0.588, y: 0.458, w: 0.024, h: 0.070 },
+
+  // Lock overlay anchor near handle
+  lockAnchor: { x: 0.505, y: 0.545 },
 };
-  
 
 /* ===== ELEMENTS ===== */
 const scene = document.getElementById("scene");
@@ -275,6 +235,7 @@ const titleLayer = document.getElementById("title-layer");
 const camera = document.getElementById("camera");
 const doorBtn = document.getElementById("door-hotspot");
 const bellBtn = document.getElementById("bell-hotspot");
+const lockAnchor = document.getElementById("lock-anchor");
 const lockPanel = document.getElementById("door-lock");
 const lockClose = document.getElementById("lock-close");
 const wheelsEl = document.getElementById("lock-wheels");
@@ -285,16 +246,16 @@ const toast = document.getElementById("toast");
 const song = document.getElementById("song");
 
 /* ===== STATE ===== */
-let progress = 0;
-let locked = false;
+let progress = 0;        // 0..1
+let openingDone = false; // once true, you can zoom both ways
 let lockOpen = false;
 
 /* ===== HELPERS ===== */
-const clamp01 = v => Math.max(0,Math.min(1,v));
+const clamp01 = v => Math.max(0, Math.min(1, v));
 function showToast(t){
   toast.textContent = t;
   toast.classList.add("show");
-  setTimeout(()=>toast.classList.remove("show"),900);
+  setTimeout(()=>toast.classList.remove("show"), 900);
 }
 function setRect(el,r){
   el.style.left=(r.x*100)+"%";
@@ -305,92 +266,152 @@ function setRect(el,r){
 function setPoint(el,p){
   el.style.left=(p.x*100)+"%";
   el.style.top=(p.y*100)+"%";
-  el.style.transform="translate(-50%,-50%)";
+}
+function positionLockOverlay(){
+  const r = lockAnchor.getBoundingClientRect();
+  lockPanel.style.left = (r.left + r.width/2) + "px";
+  lockPanel.style.top  = (r.top  + r.height/2) + "px";
 }
 
-/* ===== POSITION UI ===== */
-setRect(doorBtn,CFG.door);
-setRect(bellBtn,CFG.bell);
-setPoint(lockPanel,CFG.lock);
+/* Place hotspots + anchor */
+setRect(doorBtn, CFG.door);
+setRect(bellBtn, CFG.bell);
+setPoint(lockAnchor, CFG.lockAnchor);
 
 /* ===== CAMERA ===== */
 function applyCamera(){
-  const show=clamp01((progress-.1)/.3);
-  scene.style.opacity=show;
-  titleLayer.style.opacity=1-show;
+  // fade title -> scene during early approach
+  const show = clamp01((progress - 0.10) / 0.30);
+  scene.style.opacity = show.toFixed(3);
+  titleLayer.style.opacity = (1 - show).toFixed(3);
 
-  const z=CFG.zoomMin+(CFG.zoomMax-CFG.zoomMin)*(progress*progress);
-  const dx=(.5-CFG.focus.x)*innerWidth*(z-1);
-  const dy=(.5-CFG.focus.y)*innerHeight*(z-1);
-  camera.style.transform=`translate(${dx}px,${dy}px) scale(${z})`;
+  const z = CFG.zoomMin + (CFG.zoomMax - CFG.zoomMin) * (progress * progress);
+  const dx = (0.5 - CFG.focus.x) * innerWidth  * (z - 1);
+  const dy = (0.5 - CFG.focus.y) * innerHeight * (z - 1);
+  camera.style.transform = `translate(${dx}px, ${dy}px) scale(${z})`;
+
+  if (lockOpen) positionLockOverlay();
 }
 applyCamera();
+window.addEventListener("resize", applyCamera);
 
-/* ===== SCROLL (ZOOM IN ONLY) ===== */
-window.addEventListener("wheel",e=>{
+/* ===== SCROLL =====
+   - During opening: ONLY zoom IN (no zoom out)
+   - After openingDone: zoom in/out, BUT never below start (progress >= 0) and never above 1 */
+window.addEventListener("wheel", (e) => {
   e.preventDefault();
-  if(locked) return;
-  if(e.deltaY>0){
-    progress=clamp01(progress+e.deltaY*0.0007);
-    applyCamera();
-    if(progress>=1){
-      locked=true;
-      doorBtn.classList.add("enabled");
-      bellBtn.classList.add("enabled");
-      showToast("…");
+
+  // If lock panel is open, don't allow camera changes
+  if (lockOpen) return;
+
+  const delta = e.deltaY;
+
+  if (!openingDone){
+    // Opening: only allow wheel down to zoom in
+    if (delta > 0){
+      progress = clamp01(progress + Math.min(0.09, delta * 0.0007));
+      if (progress >= CFG.openingEnd){
+        progress = CFG.openingEnd;
+        openingDone = true;
+
+        doorBtn.classList.add("enabled");
+        bellBtn.classList.add("enabled");
+        showToast("…");
+      }
+      applyCamera();
     }
+    return;
   }
-},{passive:false});
+
+  // After opening: allow both directions (zoom in/out)
+  progress = clamp01(progress + (-delta) * 0.0007); // wheel up -> zoom in, wheel down -> zoom out (natural)
+  applyCamera();
+}, { passive:false });
 
 /* ===== INTERACTIONS ===== */
-bellBtn.onclick=()=>{
+bellBtn.addEventListener("click", () => {
   showToast("🔔");
-  song.currentTime=0;
-  song.play().catch(()=>{});
-};
-
-doorBtn.onclick=()=>{
-  npcBubble.classList.add("show");
-  setTimeout(()=>npcBubble.classList.remove("show"),2600);
-  lockPanel.classList.add("show");
-  lockOpen=true;
-};
-
-lockClose.onclick=closeLock;
-window.addEventListener("keydown",e=>{ if(e.key==="Escape") closeLock(); });
-camera.addEventListener("pointerdown",e=>{
-  if(lockOpen && !lockPanel.contains(e.target)) closeLock();
+  try{
+    song.currentTime = 0;
+    song.play().catch(()=>{});
+  }catch(_){}
 });
-function closeLock(){
-  lockOpen=false;
-  lockPanel.classList.remove("show");
+
+function openNPC(){
+  npcBubble.classList.add("show");
+  npcBubble.setAttribute("aria-hidden", "false");
+  clearTimeout(openNPC._t);
+  openNPC._t = setTimeout(()=>{
+    npcBubble.classList.remove("show");
+    npcBubble.setAttribute("aria-hidden", "true");
+  }, 2600);
 }
 
-/* ===== LOCK WHEELS ===== */
-const letters="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-const CODE=CFG.code;
-const state=[...CODE].map(()=>0);
+function openLock(){
+  lockOpen = true;
+  hintMsg.textContent = "";
+  positionLockOverlay();
+  lockPanel.classList.add("show");
+  lockPanel.setAttribute("aria-hidden", "false");
+}
 
-state.forEach((_,i)=>{
-  const w=document.createElement("div");
-  w.className="wheel";
-  w.textContent=letters[0];
-  w.onwheel=e=>{
-    e.preventDefault();
-    state[i]=(state[i]+(e.deltaY>0?-1:1)+26)%26;
-    w.textContent=letters[state[i]];
-  };
-  wheelsEl.appendChild(w);
+function closeLock(){
+  lockOpen = false;
+  lockPanel.classList.remove("show");
+  lockPanel.setAttribute("aria-hidden", "true");
+  hintMsg.textContent = "";
+}
+
+doorBtn.addEventListener("click", () => {
+  showToast("The door is closed.");
+  openNPC();
+  openLock();
 });
 
-unlockBtn.onclick=()=>{
-  if(state.map(i=>letters[i]).join("")===CODE){
+lockClose.addEventListener("click", closeLock);
+window.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && lockOpen) closeLock();
+});
+document.addEventListener("pointerdown", (e) => {
+  if (!lockOpen) return;
+  if (!lockPanel.contains(e.target) && e.target !== doorBtn) closeLock();
+});
+
+/* ===== LOCK WHEELS ===== */
+const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+const CODE = CFG.code.toUpperCase();
+const wheelState = new Array(CODE.length).fill(0);
+
+function buildWheels(){
+  wheelsEl.innerHTML = "";
+  for (let i=0; i<CODE.length; i++){
+    const w = document.createElement("div");
+    w.className = "wheel";
+    w.textContent = letters[0];
+
+    w.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const dir = (e.deltaY > 0) ? -1 : 1;
+      wheelState[i] = (wheelState[i] + dir + 26) % 26;
+      w.textContent = letters[wheelState[i]];
+    }, { passive:false });
+
+    wheelsEl.appendChild(w);
+  }
+}
+function enteredCode(){ return wheelState.map(i => letters[i]).join(""); }
+
+buildWheels();
+
+unlockBtn.addEventListener("click", () => {
+  if (enteredCode() === CODE){
     showToast("Unlocked.");
     closeLock();
-  }else{
-    hintMsg.textContent="Not quite…";
+    // hook next scene here
+  } else {
+    hintMsg.textContent = "Not quite…";
   }
-};
+});
 </script>
 </body>
 </html>
