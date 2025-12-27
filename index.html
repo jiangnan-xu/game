@@ -31,8 +31,7 @@ html,body{
   text-align:center; color:#fff;
   z-index:10; pointer-events:none;
   transition:opacity .55s ease;
-  background:
-    radial-gradient(circle at 50% 35%, rgba(255,255,255,.10), rgba(0,0,0,.93) 65%);
+  background: radial-gradient(circle at 50% 35%, rgba(255,255,255,.10), rgba(0,0,0,.93) 65%);
 }
 .title-wrap{ max-width:820px; padding:24px; }
 .kicker{ letter-spacing:.35em; font-size:12px; opacity:.70; margin-bottom:16px; }
@@ -63,13 +62,12 @@ html,body{
   transition:opacity .65s ease;
 }
 
-/* Transform this layer so everything stays aligned */
+/* Transform this layer so image + hotspots + lock never drift */
 #camera{
   position:absolute; inset:0;
   transform-origin: 50% 50%;
   will-change: transform;
 }
-
 #scene-img{
   width:100%;
   height:100%;
@@ -77,29 +75,27 @@ html,body{
   display:block;
 }
 
-/* Hotspots are invisible */
+/* Hotspots invisible until camera locked */
 .hotspot{
   position:absolute;
   border:none;
   background:transparent;
   cursor:pointer;
   z-index:4;
-  opacity:0;            /* disabled until lock level */
+  opacity:0;
   pointer-events:none;
   transition: opacity .25s ease;
 }
 .hotspot.enabled{
-  opacity:1;            /* still invisible, but clickable */
+  opacity:1; /* still invisible, but active */
   pointer-events:auto;
 }
-
-/* Optional: only show a subtle outline on hover (desktop) */
 .hotspot.enabled:hover{
-  outline: 1px solid rgba(255,255,255,0.10);
+  outline: 1px solid rgba(255,255,255,0.08);
   border-radius: 16px;
 }
 
-/* Tiny bell indicator (not a big glow) */
+/* Tiny bell indicator (subtle) */
 #bell-indicator{
   position:absolute;
   transform: translate(-50%,-50%);
@@ -107,7 +103,7 @@ html,body{
   pointer-events:none;
   opacity:0;
   transition: opacity .25s ease;
-  color: rgba(255,255,255,0.85);
+  color: rgba(255,255,255,0.82);
   font-size: 14px;
   text-shadow: 0 10px 30px rgba(0,0,0,0.55);
 }
@@ -175,23 +171,13 @@ html,body{
 }
 .hint-message{ margin-top:8px; color:#b91c1c; font-weight:900; min-height:16px; font-size:12px; }
 
-/* ===== NPC Dialogue (bottom) ===== */
-#npc-layer{
+/* ===== One NPC bubble (only appears on door click) ===== */
+#npc-bubble{
   position:absolute;
-  left:0; right:0; bottom:0;
-  z-index:20;
-  pointer-events:none;
-  opacity:0;
-  transform: translateY(12px);
-  transition: opacity .35s ease, transform .35s ease;
-}
-#npc-layer.enabled{
-  opacity:1;
-  transform: translateY(0);
-}
-
-.npc-box{
-  margin: 0 auto 18px;
+  left:50%;
+  bottom: 26px;
+  transform: translateX(-50%) translateY(10px);
+  z-index:30;
   width: min(760px, 92vw);
   border-radius: 18px;
   padding: 14px 16px 12px;
@@ -200,8 +186,14 @@ html,body{
   border: 1px solid rgba(255,255,255,0.14);
   box-shadow: 0 26px 90px rgba(0,0,0,0.50);
   backdrop-filter: blur(10px);
+  opacity:0;
+  pointer-events:none;
+  transition: opacity .25s ease, transform .25s ease;
 }
-
+#npc-bubble.show{
+  opacity:1;
+  transform: translateX(-50%) translateY(0);
+}
 .npc-name{
   font-family: "Zen Maru Gothic", var(--ui-font);
   font-weight: 900;
@@ -210,33 +202,12 @@ html,body{
   opacity: .88;
   margin-bottom: 6px;
 }
-
 .npc-text{
   font-size: 14px;
   line-height: 1.65;
 }
 
-.npc-hintline{
-  margin-top: 10px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  opacity: .78;
-  font-size: 12px;
-  letter-spacing: .06em;
-}
-
-.npc-dots{
-  display:flex; gap:6px;
-}
-.dot{
-  width:6px;height:6px;border-radius:999px;
-  background: rgba(255,255,255,0.22);
-}
-.dot.on{ background: rgba(255,255,255,0.75); }
-
-/* Toast (top) */
+/* Toast */
 #toast{
   position:absolute;
   left:50%; top: 18px;
@@ -248,7 +219,7 @@ html,body{
   font-size:14px;
   opacity:0;
   transition:.2s;
-  z-index:30;
+  z-index:40;
   pointer-events:none;
 }
 #toast.show{ opacity:1; transform:translate(-50%, -6px); }
@@ -288,16 +259,10 @@ html,body{
       </div>
     </div>
 
-    <!-- NPC dialogue appears only after reaching the locked zoom level -->
-    <div id="npc-layer" aria-hidden="true">
-      <div class="npc-box">
-        <div class="npc-name" id="npc-name">NPC</div>
-        <div class="npc-text" id="npc-text"></div>
-        <div class="npc-hintline">
-          <span id="npc-scrollhint">Scroll to continue…</span>
-          <span class="npc-dots" id="npc-dots"></span>
-        </div>
-      </div>
+    <!-- One NPC bubble -->
+    <div id="npc-bubble" aria-hidden="true">
+      <div class="npc-name">???</div>
+      <div class="npc-text" id="npc-text"></div>
     </div>
 
     <div id="toast" role="status" aria-live="polite"></div>
@@ -310,28 +275,18 @@ html,body{
 /* ===================== CONFIG ===================== */
 const CFG = {
   code: "MEMORY",                 // change freely
-  focus: { x: 0.44, y: 0.52 },     // zoom focus point (door)
+  focus: { x: 0.44, y: 0.52 },     // door focus point
   zoomMin: 1.0,
   zoomMax: 1.85,
+  lockProgress: 1.0,              // stop here forever
 
-  // Once progress hits 1, it locks forever (no zoom down again)
-  lockProgress: 1.0,
-
-  // Hotspot rects (normalized in camera coords)
+  // Hotspots (normalized coords in camera)
   door: { x: 0.34, y: 0.18, w: 0.28, h: 0.66 },
-  bell: { x: 0.60, y: 0.46, w: 0.06, h: 0.09 }, // put above the white switch
+  bell: { x: 0.60, y: 0.46, w: 0.06, h: 0.09 }, // above white switch
   lock: { x: 0.50, y: 0.44 },
   bellIndicator: { x: 0.60, y: 0.45 },
 
-  npc: {
-    name: "???",
-    lines: [
-      "…You finally made it.",
-      "Two things here: the bell, and the door.",
-      "Try the bell first. It might reveal what the eyes can’t.",
-      "Then touch the door. If it won’t open… you’ll need the first code."
-    ]
-  }
+  npcLine: "The door is closed… maybe the bell can help."
 };
 
 /* ===================== ELEMENTS ===================== */
@@ -349,19 +304,16 @@ const wheelsEl = document.getElementById("lock-wheels");
 const unlockBtn = document.getElementById("unlock-btn");
 const hintMsg = document.getElementById("hint-message");
 
-const npcLayer = document.getElementById("npc-layer");
-const npcNameEl = document.getElementById("npc-name");
-const npcTextEl = document.getElementById("npc-text");
-const npcDotsEl = document.getElementById("npc-dots");
+const npcBubble = document.getElementById("npc-bubble");
+const npcText = document.getElementById("npc-text");
 
 const toast = document.getElementById("toast");
 const song = document.getElementById("song");
 
 /* ===================== STATE ===================== */
-let progress = 0;             // 0..1 zoom approach
-let cameraLocked = false;     // becomes true once reached
+let progress = 0;             // 0..1
+let cameraLocked = false;
 let lockOpen = false;
-let npcIndex = 0;
 
 /* ===================== HELPERS ===================== */
 function clamp01(v){ return Math.max(0, Math.min(1, v)); }
@@ -387,21 +339,17 @@ function enableLockedUI(on){
   doorBtn.classList.toggle("enabled", on);
   bellBtn.classList.toggle("enabled", on);
   bellIndicator.classList.toggle("enabled", on);
-
-  npcLayer.classList.toggle("enabled", on);
-  npcLayer.setAttribute("aria-hidden", (!on).toString());
 }
 
-function renderNPC(){
-  npcNameEl.textContent = CFG.npc.name;
-  npcTextEl.textContent = CFG.npc.lines[npcIndex];
-
-  npcDotsEl.innerHTML = "";
-  for(let i=0; i<CFG.npc.lines.length; i++){
-    const d = document.createElement("div");
-    d.className = "dot" + (i === npcIndex ? " on" : "");
-    npcDotsEl.appendChild(d);
-  }
+function showNPCLine(){
+  npcText.textContent = CFG.npcLine;
+  npcBubble.classList.add("show");
+  npcBubble.setAttribute("aria-hidden", "false");
+  clearTimeout(showNPCLine._t);
+  showNPCLine._t = setTimeout(() => {
+    npcBubble.classList.remove("show");
+    npcBubble.setAttribute("aria-hidden", "true");
+  }, 2600);
 }
 
 /* ===================== CAMERA ===================== */
@@ -427,12 +375,11 @@ function lockCameraIfReached(){
     progress = CFG.lockProgress;
     cameraLocked = true;
     enableLockedUI(true);
-    renderNPC();
     showToast("…");
   }
 }
 
-/* Position UI in camera coords */
+/* Position UI */
 setRect(doorBtn, CFG.door);
 setRect(bellBtn, CFG.bell);
 setPoint(lockPanel, CFG.lock);
@@ -443,34 +390,18 @@ applyCamera();
 
 window.addEventListener("resize", applyCamera);
 
-/* ===================== SCROLL LOGIC ===================== */
-/*
-  Phase A (not locked): scroll ONLY moves toward locked level (no zoom down again)
-  Phase B (locked): scroll cycles NPC dialogue (no zoom)
-*/
+/* ===================== SCROLL: ONLY ZOOM IN ===================== */
 window.addEventListener("wheel", (e) => {
   e.preventDefault();
 
-  if (!cameraLocked){
-    // Only allow zooming IN:
-    // wheel down (deltaY>0) increases progress, wheel up does nothing
-    if (e.deltaY > 0){
-      progress = clamp01(progress + e.deltaY * 0.0007);
-      applyCamera();
-      lockCameraIfReached();
-    }
-    return;
-  }
+  if (cameraLocked) return; // once locked, never zoom down again
 
-  // Camera locked: scroll cycles NPC lines (but not while lock UI is open)
-  if (lockOpen) return;
-
+  // only allow zooming IN on wheel down
   if (e.deltaY > 0){
-    npcIndex = Math.min(CFG.npc.lines.length - 1, npcIndex + 1);
-  } else {
-    npcIndex = Math.max(0, npcIndex - 1);
+    progress = clamp01(progress + Math.min(0.08, e.deltaY * 0.0007));
+    applyCamera();
+    lockCameraIfReached();
   }
-  renderNPC();
 }, { passive:false });
 
 /* ===================== INTERACTIONS ===================== */
@@ -488,6 +419,7 @@ function openLock(){
   lockPanel.setAttribute("aria-hidden", "false");
   hintMsg.textContent = "";
 }
+
 function closeLock(){
   lockOpen = false;
   lockPanel.classList.remove("show");
@@ -497,6 +429,7 @@ function closeLock(){
 
 doorBtn.addEventListener("click", () => {
   showToast("The door is closed.");
+  showNPCLine();      // <-- NPC pops only here
   openLock();
 });
 
