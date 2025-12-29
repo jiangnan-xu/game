@@ -7,7 +7,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Shippori+Mincho:wght@500;700&family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;800;900&family=Shippori+Mincho:wght@500;700&display=swap" rel="stylesheet">
 
 <style>
 /* =========================
@@ -16,7 +16,6 @@
 :root{
   --title-font: "Shippori Mincho", serif;
   --ui-font: "Inter", system-ui, sans-serif;
-  --round: 18px;
 }
 html,body{
   margin:0; padding:0; height:100%;
@@ -80,17 +79,19 @@ button{ font-family:inherit; }
   border:none;
   cursor:pointer;
   z-index:4;
+
   background: rgba(255,255,255,0.06);
-  outline: 2px solid rgba(255,255,255,0.20);
+  outline: 2px solid rgba(255,255,255,0.22);
   border-radius: 14px;
+
   opacity:0;
   pointer-events:none;
-  transition: opacity .25s ease;
+  transition: opacity .25s ease, background .25s ease, outline-color .25s ease;
 }
 .hotspot.enabled{ opacity:1; pointer-events:auto; }
 .hotspot:hover{
-  outline-color: rgba(255,255,255,0.32);
-  background: rgba(255,255,255,0.08);
+  outline-color: rgba(255,255,255,0.36);
+  background: rgba(255,255,255,0.10);
 }
 
 /* Anchor point in camera (invisible) */
@@ -113,7 +114,7 @@ button{ font-family:inherit; }
 #door-lock.show{ display:block; }
 
 .lock-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px; }
-.lock-title{ font-family:"Inter"; font-weight:900; font-size:14px; color:#111827; }
+.lock-title{ font-weight:900; font-size:14px; color:#111827; }
 .lock-close{
   width:32px; height:32px; border-radius:999px;
   border: 0.6px solid rgba(17,24,39,.10);
@@ -127,7 +128,7 @@ button{ font-family:inherit; }
   background:linear-gradient(#eef2ff,#dbeafe);
   border:0.6px solid #bfdbfe;
   display:flex; align-items:center; justify-content:center;
-  font-family:"Inter"; font-size:22px; font-weight:900;
+  font-size:22px; font-weight:900;
   cursor:grab; user-select:none;
   outline:none;
 }
@@ -218,54 +219,53 @@ button{ font-family:inherit; }
 /* BIG sharp floating letters, no borders */
 #room2 .tile{
   position:absolute;
-  width: 320px;
-  height: 320px;
+  width: 360px;
+  height: 360px;
   display:flex;
   align-items:center;
   justify-content:center;
 
   font-family: "Inter", system-ui, sans-serif;
   font-weight: 900;
-  font-size: 240px;          /* BIG */
-  letter-spacing: -0.02em;   /* sharper/stronger */
+  font-size: 270px;
+  letter-spacing: -0.03em;
 
-  color: rgba(10,16,28,0.86);
+  color: rgba(10,16,28,0.88);
 
   user-select:none;
   cursor: grab;
   touch-action:none;
 
-  /* depth vars set by JS (NO blur; keep sharp) */
   transform: translateY(var(--lift, 0px)) scale(var(--scale, 1));
   opacity: var(--opa, 1);
 
   text-shadow:
-    0 calc(34px * var(--shadow, 1)) calc(90px * var(--shadow, 1)) rgba(0,0,0,0.14),
-    0 calc(12px * var(--shadow, 1)) calc(28px * var(--shadow, 1)) rgba(0,0,0,0.08);
+    0 calc(36px * var(--shadow, 1)) calc(98px * var(--shadow, 1)) rgba(0,0,0,0.14),
+    0 calc(14px * var(--shadow, 1)) calc(30px * var(--shadow, 1)) rgba(0,0,0,0.08);
 
   transition: transform .12s ease;
 }
-#room2 .tile:hover{ --lift: -6px; }
-#room2 .tile:active{ cursor: grabbing; --lift: -2px; }
+#room2 .tile:hover{ --lift: -7px; }
+#room2 .tile:active{ cursor: grabbing; --lift: -3px; }
 
-/* locked tiles: green but SAME size (keep scale) */
+/* locked tiles: green but SAME size (keep scale, do not change width/height) */
 #room2 .tile.locked{
-  color: rgba(16,185,129,0.95);
+  color: rgba(16,185,129,0.96);
   cursor: default;
   text-shadow:
-    0 calc(34px * var(--shadow, 1)) calc(90px * var(--shadow, 1)) rgba(16,185,129,0.10),
-    0 calc(12px * var(--shadow, 1)) calc(28px * var(--shadow, 1)) rgba(0,0,0,0.06);
+    0 calc(36px * var(--shadow, 1)) calc(98px * var(--shadow, 1)) rgba(16,185,129,0.12),
+    0 calc(14px * var(--shadow, 1)) calc(30px * var(--shadow, 1)) rgba(0,0,0,0.06);
 }
 
 /* assembly area */
 #room2 .assembly{
   position:absolute;
   left:50%;
-  bottom: 70px;
+  bottom: 64px;
   transform: translateX(-50%);
-  width: min(1040px, 94vw);
-  height: 170px;
-  border-radius: 32px;
+  width: min(1120px, 94vw);
+  height: 190px;
+  border-radius: 34px;
   background: rgba(255,255,255,0.70);
   border: 1px solid rgba(17,24,39,0.08);
   backdrop-filter: blur(14px);
@@ -277,7 +277,7 @@ button{ font-family:inherit; }
   padding: 18px 18px;
 }
 
-/* slot guides; when correct, shows a green letter behind (same letter-size feel) */
+/* slot guides; when correct, shows a green letter behind (same “presence”) */
 #room2 .slots{
   display:flex;
   align-items:center;
@@ -286,9 +286,9 @@ button{ font-family:inherit; }
   flex-wrap: wrap;
 }
 #room2 .slot{
-  width: 64px;
-  height: 96px;
-  border-radius: 20px;
+  width: 72px;
+  height: 106px;
+  border-radius: 22px;
   border: 1px dashed rgba(17,24,39,0.14);
   background: rgba(17,24,39,0.012);
   display:flex;
@@ -296,11 +296,11 @@ button{ font-family:inherit; }
   justify-content:center;
   font-family: "Inter", system-ui, sans-serif;
   font-weight: 900;
-  font-size: 36px;
+  font-size: 38px;
   color: rgba(17,24,39,0.22);
 }
 #room2 .slot.space{
-  width: 30px;
+  width: 34px;
   border:none;
   background:transparent;
 }
@@ -308,7 +308,7 @@ button{ font-family:inherit; }
   border-style: solid;
   border-color: rgba(16,185,129,0.20);
   background: rgba(16,185,129,0.05);
-  color: rgba(16,185,129,0.95); /* green behind */
+  color: rgba(16,185,129,0.96);
 }
 
 /* Hint + lock */
@@ -450,7 +450,7 @@ button{ font-family:inherit; }
 }
 
 /* =========================
-   ROOM 3 (Binary picture)
+   ROOM 3 (Framed classroom photo)
    ========================= */
 #room3{
   position:fixed; inset:0;
@@ -461,15 +461,12 @@ button{ font-family:inherit; }
     #fff;
   color:#111827;
 }
-
-/* blur on entry then clear */
 #room3 .room3-inner{
   position:absolute; inset:0;
   transition: filter 0.9s ease, opacity 0.9s ease;
   filter: blur(18px);
   opacity: 0.0;
 }
-
 #room3 .stage{
   position:absolute; inset:0;
   display:flex;
@@ -477,9 +474,8 @@ button{ font-family:inherit; }
   justify-content:center;
   padding: 48px 20px 40px;
 }
-
 #room3 .frameWrap{
-  width: min(900px, 92vw);
+  width: min(980px, 94vw);
   aspect-ratio: 16/9;
   border-radius: 26px;
   background: rgba(255,255,255,0.72);
@@ -489,7 +485,6 @@ button{ font-family:inherit; }
   position: relative;
   overflow:hidden;
 }
-
 #room3 .frameBezel{
   position:absolute; inset:14px;
   border-radius: 18px;
@@ -497,13 +492,15 @@ button{ font-family:inherit; }
   background: radial-gradient(circle at 50% 30%, rgba(0,0,0,0.04), rgba(255,255,255,0.92));
   overflow:hidden;
 }
-
 #room3 .photo{
   position:absolute; inset:0;
   display:flex; align-items:center; justify-content:center;
   cursor:pointer;
 }
-
+#room3 .photo svg{
+  width:100%; height:100%;
+  display:block;
+}
 #room3 .photoHint{
   position:absolute;
   left:18px; bottom:16px;
@@ -557,7 +554,6 @@ button{ font-family:inherit; }
   color: rgba(17,24,39,0.72);
   margin-bottom: 8px;
 }
-
 #r3-lock .digits{
   display:flex;
   justify-content:center;
@@ -583,7 +579,6 @@ button{ font-family:inherit; }
   outline: 2px solid rgba(59,130,246,0.35);
   box-shadow: 0 0 0 5px rgba(59,130,246,0.12);
 }
-
 #r3-lock .btn{
   width:100%;
   border:none;
@@ -600,7 +595,6 @@ button{ font-family:inherit; }
   min-height: 16px;
   color: #b91c1c;
 }
-
 </style>
 </head>
 
@@ -697,111 +691,148 @@ button{ font-family:inherit; }
       <div class="frameWrap">
         <div class="frameBezel">
           <div class="photo" id="r3-photo" aria-label="Picture">
-            <!-- Inline SVG "photo": 8 chairs in a row, students = 1, empty = 0
-                 Pattern: 10001011 (binary) = 139 (decimal) -->
-            <svg viewBox="0 0 1200 675" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <!-- “Photo-like” classroom illustration (8 seats, pattern 10001011)
+                 seats 1/5/7/8 occupied; 2/3/4/6 empty -->
+            <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
               <defs>
-                <linearGradient id="bg" x1="0" x2="0" y1="0" y2="1">
-                  <stop offset="0" stop-color="#ffffff"/>
-                  <stop offset="1" stop-color="#f4f6fb"/>
+                <!-- film grain -->
+                <filter id="grain">
+                  <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" result="noise"/>
+                  <feColorMatrix type="matrix" values="
+                    1 0 0 0 0
+                    0 1 0 0 0
+                    0 0 1 0 0
+                    0 0 0 0.22 0" in="noise" result="grain"/>
+                  <feBlend in="SourceGraphic" in2="grain" mode="multiply"/>
+                </filter>
+
+                <linearGradient id="wall" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0" stop-color="#f7f3ea"/>
+                  <stop offset="1" stop-color="#efe7db"/>
                 </linearGradient>
-                <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="2" result="b"/>
+                <linearGradient id="board" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0" stop-color="#2c6a5a"/>
+                  <stop offset="1" stop-color="#1e5146"/>
+                </linearGradient>
+                <linearGradient id="floor" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0" stop-color="#d9d2c6"/>
+                  <stop offset="1" stop-color="#c8beae"/>
+                </linearGradient>
+
+                <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+                  <feGaussianBlur stdDeviation="10" result="b"/>
+                  <feOffset dx="0" dy="10" result="o"/>
+                  <feColorMatrix in="o" type="matrix" values="
+                    0 0 0 0 0
+                    0 0 0 0 0
+                    0 0 0 0 0
+                    0 0 0 .25 0" result="s"/>
                   <feMerge>
-                    <feMergeNode in="b"/>
+                    <feMergeNode in="s"/>
                     <feMergeNode in="SourceGraphic"/>
                   </feMerge>
                 </filter>
+
+                <radialGradient id="sun" cx="0.28" cy="0.18" r="0.9">
+                  <stop offset="0" stop-color="rgba(255,214,140,0.42)"/>
+                  <stop offset="1" stop-color="rgba(255,214,140,0)"/>
+                </radialGradient>
+
+                <!-- chair -->
+                <g id="chair">
+                  <rect x="-44" y="-18" width="88" height="30" rx="12" fill="rgba(20,28,40,0.22)"/>
+                  <rect x="-36" y="-88" width="72" height="76" rx="16" fill="rgba(20,28,40,0.16)"/>
+                  <rect x="-34" y="12" width="14" height="70" rx="7" fill="rgba(20,28,40,0.24)"/>
+                  <rect x="20" y="12" width="14" height="70" rx="7" fill="rgba(20,28,40,0.24)"/>
+                </g>
+
+                <!-- student (back view) -->
+                <g id="student">
+                  <ellipse cx="0" cy="-128" rx="22" ry="22" fill="rgba(20,28,40,0.22)"/>
+                  <path d="M -34 -106 Q 0 -148 34 -106 L 26 -52 Q 0 -32 -26 -52 Z"
+                        fill="rgba(20,28,40,0.18)"/>
+                </g>
               </defs>
 
-              <!-- “photo” background -->
-              <rect x="0" y="0" width="1200" height="675" fill="url(#bg)"/>
-              <circle cx="280" cy="150" r="140" fill="rgba(90,140,255,0.10)"/>
-              <circle cx="950" cy="210" r="180" fill="rgba(255,170,80,0.10)"/>
-              <rect x="80" y="460" width="1040" height="140" rx="28" fill="rgba(17,24,39,0.04)"/>
+              <!-- classroom background -->
+              <rect x="0" y="0" width="1600" height="900" fill="url(#wall)"/>
+              <rect x="0" y="0" width="1600" height="900" fill="url(#sun)"/>
 
-              <!-- chairs row -->
-              <g transform="translate(110,230)" filter="url(#soft)">
-                <!-- helper function: chair -->
-                <!-- Chair geometry -->
-                <!-- seats: 8, evenly spaced -->
-                <!-- students on seats 1,5,7,8 -> 10001011 -->
-                <!-- seat 1 -->
+              <!-- chalkboard -->
+              <g filter="url(#softShadow)">
+                <rect x="220" y="120" width="1160" height="340" rx="26" fill="rgba(0,0,0,0.08)"/>
+                <rect x="240" y="140" width="1120" height="300" rx="24" fill="url(#board)"/>
+                <rect x="240" y="440" width="1120" height="10" rx="5" fill="rgba(255,255,255,0.18)"/>
+              </g>
+
+              <!-- clock -->
+              <g transform="translate(800,92)" filter="url(#softShadow)">
+                <circle r="46" fill="rgba(255,255,255,0.78)" stroke="rgba(20,28,40,0.18)" stroke-width="4"/>
+                <circle r="3" fill="rgba(20,28,40,0.35)"/>
+                <!-- 11:00 -->
+                <line x1="0" y1="0" x2="-10" y2="-22" stroke="rgba(20,28,40,0.55)" stroke-width="4" stroke-linecap="round"/>
+                <line x1="0" y1="0" x2="0" y2="-26" stroke="rgba(20,28,40,0.55)" stroke-width="4" stroke-linecap="round"/>
+              </g>
+
+              <!-- floor -->
+              <path d="M0,560 C320,520 640,520 800,540 C1020,570 1280,590 1600,560 L1600,900 L0,900 Z" fill="url(#floor)"/>
+              <path d="M0,560 C320,520 640,520 800,540 C1020,570 1280,590 1600,560" fill="none" stroke="rgba(20,28,40,0.08)" stroke-width="3"/>
+
+              <!-- chairs row baseline -->
+              <g transform="translate(240,650)" filter="url(#grain)">
+                <!-- positions (8) -->
+                <!-- x step -->
+                <!-- pattern 10001011 => occupied seats: 1,5,7,8 -->
+                <!-- seat 1 (occupied) -->
                 <g transform="translate(0,0)">
-                  <rect x="0" y="120" width="120" height="40" rx="14" fill="rgba(17,24,39,0.18)"/>
-                  <rect x="14" y="60" width="92" height="72" rx="18" fill="rgba(17,24,39,0.12)"/>
-                  <rect x="18" y="160" width="16" height="70" rx="8" fill="rgba(17,24,39,0.18)"/>
-                  <rect x="86" y="160" width="16" height="70" rx="8" fill="rgba(17,24,39,0.18)"/>
-                  <!-- student -->
-                  <circle cx="60" cy="30" r="26" fill="rgba(17,24,39,0.22)"/>
-                  <rect x="32" y="52" width="56" height="50" rx="18" fill="rgba(17,24,39,0.18)"/>
+                  <use href="#chair"/>
+                  <g transform="translate(0,0)">
+                    <use href="#student"/>
+                  </g>
                 </g>
 
                 <!-- seat 2 (empty) -->
-                <g transform="translate(140,0)">
-                  <rect x="0" y="120" width="120" height="40" rx="14" fill="rgba(17,24,39,0.18)"/>
-                  <rect x="14" y="60" width="92" height="72" rx="18" fill="rgba(17,24,39,0.12)"/>
-                  <rect x="18" y="160" width="16" height="70" rx="8" fill="rgba(17,24,39,0.18)"/>
-                  <rect x="86" y="160" width="16" height="70" rx="8" fill="rgba(17,24,39,0.18)"/>
+                <g transform="translate(160,0)">
+                  <use href="#chair"/>
                 </g>
 
                 <!-- seat 3 (empty) -->
-                <g transform="translate(280,0)">
-                  <rect x="0" y="120" width="120" height="40" rx="14" fill="rgba(17,24,39,0.18)"/>
-                  <rect x="14" y="60" width="92" height="72" rx="18" fill="rgba(17,24,39,0.12)"/>
-                  <rect x="18" y="160" width="16" height="70" rx="8" fill="rgba(17,24,39,0.18)"/>
-                  <rect x="86" y="160" width="16" height="70" rx="8" fill="rgba(17,24,39,0.18)"/>
+                <g transform="translate(320,0)">
+                  <use href="#chair"/>
                 </g>
 
                 <!-- seat 4 (empty) -->
-                <g transform="translate(420,0)">
-                  <rect x="0" y="120" width="120" height="40" rx="14" fill="rgba(17,24,39,0.18)"/>
-                  <rect x="14" y="60" width="92" height="72" rx="18" fill="rgba(17,24,39,0.12)"/>
-                  <rect x="18" y="160" width="16" height="70" rx="8" fill="rgba(17,24,39,0.18)"/>
-                  <rect x="86" y="160" width="16" height="70" rx="8" fill="rgba(17,24,39,0.18)"/>
+                <g transform="translate(480,0)">
+                  <use href="#chair"/>
                 </g>
 
-                <!-- seat 5 -->
-                <g transform="translate(560,0)">
-                  <rect x="0" y="120" width="120" height="40" rx="14" fill="rgba(17,24,39,0.18)"/>
-                  <rect x="14" y="60" width="92" height="72" rx="18" fill="rgba(17,24,39,0.12)"/>
-                  <rect x="18" y="160" width="16" height="70" rx="8" fill="rgba(17,24,39,0.18)"/>
-                  <rect x="86" y="160" width="16" height="70" rx="8" fill="rgba(17,24,39,0.18)"/>
-                  <!-- student -->
-                  <circle cx="60" cy="30" r="26" fill="rgba(17,24,39,0.22)"/>
-                  <rect x="32" y="52" width="56" height="50" rx="18" fill="rgba(17,24,39,0.18)"/>
+                <!-- seat 5 (occupied) -->
+                <g transform="translate(640,0)">
+                  <use href="#chair"/>
+                  <use href="#student"/>
                 </g>
 
                 <!-- seat 6 (empty) -->
-                <g transform="translate(700,0)">
-                  <rect x="0" y="120" width="120" height="40" rx="14" fill="rgba(17,24,39,0.18)"/>
-                  <rect x="14" y="60" width="92" height="72" rx="18" fill="rgba(17,24,39,0.12)"/>
-                  <rect x="18" y="160" width="16" height="70" rx="8" fill="rgba(17,24,39,0.18)"/>
-                  <rect x="86" y="160" width="16" height="70" rx="8" fill="rgba(17,24,39,0.18)"/>
+                <g transform="translate(800,0)">
+                  <use href="#chair"/>
                 </g>
 
-                <!-- seat 7 -->
-                <g transform="translate(840,0)">
-                  <rect x="0" y="120" width="120" height="40" rx="14" fill="rgba(17,24,39,0.18)"/>
-                  <rect x="14" y="60" width="92" height="72" rx="18" fill="rgba(17,24,39,0.12)"/>
-                  <rect x="18" y="160" width="16" height="70" rx="8" fill="rgba(17,24,39,0.18)"/>
-                  <rect x="86" y="160" width="16" height="70" rx="8" fill="rgba(17,24,39,0.18)"/>
-                  <!-- student -->
-                  <circle cx="60" cy="30" r="26" fill="rgba(17,24,39,0.22)"/>
-                  <rect x="32" y="52" width="56" height="50" rx="18" fill="rgba(17,24,39,0.18)"/>
+                <!-- seat 7 (occupied) -->
+                <g transform="translate(960,0)">
+                  <use href="#chair"/>
+                  <use href="#student"/>
                 </g>
 
-                <!-- seat 8 -->
-                <g transform="translate(980,0)">
-                  <rect x="0" y="120" width="120" height="40" rx="14" fill="rgba(17,24,39,0.18)"/>
-                  <rect x="14" y="60" width="92" height="72" rx="18" fill="rgba(17,24,39,0.12)"/>
-                  <rect x="18" y="160" width="16" height="70" rx="8" fill="rgba(17,24,39,0.18)"/>
-                  <rect x="86" y="160" width="16" height="70" rx="8" fill="rgba(17,24,39,0.18)"/>
-                  <!-- student -->
-                  <circle cx="60" cy="30" r="26" fill="rgba(17,24,39,0.22)"/>
-                  <rect x="32" y="52" width="56" height="50" rx="18" fill="rgba(17,24,39,0.18)"/>
+                <!-- seat 8 (occupied) -->
+                <g transform="translate(1120,0)">
+                  <use href="#chair"/>
+                  <use href="#student"/>
                 </g>
               </g>
+
+              <!-- subtle vignette -->
+              <rect x="0" y="0" width="1600" height="900" fill="rgba(0,0,0,0.10)"/>
+              <rect x="40" y="40" width="1520" height="820" rx="30" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="2"/>
             </svg>
           </div>
           <div class="photoHint">Click the picture.</div>
@@ -843,12 +874,10 @@ function brightTransition(go){
 
   setTimeout(() => {
     go();
-
     transition.animate(
       [{ opacity: 1, filter: "blur(14px)" }, { opacity: 0, filter: "blur(0px)" }],
       { duration: 700, easing: "ease-in-out", fill: "forwards" }
     );
-
     setTimeout(() => transition.classList.remove("show"), 720);
   }, 360);
 }
@@ -903,7 +932,6 @@ function enterRoom3(){
 (function room1(){
   const CFG = {
     code: "REALITY",
-
     focus: { x: 0.44, y: 0.52 },
     zoomMin: 1.0,
     zoomMax: 1.55,
@@ -979,6 +1007,7 @@ function enterRoom3(){
     if (ACTIVE_ROOM === 1) applyCamera();
   });
 
+  // opening: only wheel down
   window.addEventListener("wheel", (e) => {
     if (ACTIVE_ROOM !== 1) return;
     e.preventDefault();
@@ -1001,6 +1030,7 @@ function enterRoom3(){
       return;
     }
 
+    // after opening: both directions
     progress = clamp01(progress + (-delta) * 0.0007);
     applyCamera();
   }, { passive:false });
@@ -1110,10 +1140,6 @@ function enterRoom3(){
 
 /* =========================================================
    ROOM 2 SCRIPT (Letters room)
-   - duplicates supported
-   - any order placement
-   - letters never float under assembly
-   - 近远 effect via scale + shadow (sharp, no blur)
    ========================================================= */
 function initRoom2(){
   const TARGET = "FAVORITE PAPER";
@@ -1138,7 +1164,7 @@ function initRoom2(){
 
   const targetChars = [...TARGET];
   const slotEls = [];
-  const placed = new Array(targetChars.length).fill(null); // tileId or null
+  const placed = new Array(targetChars.length).fill(null);
 
   function isSpace(i){ return targetChars[i] === " "; }
 
@@ -1168,17 +1194,16 @@ function initRoom2(){
     return arr;
   }
 
-  const TILE_SIZE = 320; // must match CSS tile width/height
-  const tiles = []; // {id,char,el,x,y,vx,vy,locked,z}
+  const TILE_SIZE = 360; // match CSS
+  const tiles = [];
   let nextId = 1;
   let dragging = null;
 
   function setDepthStyle(el, z){
-    // z in [0.70..1.35]  (bigger range => stronger 近远)
+    // sharp 近远: only scale + opacity + shadow
     const scale = z;
-    const opa  = 0.72 + (z - 0.70) * 0.38;
-    const shadow = 0.55 + (z - 0.70) * 1.05;
-
+    const opa  = 0.70 + (z - 0.72) * 0.40;
+    const shadow = 0.52 + (z - 0.72) * 1.05;
     el.style.setProperty("--scale", scale.toFixed(3));
     el.style.setProperty("--opa", opa.toFixed(3));
     el.style.setProperty("--shadow", shadow.toFixed(3));
@@ -1201,25 +1226,20 @@ function initRoom2(){
       tilesWrap.appendChild(el);
 
       const id = nextId++;
-
-      const z = 0.70 + Math.random() * 0.65; // 0.70..1.35
+      const z = 0.72 + Math.random() * 0.70; // 0.72..1.42 (strong depth)
       setDepthStyle(el, z);
 
-      // spawn upper space
-      const cx = w * (0.08 + Math.random() * 0.84);
-      const cy = h * (0.06 + Math.random() * 0.44);
+      const cx = w * (0.06 + Math.random() * 0.88);
+      const cy = h * (0.06 + Math.random() * 0.42);
 
-      // drift speed: far moves a little faster, near calmer
-      const speed = 0.35 + (1.35 - z) * 0.65;
+      const speed = 0.30 + (1.42 - z) * 0.72;
 
       const t = {
-        id,
-        char: ch,
-        el,
+        id, char: ch, el,
         x: cx - TILE_SIZE/2,
         y: cy - TILE_SIZE/2,
-        vx:(Math.random()*0.54-0.27) * speed,
-        vy:(Math.random()*0.54-0.27) * speed,
+        vx:(Math.random()*0.56-0.28) * speed,
+        vy:(Math.random()*0.56-0.28) * speed,
         locked:false,
         z
       };
@@ -1282,7 +1302,6 @@ function initRoom2(){
   }
 
   function trySnapToNearestMatchingSlot(t){
-    // candidates: same letter, empty
     const candidates = [];
     for (let i=0;i<targetChars.length;i++){
       if (isSpace(i)) continue;
@@ -1304,7 +1323,7 @@ function initRoom2(){
     candidates.sort((a,b)=>a.dist-b.dist);
     const best = candidates[0];
 
-    if (best.dist > 175){
+    if (best.dist > 190){
       showToast("Not here.");
       return;
     }
@@ -1335,9 +1354,6 @@ function initRoom2(){
     }
 
     const w = window.innerWidth;
-    const h = window.innerHeight;
-
-    // keep letters above assembly
     const ar = assembly.getBoundingClientRect();
     const maxY = Math.max(18, ar.top - TILE_SIZE - 10);
 
@@ -1348,9 +1364,9 @@ function initRoom2(){
       t.x += t.vx;
       t.y += t.vy;
 
-      const minX = 12;
-      const maxX = w - TILE_SIZE - 12;
-      const minY = 12;
+      const minX = 10;
+      const maxX = w - TILE_SIZE - 10;
+      const minY = 10;
 
       if (t.x < minX || t.x > maxX) t.vx *= -1;
       if (t.y < minY || t.y > maxY) t.vy *= -1;
@@ -1365,11 +1381,10 @@ function initRoom2(){
     requestAnimationFrame(tick);
   }
 
-  // 2-digit lock
+  // 2-digit lock (35)
   let digitState = [0,0];
   function buildDigits(){
     digitsEl.innerHTML = "";
-
     for (let i=0;i<2;i++){
       const d = document.createElement("div");
       d.className = "digit";
@@ -1397,7 +1412,6 @@ function initRoom2(){
       d.addEventListener("pointerdown", ()=> d.focus());
       digitsEl.appendChild(d);
     }
-
     setTimeout(()=>digitsEl.children[0]?.focus(), 0);
   }
 
@@ -1406,13 +1420,12 @@ function initRoom2(){
     if (attempt === ESCAPE_CODE){
       lockMsg.textContent = "";
       showToast("Unlocked.");
-      setTimeout(() => brightTransition(enterRoom3), 300);
+      setTimeout(() => brightTransition(enterRoom3), 280);
     } else {
       lockMsg.textContent = "Not quite…";
     }
   });
 
-  // resize: re-snap locked tiles to slot centers
   window.addEventListener("resize", ()=>{
     if (ACTIVE_ROOM !== 2) return;
     for (let i=0;i<targetChars.length;i++){
@@ -1436,7 +1449,7 @@ function initRoom2(){
 
 /* =========================================================
    ROOM 3 SCRIPT (Binary picture lock)
-   - 8 chairs = binary 10001011 = 139
+   10001011 (8 seats) => 139
    ========================================================= */
 function initRoom3(){
   const PHOTO_CODE = "139";
