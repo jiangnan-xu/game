@@ -9,27 +9,24 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;800;900&family=Shippori+Mincho:wght@500;700&display=swap" rel="stylesheet">
 
+<!-- REAL MAP: Leaflet (OpenStreetMap tiles) -->
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
 <style>
 :root{
   --title-font: "Shippori Mincho", serif;
   --ui-font: "Inter", system-ui, sans-serif;
 }
-html,body{
-  margin:0; padding:0; height:100%;
-  overflow:hidden;
-  font-family:var(--ui-font);
-  background:#000;
-}
+html,body{ margin:0; padding:0; height:100%; overflow:hidden; font-family:var(--ui-font); background:#000; }
 button,input{ font-family:inherit; }
 
 /* Transition overlay (bright blur -> clear) */
 #transition{
-  position:fixed; inset:0;
-  z-index:9999;
-  pointer-events:none;
-  opacity:0;
-  background: rgba(255,255,255,1);
-  filter: blur(0px);
+  position:fixed; inset:0; z-index:9999; pointer-events:none;
+  opacity:0; background: rgba(255,255,255,1); filter: blur(0px);
 }
 #transition.show{ opacity:1; }
 
@@ -37,7 +34,6 @@ button,input{ font-family:inherit; }
    ROOM 1 (Door)
    ========================= */
 #intro{ position:fixed; inset:0; background:#000; }
-
 #title-layer{
   position:absolute; inset:0;
   display:flex; align-items:center; justify-content:center;
@@ -59,39 +55,26 @@ button,input{ font-family:inherit; }
 .subhint{ margin-top:18px; font-size:12px; opacity:.6; }
 
 #scene{ position:absolute; inset:0; opacity:0; transition:opacity .6s ease; }
-#camera{
-  position:absolute; inset:0;
-  transform-origin:50% 50%;
-  will-change:transform;
-}
+#camera{ position:absolute; inset:0; transform-origin:50% 50%; will-change:transform; }
 #scene-img{ width:100%; height:100%; object-fit:cover; display:block; }
 
-/* Visible hotspots (debug-visible by request) */
+/* Visible hotspots */
 .hotspot{
-  position:absolute;
-  border:none;
-  cursor:pointer;
-  z-index:4;
+  position:absolute; border:none; cursor:pointer; z-index:4;
   background: rgba(255,255,255,0.06);
   outline: 2px solid rgba(255,255,255,0.22);
   border-radius: 14px;
-  opacity:0;
-  pointer-events:none;
+  opacity:0; pointer-events:none;
   transition: opacity .25s ease, background .25s ease, outline-color .25s ease;
 }
 .hotspot.enabled{ opacity:1; pointer-events:auto; }
-.hotspot:hover{
-  outline-color: rgba(255,255,255,0.36);
-  background: rgba(255,255,255,0.10);
-}
+.hotspot:hover{ outline-color: rgba(255,255,255,0.36); background: rgba(255,255,255,0.10); }
 
 .anchor{ position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
 
-/* Door lock (overlay, not zoomed) */
+/* Door lock */
 #door-lock{
-  position:absolute;
-  z-index:30;
-  display:none;
+  position:absolute; z-index:30; display:none;
   width: min(320px, 76vw);
   padding: 12px 12px 10px;
   border-radius: 16px;
@@ -102,7 +85,6 @@ button,input{ font-family:inherit; }
   transform: translate(-50%, -50%);
 }
 #door-lock.show{ display:block; }
-
 .lock-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px; }
 .lock-title{ font-weight:900; font-size:14px; color:#111827; }
 .lock-close{
@@ -122,29 +104,20 @@ button,input{ font-family:inherit; }
   cursor:grab; user-select:none;
   outline:none;
 }
-.wheel:focus{
-  outline: 2px solid rgba(0,0,0,0.25);
-  box-shadow: 0 0 0 4px rgba(59,130,246,0.18);
-}
+.wheel:focus{ outline: 2px solid rgba(0,0,0,0.25); box-shadow: 0 0 0 4px rgba(59,130,246,0.18); }
 .unlock-btn{
-  width:100%;
-  padding:9px 12px;
-  border-radius:999px;
-  border:none;
-  font-weight:900;
-  cursor:pointer;
+  width:100%; padding:9px 12px;
+  border-radius:999px; border:none;
+  font-weight:900; cursor:pointer;
   background:linear-gradient(135deg,#fde68a,#fb923c);
 }
 .hint-message{ margin-top:8px; color:#b91c1c; font-weight:900; min-height:16px; font-size:12px; }
 
 /* NPC bubble */
 #npc-bubble{
-  position:absolute;
-  left:50%;
-  bottom:26px;
+  position:absolute; left:50%; bottom:26px;
   transform:translateX(-50%) translateY(10px);
-  z-index:25;
-  width:min(760px,92vw);
+  z-index:25; width:min(760px,92vw);
   padding:14px 16px 12px;
   border-radius:18px;
   background:rgba(0,0,0,.46);
@@ -152,8 +125,7 @@ button,input{ font-family:inherit; }
   color:rgba(255,255,255,.92);
   backdrop-filter:blur(10px);
   box-shadow:0 26px 90px rgba(0,0,0,.5);
-  opacity:0;
-  pointer-events:none;
+  opacity:0; pointer-events:none;
   transition: opacity .25s ease, transform .25s ease;
 }
 #npc-bubble.show{ opacity:1; transform:translateX(-50%) translateY(0); }
@@ -162,18 +134,13 @@ button,input{ font-family:inherit; }
 
 /* Toast */
 #toast{
-  position:absolute;
-  left:50%;
-  top:18px;
+  position:absolute; left:50%; top:18px;
   transform:translateX(-50%);
   padding:10px 14px;
   background:rgba(0,0,0,.6);
-  color:#fff;
-  border-radius:999px;
-  font-size:14px;
-  opacity:0;
-  transition:.2s;
-  z-index:40;
+  color:#fff; border-radius:999px;
+  font-size:14px; opacity:0;
+  transition:.2s; z-index:40;
   pointer-events:none;
 }
 #toast.show{ opacity:1; transform:translate(-50%,-6px); }
@@ -182,39 +149,21 @@ button,input{ font-family:inherit; }
    ROOM 2 (Letters room)
    ========================= */
 #room2{
-  position:fixed; inset:0;
-  display:none;
-  overflow:hidden;
-  background:
-    radial-gradient(circle at 50% 20%, rgba(0,0,0,0.03), rgba(255,255,255,1) 70%),
-    #fff;
+  position:fixed; inset:0; display:none; overflow:hidden;
+  background: radial-gradient(circle at 50% 20%, rgba(0,0,0,0.03), rgba(255,255,255,1) 70%), #fff;
   color:#111827;
 }
-#room2 .room2-inner{
-  position:absolute; inset:0;
-  transition: filter 0.9s ease, opacity 0.9s ease;
-  filter: blur(18px);
-  opacity: 0.0;
-}
-#room2 .frame{
-  position:absolute; inset:0;
-  pointer-events:none;
-  box-shadow: inset 0 0 200px rgba(0,0,0,0.05);
-}
+#room2 .room2-inner{ position:absolute; inset:0; transition: filter 0.9s ease, opacity 0.9s ease; filter: blur(18px); opacity: 0.0; }
+#room2 .frame{ position:absolute; inset:0; pointer-events:none; box-shadow: inset 0 0 200px rgba(0,0,0,0.05); }
 
-/* Big sharp letters */
 #room2 .tile{
   position:absolute;
-  width: 380px;
-  height: 380px;
+  width: 380px; height: 380px;
   display:flex; align-items:center; justify-content:center;
-  font-weight: 900;
-  font-size: 290px;
+  font-weight: 900; font-size: 290px;
   letter-spacing: -0.03em;
   color: rgba(10,16,28,0.88);
-  user-select:none;
-  cursor: grab;
-  touch-action:none;
+  user-select:none; cursor: grab; touch-action:none;
   transform: translateY(var(--lift, 0px)) scale(var(--scale, 1));
   opacity: var(--opa, 1);
   text-shadow:
@@ -233,9 +182,7 @@ button,input{ font-family:inherit; }
 }
 
 #room2 .assembly{
-  position:absolute;
-  left:50%;
-  bottom: 64px;
+  position:absolute; left:50%; bottom: 64px;
   transform: translateX(-50%);
   width: min(1160px, 94vw);
   height: 200px;
@@ -245,36 +192,20 @@ button,input{ font-family:inherit; }
   backdrop-filter: blur(14px);
   box-shadow: 0 30px 140px rgba(0,0,0,0.10);
   z-index:40;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  display:flex; align-items:center; justify-content:center;
   padding: 18px 18px;
 }
-#room2 .slots{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap: 14px;
-  flex-wrap: wrap;
-}
+#room2 .slots{ display:flex; align-items:center; justify-content:center; gap: 14px; flex-wrap: wrap; }
 #room2 .slot{
-  width: 74px;
-  height: 110px;
+  width: 74px; height: 110px;
   border-radius: 22px;
   border: 1px dashed rgba(17,24,39,0.14);
   background: rgba(17,24,39,0.012);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-weight: 900;
-  font-size: 40px;
+  display:flex; align-items:center; justify-content:center;
+  font-weight: 900; font-size: 40px;
   color: rgba(17,24,39,0.22);
 }
-#room2 .slot.space{
-  width: 34px;
-  border:none;
-  background:transparent;
-}
+#room2 .slot.space{ width: 34px; border:none; background:transparent; }
 #room2 .slot.correct{
   border-style: solid;
   border-color: rgba(16,185,129,0.20);
@@ -283,19 +214,16 @@ button,input{ font-family:inherit; }
 }
 
 #room2 .postHint, #room2 .escapeLock{
-  position:absolute;
-  left:50%;
+  position:absolute; left:50%;
   transform: translateX(-50%);
   z-index:60;
-  opacity:0;
-  pointer-events:none;
+  opacity:0; pointer-events:none;
   transition: opacity .35s ease, transform .35s ease;
 }
 #room2 .postHint{ top: 18px; }
 #room2 .escapeLock{ top: 88px; }
 #room2 .postHint.show, #room2 .escapeLock.show{
-  opacity:1;
-  pointer-events:auto;
+  opacity:1; pointer-events:auto;
   transform: translateX(-50%) translateY(2px);
 }
 #room2 .postHint .card{
@@ -305,21 +233,10 @@ button,input{ font-family:inherit; }
   padding: 12px 14px;
   backdrop-filter: blur(10px);
   box-shadow: 0 18px 70px rgba(0,0,0,0.10);
-  display:flex;
-  align-items:center;
-  gap: 12px;
+  display:flex; align-items:center; gap: 12px;
 }
-#room2 .postHint .hintTitle{
-  font-weight: 900;
-  font-size: 12px;
-  letter-spacing: .12em;
-  opacity: .75;
-}
-#room2 .postHint .hintText{
-  font-size: 13px;
-  opacity: .88;
-  white-space: nowrap;
-}
+#room2 .postHint .hintTitle{ font-weight: 900; font-size: 12px; letter-spacing: .12em; opacity: .75; }
+#room2 .postHint .hintText{ font-size: 13px; opacity: .88; white-space: nowrap; }
 
 #room2 .lockCard{
   width: min(360px, 92vw);
@@ -330,44 +247,19 @@ button,input{ font-family:inherit; }
   backdrop-filter: blur(10px);
   box-shadow: 0 20px 80px rgba(0,0,0,0.12);
 }
-#room2 .lockRow{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom: 8px;
-}
-#room2 .lockTitle{
-  font-weight: 900;
-  font-size: 13px;
-  letter-spacing: .10em;
-  opacity: .86;
-}
-#room2 .digits{
-  display:flex;
-  gap:10px;
-  justify-content:center;
-  margin: 8px 0 8px;
-}
+#room2 .lockRow{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom: 8px; }
+#room2 .lockTitle{ font-weight: 900; font-size: 13px; letter-spacing: .10em; opacity: .86; }
+#room2 .digits{ display:flex; gap:10px; justify-content:center; margin: 8px 0 8px; }
 #room2 .digit{
-  width: 56px;
-  height: 72px;
+  width: 56px; height: 72px;
   border-radius: 18px;
   background: linear-gradient(#f8fafc,#eef2ff);
   border: 1px solid rgba(59,130,246,0.22);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-weight: 900;
-  font-size: 28px;
-  user-select:none;
-  cursor: grab;
-  outline:none;
+  display:flex; align-items:center; justify-content:center;
+  font-weight: 900; font-size: 28px;
+  user-select:none; cursor: grab; outline:none;
 }
-#room2 .digit:focus{
-  outline: 2px solid rgba(59,130,246,0.35);
-  box-shadow: 0 0 0 5px rgba(59,130,246,0.12);
-}
+#room2 .digit:focus{ outline: 2px solid rgba(59,130,246,0.35); box-shadow: 0 0 0 5px rgba(59,130,246,0.12); }
 #room2 .lockBtn{
   width:100%;
   border:none;
@@ -377,58 +269,30 @@ button,input{ font-family:inherit; }
   cursor:pointer;
   background: linear-gradient(135deg, #fde68a, #fb923c);
 }
-#room2 .lockMsg{
-  margin-top: 8px;
-  font-size: 12px;
-  font-weight: 800;
-  min-height: 16px;
-  color: #b91c1c;
-}
+#room2 .lockMsg{ margin-top: 8px; font-size: 12px; font-weight: 800; min-height: 16px; color: #b91c1c; }
 #room2 .toast{
-  position:absolute;
-  left:50%;
-  bottom: 18px;
+  position:absolute; left:50%; bottom: 18px;
   transform: translateX(-50%);
   padding:10px 14px;
   border-radius:999px;
   background: rgba(17,24,39,0.70);
-  color:#fff;
-  font-size: 13px;
-  opacity:0;
-  transition: opacity .2s ease, transform .2s ease;
-  z-index:80;
-  pointer-events:none;
+  color:#fff; font-size: 13px;
+  opacity:0; transition: opacity .2s ease, transform .2s ease;
+  z-index:80; pointer-events:none;
 }
-#room2 .toast.show{
-  opacity:1;
-  transform: translateX(-50%) translateY(-6px);
-}
+#room2 .toast.show{ opacity:1; transform: translateX(-50%) translateY(-6px); }
 
 /* =========================
-   ROOM 3 (Framed classroom “photo”, richer)
+   ROOM 3
    ========================= */
 #room3{
   position:fixed; inset:0;
-  display:none;
-  overflow:hidden;
-  background:
-    radial-gradient(circle at 50% 24%, rgba(0,0,0,0.04), rgba(255,255,255,1) 70%),
-    #fff;
+  display:none; overflow:hidden;
+  background: radial-gradient(circle at 50% 24%, rgba(0,0,0,0.04), rgba(255,255,255,1) 70%), #fff;
   color:#111827;
 }
-#room3 .room3-inner{
-  position:absolute; inset:0;
-  transition: filter 0.9s ease, opacity 0.9s ease;
-  filter: blur(18px);
-  opacity: 0.0;
-}
-#room3 .stage{
-  position:absolute; inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding: 48px 20px 40px;
-}
+#room3 .room3-inner{ position:absolute; inset:0; transition: filter 0.9s ease, opacity 0.9s ease; filter: blur(18px); opacity: 0.0; }
+#room3 .stage{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding: 48px 20px 40px; }
 #room3 .frameWrap{
   width: min(1020px, 94vw);
   aspect-ratio: 16/9;
@@ -437,8 +301,7 @@ button,input{ font-family:inherit; }
   border: 1px solid rgba(17,24,39,0.10);
   backdrop-filter: blur(12px);
   box-shadow: 0 30px 160px rgba(0,0,0,0.12);
-  position: relative;
-  overflow:hidden;
+  position: relative; overflow:hidden;
 }
 #room3 .frameBezel{
   position:absolute; inset:14px;
@@ -447,37 +310,22 @@ button,input{ font-family:inherit; }
   background: radial-gradient(circle at 50% 30%, rgba(0,0,0,0.05), rgba(255,255,255,0.92));
   overflow:hidden;
 }
-#room3 .photo{
-  position:absolute; inset:0;
-  display:flex; align-items:center; justify-content:center;
-  cursor:pointer;
-}
-#room3 .photo svg{
-  width:100%; height:100%;
-  display:block;
-}
+#room3 .photo{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+#room3 .photo svg{ width:100%; height:100%; display:block; }
 #room3 .photoHint{
-  position:absolute;
-  left:18px; bottom:16px;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: .10em;
-  padding: 10px 12px;
-  border-radius: 999px;
+  position:absolute; left:18px; bottom:16px;
+  font-size: 12px; font-weight: 800; letter-spacing: .10em;
+  padding: 10px 12px; border-radius: 999px;
   color: rgba(17,24,39,0.75);
   background: rgba(255,255,255,0.72);
   border: 1px solid rgba(17,24,39,0.10);
   backdrop-filter: blur(10px);
   pointer-events:none;
 }
-
-/* Room3 lock overlay */
 #r3-lock{
-  position:fixed;
-  left:50%; top:50%;
+  position:fixed; left:50%; top:50%;
   transform: translate(-50%, -50%);
-  z-index:200;
-  width: min(360px, 92vw);
+  z-index:200; width: min(360px, 92vw);
   display:none;
   background: rgba(255,255,255,0.92);
   border: 1px solid rgba(17,24,39,0.10);
@@ -487,10 +335,7 @@ button,input{ font-family:inherit; }
   box-shadow: 0 20px 90px rgba(0,0,0,0.18);
 }
 #r3-lock.show{ display:block; }
-#r3-lock .top{
-  display:flex; align-items:center; justify-content:space-between; gap:10px;
-  margin-bottom: 8px;
-}
+#r3-lock .top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom: 8px; }
 #r3-lock .t{ font-weight: 900; letter-spacing: .10em; font-size: 13px; opacity: .9; }
 #r3-lock .x{
   width:32px; height:32px; border-radius:999px;
@@ -499,9 +344,7 @@ button,input{ font-family:inherit; }
   cursor:pointer; font-weight:900;
 }
 #r3-lock .sub{ font-size: 12px; color: rgba(17,24,39,0.72); margin-bottom: 8px; }
-#r3-lock .digits{
-  display:flex; justify-content:center; gap:10px; margin: 10px 0;
-}
+#r3-lock .digits{ display:flex; justify-content:center; gap:10px; margin: 10px 0; }
 #r3-lock .digit{
   width: 56px; height: 72px; border-radius: 18px;
   background: linear-gradient(#f8fafc,#eef2ff);
@@ -510,34 +353,22 @@ button,input{ font-family:inherit; }
   font-weight: 900; font-size: 28px;
   user-select:none; cursor: grab; outline:none;
 }
-#r3-lock .digit:focus{
-  outline: 2px solid rgba(59,130,246,0.35);
-  box-shadow: 0 0 0 5px rgba(59,130,246,0.12);
-}
+#r3-lock .digit:focus{ outline: 2px solid rgba(59,130,246,0.35); box-shadow: 0 0 0 5px rgba(59,130,246,0.12); }
 #r3-lock .btn{
   width:100%;
-  border:none;
-  border-radius: 999px;
+  border:none; border-radius: 999px;
   padding: 10px 12px;
   font-weight: 900;
   cursor:pointer;
   background: linear-gradient(135deg, #fde68a, #fb923c);
 }
-#r3-lock .msg{
-  margin-top: 8px;
-  font-size: 12px;
-  font-weight: 800;
-  min-height: 16px;
-  color: #b91c1c;
-}
+#r3-lock .msg{ margin-top: 8px; font-size: 12px; font-weight: 800; min-height: 16px; color: #b91c1c; }
 
 /* =========================
-   ROOM 4 (Coordinate search -> world map zoom -> noodle place)
+   ROOM 4 (Real map + 2 inputs)
    ========================= */
 #room4{
-  position:fixed; inset:0;
-  display:none;
-  overflow:hidden;
+  position:fixed; inset:0; display:none; overflow:hidden;
   background: radial-gradient(circle at 50% 20%, rgba(255,255,255,0.12), rgba(0,0,0,0.92) 70%), #000;
   color:#fff;
 }
@@ -548,16 +379,12 @@ button,input{ font-family:inherit; }
   opacity: 0.0;
 }
 #room4 .hud{
-  position:absolute;
-  left:50%;
-  top: 22px;
+  position:absolute; left:50%; top: 18px;
   transform: translateX(-50%);
-  width: min(860px, 92vw);
+  width: min(980px, 94vw);
   z-index:30;
-  display:flex;
-  gap:12px;
-  align-items:center;
-  justify-content:center;
+  display:flex; gap:10px;
+  align-items:center; justify-content:center;
   padding: 12px;
   border-radius: 20px;
   background: rgba(255,255,255,0.10);
@@ -566,19 +393,16 @@ button,input{ font-family:inherit; }
   box-shadow: 0 26px 120px rgba(0,0,0,0.45);
 }
 #room4 .hud .label{
-  font-weight:900;
-  letter-spacing: .10em;
-  font-size: 12px;
-  opacity:.9;
+  font-weight:900; letter-spacing: .10em;
+  font-size: 12px; opacity:.9;
 }
 #room4 .hud input{
-  width: min(420px, 62vw);
+  width: min(220px, 30vw);
   padding: 12px 14px;
   border-radius: 14px;
   border: 1px solid rgba(255,255,255,0.18);
   background: rgba(0,0,0,0.35);
-  color:#fff;
-  outline:none;
+  color:#fff; outline:none;
   font-weight:800;
 }
 #room4 .hud input::placeholder{ color: rgba(255,255,255,0.55); font-weight:700; }
@@ -595,59 +419,50 @@ button,input{ font-family:inherit; }
   font-size: 12px;
   font-weight: 900;
   color: rgba(255,140,140,0.95);
-  min-width: 180px;
+  min-width: 190px;
   text-align:left;
   opacity:.95;
 }
-
-/* Map stage */
-#room4 .mapStage{
-  position:absolute; inset:0;
-  display:flex; align-items:center; justify-content:center;
+#room4 .hint{
+  position:absolute; left:50%; top: 76px;
+  transform: translateX(-50%);
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.40);
+  border: 1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(10px);
+  font-size: 13px;
+  opacity:.92;
+  z-index:25;
 }
 #room4 .mapWrap{
+  position:absolute;
+  left:50%; top: 50%;
+  transform: translate(-50%, -46%);
   width: min(1200px, 96vw);
-  aspect-ratio: 16/9;
+  height: min(720px, 72vh);
   border-radius: 28px;
   overflow:hidden;
-  background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.14);
-  box-shadow: 0 30px 160px rgba(0,0,0,0.50);
-  position: relative;
+  box-shadow: 0 30px 160px rgba(0,0,0,0.55);
 }
-#room4 .mapViewport{
-  position:absolute; inset:0;
-  transform-origin: 50% 50%;
-  will-change: transform;
-  transition: transform 2.2s cubic-bezier(.18,.9,.12,1);
+#map{
+  width:100%; height:100%;
 }
 #room4 .mapVignette{
   position:absolute; inset:0;
   pointer-events:none;
-  box-shadow: inset 0 0 220px rgba(0,0,0,0.55);
+  box-shadow: inset 0 0 240px rgba(0,0,0,0.55);
+  border-radius: 28px;
 }
 
-/* Marker + noodle card */
-#room4 .marker{
-  position:absolute;
-  left: 73.2%;
-  top: 46.2%;
-  width: 14px; height:14px;
-  border-radius: 999px;
-  background: rgba(255,240,180,0.95);
-  box-shadow: 0 0 0 10px rgba(255,200,90,0.18), 0 12px 36px rgba(0,0,0,0.45);
-  transform: translate(-50%,-50%);
-  opacity:0;
-  transition: opacity .35s ease;
-}
-#room4.ready .marker{ opacity:1; }
-
+/* Win card */
 #room4 .winCard{
   position:absolute;
   left:50%;
-  bottom: 26px;
+  bottom: 22px;
   transform: translateX(-50%) translateY(12px);
-  width: min(980px, 92vw);
+  width: min(1020px, 94vw);
   padding: 16px 16px 14px;
   border-radius: 22px;
   background: rgba(0,0,0,0.55);
@@ -660,6 +475,7 @@ button,input{ font-family:inherit; }
   display:flex;
   gap:14px;
   align-items:center;
+  z-index:40;
 }
 #room4.ready .winCard{
   opacity:1;
@@ -667,8 +483,8 @@ button,input{ font-family:inherit; }
   pointer-events:auto;
 }
 #room4 .ramenArt{
-  width: 200px;
-  height: 132px;
+  width: 240px;
+  height: 150px;
   border-radius: 18px;
   background: rgba(255,255,255,0.08);
   border: 1px solid rgba(255,255,255,0.12);
@@ -677,12 +493,7 @@ button,input{ font-family:inherit; }
   justify-content:center;
   overflow:hidden;
 }
-#room4 .winImg{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  display:block;
-}
+#room4 .winImg{ width:100%; height:100%; object-fit:cover; display:block; }
 #room4 .winText .h{
   font-family: var(--title-font);
   font-weight:700;
@@ -690,26 +501,11 @@ button,input{ font-family:inherit; }
   letter-spacing: .02em;
   margin-bottom: 6px;
 }
-#room4 .winText .p{
-  font-size: 14px;
-  line-height: 1.55;
-  opacity: .92;
-}
+#room4 .winText .p{ font-size: 14px; line-height: 1.55; opacity: .92; }
 
-/* Small hint */
-#room4 .hint{
-  position:absolute;
-  left:50%;
-  top: 88px;
-  transform: translateX(-50%);
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: rgba(0,0,0,0.40);
-  border: 1px solid rgba(255,255,255,0.12);
-  backdrop-filter: blur(10px);
-  font-size: 13px;
-  opacity:.92;
-}
+/* Leaflet tweaks (clean look) */
+.leaflet-control-container{ display:none; }
+.leaflet-tile{ filter: saturate(1.08) contrast(1.02); }
 </style>
 </head>
 
@@ -733,7 +529,6 @@ button,input{ font-family:inherit; }
     <div id="camera">
       <img id="scene-img" src="door-bg.jpg" alt="Door hallway"/>
 
-      <!-- hotspots visible (debug) -->
       <button id="door-hotspot" class="hotspot" aria-label="Door"></button>
       <button id="bell-hotspot" class="hotspot" aria-label="Intercom"></button>
 
@@ -760,7 +555,6 @@ button,input{ font-family:inherit; }
   </div>
 </div>
 
-<!-- Keep audio hidden; user must click bell -->
 <audio id="song" src="song.m4a" preload="auto"></audio>
 
 <!-- =========================
@@ -808,7 +602,10 @@ button,input{ font-family:inherit; }
       <div class="frameWrap">
         <div class="frameBezel">
           <div class="photo" id="r3-photo" aria-label="Picture">
-            <!-- richer classroom "photo" with 8 seats pattern 10001011 (occupied 1/5/7/8) -->
+            <!-- (same svg classroom as before; omitted here for brevity) -->
+            <!-- IMPORTANT: keep your current rich SVG here unchanged -->
+            <!-- To keep "whole code" runnable, paste your existing SVG here -->
+            <!-- For this answer, I keep it exactly as your previous file: -->
             <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
               <defs>
                 <linearGradient id="wall" x1="0" x2="0" y1="0" y2="1">
@@ -846,7 +643,6 @@ button,input{ font-family:inherit; }
                     0 0 0 0.18 0" result="g"/>
                   <feBlend in="SourceGraphic" in2="g" mode="multiply"/>
                 </filter>
-
                 <g id="chair">
                   <rect x="-46" y="-16" width="92" height="30" rx="12" fill="rgba(20,28,40,0.22)"/>
                   <rect x="-38" y="-92" width="76" height="80" rx="16" fill="rgba(20,28,40,0.16)"/>
@@ -869,7 +665,6 @@ button,input{ font-family:inherit; }
               <rect x="0" y="0" width="1600" height="900" fill="url(#wall)"/>
               <rect x="0" y="0" width="1600" height="900" fill="url(#sun)"/>
 
-              <!-- windows left -->
               <g filter="url(#softShadow)" opacity="0.95">
                 <rect x="40" y="110" width="170" height="520" rx="24" fill="rgba(255,255,255,0.30)"/>
                 <rect x="58" y="130" width="134" height="140" rx="18" fill="rgba(90,150,255,0.18)"/>
@@ -877,18 +672,15 @@ button,input{ font-family:inherit; }
                 <rect x="58" y="442" width="134" height="168" rx="18" fill="rgba(90,150,255,0.10)"/>
               </g>
 
-              <!-- chalkboard -->
               <g filter="url(#softShadow)">
                 <rect x="250" y="120" width="1100" height="350" rx="26" fill="rgba(0,0,0,0.08)"/>
                 <rect x="270" y="140" width="1060" height="310" rx="24" fill="url(#board)"/>
                 <rect x="270" y="450" width="1060" height="12" rx="6" fill="rgba(255,255,255,0.18)"/>
-                <!-- faint chalk marks (no numbers) -->
                 <path d="M 360 240 C 520 190 640 210 780 190" stroke="rgba(255,255,255,0.18)" stroke-width="6" stroke-linecap="round" fill="none"/>
                 <path d="M 380 290 C 540 260 670 280 860 250" stroke="rgba(255,255,255,0.14)" stroke-width="5" stroke-linecap="round" fill="none"/>
                 <path d="M 420 340 C 610 320 760 340 980 310" stroke="rgba(255,255,255,0.12)" stroke-width="5" stroke-linecap="round" fill="none"/>
               </g>
 
-              <!-- clock -->
               <g transform="translate(800,92)" filter="url(#softShadow)">
                 <circle r="48" fill="rgba(255,255,255,0.78)" stroke="rgba(20,28,40,0.18)" stroke-width="4"/>
                 <circle r="3" fill="rgba(20,28,40,0.35)"/>
@@ -896,11 +688,9 @@ button,input{ font-family:inherit; }
                 <line x1="0" y1="0" x2="0" y2="-28" stroke="rgba(20,28,40,0.55)" stroke-width="4" stroke-linecap="round"/>
               </g>
 
-              <!-- floor -->
               <path d="M0,560 C320,520 640,520 800,540 C1020,570 1280,590 1600,560 L1600,900 L0,900 Z" fill="url(#floor)"/>
               <path d="M0,560 C320,520 640,520 800,540 C1020,570 1280,590 1600,560" fill="none" stroke="rgba(20,28,40,0.08)" stroke-width="3"/>
 
-              <!-- teacher desk -->
               <g transform="translate(1220,560)" filter="url(#softShadow)" opacity="0.95">
                 <path d="M -180 -20 L 180 -20 L 150 120 L -150 120 Z" fill="rgba(20,28,40,0.08)"/>
                 <path d="M -160 4 L 160 4 L 132 108 L -132 108 Z" fill="rgba(255,255,255,0.08)"/>
@@ -908,43 +698,18 @@ button,input{ font-family:inherit; }
                 <rect x="52" y="14" width="88" height="12" rx="6" fill="rgba(255,255,255,0.10)"/>
               </g>
 
-              <!-- 8 seats + desks row (pattern 10001011 => occupied 1,5,7,8) -->
+              <!-- 8 seats row: 10001011 => occupied 1,5,7,8 -->
               <g transform="translate(250,690) skewX(-8)" filter="url(#film)">
-                <g transform="translate(0,0)">
-                  <g transform="translate(0,36)"><use href="#desk"/></g>
-                  <use href="#chair"/><use href="#student"/>
-                </g>
-                <g transform="translate(170,0)">
-                  <g transform="translate(0,36)"><use href="#desk"/></g>
-                  <use href="#chair"/>
-                </g>
-                <g transform="translate(340,0)">
-                  <g transform="translate(0,36)"><use href="#desk"/></g>
-                  <use href="#chair"/>
-                </g>
-                <g transform="translate(510,0)">
-                  <g transform="translate(0,36)"><use href="#desk"/></g>
-                  <use href="#chair"/>
-                </g>
-                <g transform="translate(680,0)">
-                  <g transform="translate(0,36)"><use href="#desk"/></g>
-                  <use href="#chair"/><use href="#student"/>
-                </g>
-                <g transform="translate(850,0)">
-                  <g transform="translate(0,36)"><use href="#desk"/></g>
-                  <use href="#chair"/>
-                </g>
-                <g transform="translate(1020,0)">
-                  <g transform="translate(0,36)"><use href="#desk"/></g>
-                  <use href="#chair"/><use href="#student"/>
-                </g>
-                <g transform="translate(1190,0)">
-                  <g transform="translate(0,36)"><use href="#desk"/></g>
-                  <use href="#chair"/><use href="#student"/>
-                </g>
+                <g transform="translate(0,0)"><g transform="translate(0,36)"><use href="#desk"/></g><use href="#chair"/><use href="#student"/></g>
+                <g transform="translate(170,0)"><g transform="translate(0,36)"><use href="#desk"/></g><use href="#chair"/></g>
+                <g transform="translate(340,0)"><g transform="translate(0,36)"><use href="#desk"/></g><use href="#chair"/></g>
+                <g transform="translate(510,0)"><g transform="translate(0,36)"><use href="#desk"/></g><use href="#chair"/></g>
+                <g transform="translate(680,0)"><g transform="translate(0,36)"><use href="#desk"/></g><use href="#chair"/><use href="#student"/></g>
+                <g transform="translate(850,0)"><g transform="translate(0,36)"><use href="#desk"/></g><use href="#chair"/></g>
+                <g transform="translate(1020,0)"><g transform="translate(0,36)"><use href="#desk"/></g><use href="#chair"/><use href="#student"/></g>
+                <g transform="translate(1190,0)"><g transform="translate(0,36)"><use href="#desk"/></g><use href="#chair"/><use href="#student"/></g>
               </g>
 
-              <!-- vignette -->
               <rect x="0" y="0" width="1600" height="900" fill="rgba(0,0,0,0.12)"/>
               <rect x="40" y="40" width="1520" height="820" rx="30" fill="none" stroke="rgba(255,255,255,0.16)" stroke-width="2"/>
             </svg>
@@ -968,70 +733,25 @@ button,input{ font-family:inherit; }
 </div>
 
 <!-- =========================
-     ROOM 4
+     ROOM 4 (Real map)
      ========================= -->
 <div id="room4" aria-hidden="true">
   <div class="inner" id="r4-inner">
     <div class="hud">
       <div class="label">COORDINATE</div>
-      <input id="r4-input" placeholder="type: 35,139" autocomplete="off" />
+      <input id="r4-lat" placeholder="Latitude (35)" inputmode="decimal" autocomplete="off" />
+      <input id="r4-lng" placeholder="Longitude (139)" inputmode="decimal" autocomplete="off" />
       <button id="r4-go">Search</button>
       <div class="err" id="r4-err"></div>
     </div>
 
-    <div class="hint">Use the two numbers you found.</div>
+    <div class="hint">Use the two numbers you found: 35 and 139.</div>
 
-    <div class="mapStage">
-      <div class="mapWrap">
-        <div class="mapViewport" id="r4-viewport">
-          <svg viewBox="0 0 1600 900" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-            <defs>
-              <radialGradient id="ocean" cx="0.50" cy="0.35" r="1.0">
-                <stop offset="0" stop-color="rgba(90,170,255,0.35)"/>
-                <stop offset="1" stop-color="rgba(10,20,35,0.95)"/>
-              </radialGradient>
-              <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
-                <feGaussianBlur stdDeviation="8" result="b"/>
-                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-              </filter>
-            </defs>
-
-            <rect x="0" y="0" width="1600" height="900" fill="url(#ocean)"/>
-
-            <g fill="rgba(255,255,255,0.10)" stroke="rgba(255,255,255,0.10)" stroke-width="2">
-              <path d="M210,260 C260,190 360,160 460,190 C560,220 600,280 560,340 C520,410 400,420 340,390 C280,360 200,330 210,260 Z"/>
-              <path d="M470,470 C520,450 580,470 600,520 C620,580 590,650 540,700 C490,750 460,710 450,660 C440,610 430,520 470,470 Z"/>
-              <path d="M770,260 C820,220 900,220 960,250 C1020,280 1040,330 1010,370 C980,410 920,410 890,440 C860,470 870,530 840,580 C810,630 760,650 720,620 C680,590 690,520 710,470 C730,420 690,360 700,320 C710,280 740,280 770,260 Z"/>
-              <path d="M980,220 C1080,170 1240,190 1340,260 C1440,330 1480,420 1400,470 C1320,520 1260,480 1210,500 C1160,520 1100,590 1030,580 C960,570 950,520 980,470 C1010,420 980,360 950,320 C920,280 930,250 980,220 Z"/>
-              <path d="M1260,650 C1320,620 1400,640 1440,690 C1480,740 1450,780 1390,800 C1330,820 1280,790 1250,740 C1220,690 1220,670 1260,650 Z"/>
-            </g>
-
-            <g stroke="rgba(255,255,255,0.06)" stroke-width="2">
-              <path d="M0,220 L1600,220"/>
-              <path d="M0,360 L1600,360"/>
-              <path d="M0,500 L1600,500"/>
-              <path d="M0,640 L1600,640"/>
-              <path d="M320,0 L320,900"/>
-              <path d="M640,0 L640,900"/>
-              <path d="M960,0 L960,900"/>
-              <path d="M1280,0 L1280,900"/>
-            </g>
-
-            <!-- noodle place glow (approx Japan) -->
-            <g filter="url(#glow)">
-              <circle cx="1170" cy="415" r="10" fill="rgba(255,220,150,0.95)"/>
-              <circle cx="1170" cy="415" r="36" fill="rgba(255,180,90,0.16)"/>
-            </g>
-          </svg>
-
-          <div class="marker" id="r4-marker"></div>
-        </div>
-
-        <div class="mapVignette"></div>
-      </div>
+    <div class="mapWrap">
+      <div id="map"></div>
+      <div class="mapVignette"></div>
     </div>
 
-    <!-- WIN CARD now shows hint.png -->
     <div class="winCard" id="r4-win">
       <div class="ramenArt" aria-hidden="true">
         <img src="hint.png" alt="Noodle place hint" class="winImg">
@@ -1039,18 +759,20 @@ button,input{ font-family:inherit; }
       <div class="winText">
         <div class="h">Thanks for playing.</div>
         <div class="p">
-          You found the noodle place.<br/>
+          Noodle place coordinate: <b>35, 139</b><br/>
           Gifts will be given in person.
         </div>
       </div>
     </div>
-
   </div>
 </div>
 
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
 /* =========================================================
-   SCENE SWITCH (Room 1 -> Room 2 -> Room 3 -> Room 4)
+   SCENE SWITCH
    ========================================================= */
 let ACTIVE_ROOM = 1;
 
@@ -1131,11 +853,11 @@ function enterRoom4(){
 }
 
 /* =========================================================
-   ROOM 1 (Door) - hotspot numbers EXACT
+   ROOM 1 - hotspot numbers EXACT (unchanged)
    ========================================================= */
 (function room1(){
   const CFG = {
-    code: "REALITY", // keep as-is for your current setup
+    code: "REALITY", // keep your current room1 code behavior unchanged
     focus: { x: 0.44, y: 0.52 },
     zoomMin: 1.0,
     zoomMax: 1.55,
@@ -1211,7 +933,6 @@ function enterRoom4(){
     if (ACTIVE_ROOM === 1) applyCamera();
   });
 
-  // opening: only wheel down; later can zoom back
   window.addEventListener("wheel", (e) => {
     if (ACTIVE_ROOM !== 1) return;
     e.preventDefault();
@@ -1234,7 +955,6 @@ function enterRoom4(){
       return;
     }
 
-    // after opening: both directions
     progress = clamp01(progress + (-delta) * 0.0007);
     applyCamera();
   }, { passive:false });
@@ -1242,10 +962,7 @@ function enterRoom4(){
   bellBtn.addEventListener("click", () => {
     if (ACTIVE_ROOM !== 1) return;
     showToast("🔔");
-    try{
-      song.currentTime = 0;
-      song.play().catch(()=>{});
-    }catch(_){}
+    try{ song.currentTime = 0; song.play().catch(()=>{}); }catch(_){}
   });
 
   function openNPC(){
@@ -1341,7 +1058,7 @@ function enterRoom4(){
 })();
 
 /* =========================================================
-   ROOM 2 (Letters room)
+   ROOM 2
    ========================================================= */
 function initRoom2(){
   const TARGET = "FAVORITE PAPER";
@@ -1426,7 +1143,7 @@ function initRoom2(){
       tilesWrap.appendChild(el);
 
       const id = nextId++;
-      const z = 0.72 + Math.random() * 0.70; // depth
+      const z = 0.72 + Math.random() * 0.70;
       setDepthStyle(el, z);
 
       const cx = w * (0.06 + Math.random() * 0.88);
@@ -1568,7 +1285,6 @@ function initRoom2(){
     requestAnimationFrame(tick);
   }
 
-  // 2-digit lock (35)
   let digitState = [0,0];
   function buildDigits(){
     digitsEl.innerHTML = "";
@@ -1578,24 +1294,16 @@ function initRoom2(){
       d.tabIndex = 0;
       d.textContent = String(digitState[i]);
 
-      function setVal(v){
-        digitState[i] = (v + 10) % 10;
-        d.textContent = String(digitState[i]);
-      }
+      function setVal(v){ digitState[i] = (v + 10) % 10; d.textContent = String(digitState[i]); }
       function step(dir){ setVal(digitState[i] + dir); }
 
-      d.addEventListener("wheel", (e)=>{
-        e.preventDefault();
-        step(e.deltaY > 0 ? -1 : +1);
-      }, { passive:false });
-
+      d.addEventListener("wheel", (e)=>{ e.preventDefault(); step(e.deltaY > 0 ? -1 : +1); }, { passive:false });
       d.addEventListener("keydown", (e)=>{
         if (e.key === "ArrowUp")   { e.preventDefault(); step(+1); }
         if (e.key === "ArrowDown") { e.preventDefault(); step(-1); }
         if (e.key === "ArrowRight"){ e.preventDefault(); digitsEl.children[Math.min(1,i+1)].focus(); }
         if (e.key === "ArrowLeft") { e.preventDefault(); digitsEl.children[Math.max(0,i-1)].focus(); }
       });
-
       d.addEventListener("pointerdown", ()=> d.focus());
       digitsEl.appendChild(d);
     }
@@ -1635,7 +1343,7 @@ function initRoom2(){
 }
 
 /* =========================================================
-   ROOM 3 (Picture lock) -> on success go Room4
+   ROOM 3
    ========================================================= */
 function initRoom3(){
   const PHOTO_CODE = "139";
@@ -1663,24 +1371,16 @@ function initRoom3(){
     msg.textContent = "";
   }
 
-  photo.addEventListener("click", () => {
-    if (ACTIVE_ROOM !== 3) return;
-    openLock();
-  });
+  photo.addEventListener("click", () => { if (ACTIVE_ROOM !== 3) return; openLock(); });
   closeBtn.addEventListener("click", closeLock);
-  window.addEventListener("keydown", (e) => {
-    if (ACTIVE_ROOM !== 3) return;
-    if (e.key === "Escape" && open) closeLock();
-  });
+  window.addEventListener("keydown", (e) => { if (ACTIVE_ROOM !== 3) return; if (e.key === "Escape" && open) closeLock(); });
   document.addEventListener("pointerdown", (e) => {
     if (ACTIVE_ROOM !== 3) return;
     if (!open) return;
     if (!lock.contains(e.target) && e.target !== photo) closeLock();
   });
 
-  // 3-digit wheels
   let state = [0,0,0];
-
   function buildDigits(){
     digitsEl.innerHTML = "";
     for (let i=0;i<3;i++){
@@ -1689,17 +1389,10 @@ function initRoom3(){
       d.tabIndex = 0;
       d.textContent = String(state[i]);
 
-      function setVal(v){
-        state[i] = (v + 10) % 10;
-        d.textContent = String(state[i]);
-      }
+      function setVal(v){ state[i] = (v + 10) % 10; d.textContent = String(state[i]); }
       function step(dir){ setVal(state[i] + dir); }
 
-      d.addEventListener("wheel", (e)=>{
-        e.preventDefault();
-        step(e.deltaY > 0 ? -1 : +1);
-      }, { passive:false });
-
+      d.addEventListener("wheel", (e)=>{ e.preventDefault(); step(e.deltaY > 0 ? -1 : +1); }, { passive:false });
       d.addEventListener("keydown", (e)=>{
         if (e.key === "ArrowUp")   { e.preventDefault(); step(+1); }
         if (e.key === "ArrowDown") { e.preventDefault(); step(-1); }
@@ -1726,46 +1419,86 @@ function initRoom3(){
 }
 
 /* =========================================================
-   ROOM 4 (Coordinate Search)
-   Accept only: 35,139
+   ROOM 4 (REAL MAP + 2 inputs)
+   Noodle place coordinate: 35, 139
    ========================================================= */
 function initRoom4(){
   const room4 = document.getElementById("room4");
-  const input = document.getElementById("r4-input");
+  const latInput = document.getElementById("r4-lat");
+  const lngInput = document.getElementById("r4-lng");
   const btn = document.getElementById("r4-go");
   const err = document.getElementById("r4-err");
-  const viewport = document.getElementById("r4-viewport");
 
-  function normalize(s){
-    return (s || "")
-      .trim()
-      .replace(/\s+/g,"")
-      .replace(/[，]/g,",");
+  const NOODLE = { lat: 35, lng: 139 }; // <- “面馆”坐标就是这个
+  const EPS = 0.00001;
+
+  // init real map
+  const map = L.map("map", {
+    zoomControl: false,
+    attributionControl: false,
+    dragging: true,
+    scrollWheelZoom: true
+  }).setView([20, 0], 2);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19
+  }).addTo(map);
+
+  let marker = null;
+
+  function parseNum(v){
+    const n = Number(String(v).trim());
+    return Number.isFinite(n) ? n : null;
   }
+  function closeEnough(a,b){ return Math.abs(a-b) < EPS; }
 
-  function doZoom(){
-    // Zoom toward the glow/marker location
-    viewport.style.transform = "translate(-420px, -110px) scale(2.6)";
-    room4.classList.add("ready");
+  function winAt(lat, lng){
+    // cinematic fly + then show marker + win UI
+    map.flyTo([lat, lng], 13, { animate:true, duration: 2.2 });
+
+    setTimeout(() => {
+      if (marker) map.removeLayer(marker);
+      marker = L.marker([lat, lng]).addTo(map);
+
+      marker.bindPopup(`
+        <div style="font-family: Inter, system-ui; font-weight:900; padding:2px 4px;">
+          NOODLE PLACE<br/>
+          <span style="font-weight:800; opacity:.8; font-size:12px;">${lat.toFixed(3)}, ${lng.toFixed(3)}</span>
+        </div>
+      `, { closeButton:false, autoClose:false, closeOnClick:false }).openPopup();
+
+      room4.classList.add("ready");
+    }, 1700);
   }
 
   function trySearch(){
     err.textContent = "";
-    const v = normalize(input.value);
 
-    if (v === "35,139" || v === "35.0,139" || v === "35,139.0"){
-      doZoom();
-      input.blur();
+    const lat = parseNum(latInput.value);
+    const lng = parseNum(lngInput.value);
+
+    if (lat === null || lng === null){
+      err.textContent = "Enter two numbers.";
       return;
     }
+
+    // only accept the correct coordinate from the puzzles
+    if (closeEnough(lat, NOODLE.lat) && closeEnough(lng, NOODLE.lng)){
+      winAt(NOODLE.lat, NOODLE.lng);
+      latInput.blur(); lngInput.blur();
+      return;
+    }
+
     err.textContent = "No result.";
   }
 
   btn.addEventListener("click", trySearch);
-  input.addEventListener("keydown", (e)=>{ if (e.key === "Enter") trySearch(); });
+  latInput.addEventListener("keydown", (e)=>{ if (e.key === "Enter") trySearch(); });
+  lngInput.addEventListener("keydown", (e)=>{ if (e.key === "Enter") trySearch(); });
 
-  // start at full world
-  viewport.style.transform = "translate(0px, 0px) scale(1)";
+  // helpful default placeholders (but not auto-filled)
+  latInput.placeholder = "Latitude (35)";
+  lngInput.placeholder = "Longitude (139)";
 }
 </script>
 
