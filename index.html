@@ -474,4 +474,1300 @@ button,input{ font-family:inherit; }
 /* Room3 lock overlay */
 #r3-lock{
   position:fixed;
+  left:50%; top:50%;
+  transform: translate(-50%, -50%);
+  z-index:200;
+  width: min(360px, 92vw);
+  display:none;
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(17,24,39,0.10);
+  border-radius: 18px;
+  padding: 12px 12px 10px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 20px 90px rgba(0,0,0,0.18);
+}
+#r3-lock.show{ display:block; }
+#r3-lock .top{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  margin-bottom: 8px;
+}
+#r3-lock .t{ font-weight: 900; letter-spacing: .10em; font-size: 13px; opacity: .9; }
+#r3-lock .x{
+  width:32px; height:32px; border-radius:999px;
+  border: 0.6px solid rgba(17,24,39,.10);
+  background: rgba(17,24,39,.05);
+  cursor:pointer; font-weight:900;
+}
+#r3-lock .sub{ font-size: 12px; color: rgba(17,24,39,0.72); margin-bottom: 8px; }
+#r3-lock .digits{
+  display:flex; justify-content:center; gap:10px; margin: 10px 0;
+}
+#r3-lock .digit{
+  width: 56px; height: 72px; border-radius: 18px;
+  background: linear-gradient(#f8fafc,#eef2ff);
+  border: 1px solid rgba(59,130,246,0.22);
+  display:flex; align-items:center; justify-content:center;
+  font-weight: 900; font-size: 28px;
+  user-select:none; cursor: grab; outline:none;
+}
+#r3-lock .digit:focus{
+  outline: 2px solid rgba(59,130,246,0.35);
+  box-shadow: 0 0 0 5px rgba(59,130,246,0.12);
+}
+#r3-lock .btn{
+  width:100%;
+  border:none;
+  border-radius: 999px;
+  padding: 10px 12px;
+  font-weight: 900;
+  cursor:pointer;
+  background: linear-gradient(135deg, #fde68a, #fb923c);
+}
+#r3-lock .msg{
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  min-height: 16px;
+  color: #b91c1c;
+}
+
+/* =========================
+   ROOM 4 (Coordinate search -> world map zoom -> noodle place)
+   ========================= */
+#room4{
+  position:fixed; inset:0;
+  display:none;
+  overflow:hidden;
+  background: radial-gradient(circle at 50% 20%, rgba(255,255,255,0.12), rgba(0,0,0,0.92) 70%), #000;
+  color:#fff;
+}
+#room4 .inner{
+  position:absolute; inset:0;
+  transition: filter 0.9s ease, opacity 0.9s ease;
+  filter: blur(18px);
+  opacity: 0.0;
+}
+#room4 .hud{
+  position:absolute;
   left:50%;
+  top: 22px;
+  transform: translateX(-50%);
+  width: min(860px, 92vw);
+  z-index:30;
+  display:flex;
+  gap:12px;
+  align-items:center;
+  justify-content:center;
+  padding: 12px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.14);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 26px 120px rgba(0,0,0,0.45);
+}
+#room4 .hud .label{
+  font-weight:900;
+  letter-spacing: .10em;
+  font-size: 12px;
+  opacity:.9;
+}
+#room4 .hud input{
+  width: min(420px, 62vw);
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(0,0,0,0.35);
+  color:#fff;
+  outline:none;
+  font-weight:800;
+}
+#room4 .hud input::placeholder{ color: rgba(255,255,255,0.55); font-weight:700; }
+#room4 .hud button{
+  padding: 12px 14px;
+  border-radius: 999px;
+  border: none;
+  cursor:pointer;
+  font-weight: 900;
+  background: linear-gradient(135deg, rgba(253,230,138,1), rgba(251,146,60,1));
+  color:#111;
+}
+#room4 .hud .err{
+  font-size: 12px;
+  font-weight: 900;
+  color: rgba(255,140,140,0.95);
+  min-width: 180px;
+  text-align:left;
+  opacity:.95;
+}
+
+/* Map stage */
+#room4 .mapStage{
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+}
+#room4 .mapWrap{
+  width: min(1200px, 96vw);
+  aspect-ratio: 16/9;
+  border-radius: 28px;
+  overflow:hidden;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.14);
+  box-shadow: 0 30px 160px rgba(0,0,0,0.50);
+  position: relative;
+}
+#room4 .mapViewport{
+  position:absolute; inset:0;
+  transform-origin: 50% 50%;
+  will-change: transform;
+  transition: transform 2.2s cubic-bezier(.18,.9,.12,1);
+}
+#room4 .mapVignette{
+  position:absolute; inset:0;
+  pointer-events:none;
+  box-shadow: inset 0 0 220px rgba(0,0,0,0.55);
+}
+
+/* Marker + noodle card */
+#room4 .marker{
+  position:absolute;
+  left: 73.2%;
+  top: 46.2%;
+  width: 14px; height:14px;
+  border-radius: 999px;
+  background: rgba(255,240,180,0.95);
+  box-shadow: 0 0 0 10px rgba(255,200,90,0.18), 0 12px 36px rgba(0,0,0,0.45);
+  transform: translate(-50%,-50%);
+  opacity:0;
+  transition: opacity .35s ease;
+}
+#room4.ready .marker{ opacity:1; }
+
+#room4 .winCard{
+  position:absolute;
+  left:50%;
+  bottom: 26px;
+  transform: translateX(-50%) translateY(12px);
+  width: min(980px, 92vw);
+  padding: 16px 16px 14px;
+  border-radius: 22px;
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(255,255,255,0.14);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 30px 160px rgba(0,0,0,0.55);
+  opacity:0;
+  pointer-events:none;
+  transition: opacity .35s ease, transform .35s ease;
+  display:flex;
+  gap:14px;
+  align-items:center;
+}
+#room4.ready .winCard{
+  opacity:1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events:auto;
+}
+#room4 .ramenArt{
+  width: 200px;
+  height: 132px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+#room4 .winImg{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+#room4 .winText .h{
+  font-family: var(--title-font);
+  font-weight:700;
+  font-size: 22px;
+  letter-spacing: .02em;
+  margin-bottom: 6px;
+}
+#room4 .winText .p{
+  font-size: 14px;
+  line-height: 1.55;
+  opacity: .92;
+}
+
+/* Small hint */
+#room4 .hint{
+  position:absolute;
+  left:50%;
+  top: 88px;
+  transform: translateX(-50%);
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.40);
+  border: 1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(10px);
+  font-size: 13px;
+  opacity:.92;
+}
+</style>
+</head>
+
+<body>
+<div id="transition"></div>
+
+<!-- =========================
+     ROOM 1
+     ========================= -->
+<div id="intro">
+  <div id="title-layer">
+    <div class="title-wrap">
+      <div class="kicker">LEVEL 33</div>
+      <div class="title">memory</div>
+      <div class="subtitle">Scroll to begin.</div>
+      <div class="subhint">↓</div>
+    </div>
+  </div>
+
+  <div id="scene">
+    <div id="camera">
+      <img id="scene-img" src="door-bg.jpg" alt="Door hallway"/>
+
+      <!-- hotspots visible (debug) -->
+      <button id="door-hotspot" class="hotspot" aria-label="Door"></button>
+      <button id="bell-hotspot" class="hotspot" aria-label="Intercom"></button>
+
+      <div id="lock-anchor" class="anchor"></div>
+    </div>
+
+    <div id="door-lock" aria-hidden="true">
+      <div class="lock-top">
+        <div class="lock-title">Locked.</div>
+        <button id="lock-close" class="lock-close" aria-label="Close">✕</button>
+      </div>
+      <div class="lock-sub">Enter the code.</div>
+      <div class="lock-wheels" id="lock-wheels"></div>
+      <button class="unlock-btn" id="unlock-btn">Unlock</button>
+      <div class="hint-message" id="hint-message"></div>
+    </div>
+
+    <div id="npc-bubble" aria-hidden="true">
+      <div class="npc-name">???</div>
+      <div class="npc-text">The door is closed… maybe the bell can help.</div>
+    </div>
+
+    <div id="toast" role="status" aria-live="polite"></div>
+  </div>
+</div>
+
+<!-- Keep audio hidden; user must click bell -->
+<audio id="song" src="song.m4a" preload="auto"></audio>
+
+<!-- =========================
+     ROOM 2
+     ========================= -->
+<div id="room2" aria-hidden="true">
+  <div class="room2-inner" id="r2-inner">
+    <div id="r2-tiles"></div>
+
+    <div class="assembly" id="r2-assembly">
+      <div class="slots" id="r2-slots"></div>
+    </div>
+
+    <div class="frame"></div>
+  </div>
+
+  <div class="postHint" id="r2-postHint">
+    <div class="card">
+      <div class="hintTitle">HINT</div>
+      <div class="hintText">the number before “essentially”</div>
+    </div>
+  </div>
+
+  <div class="escapeLock" id="r2-escapeLock">
+    <div class="lockCard">
+      <div class="lockRow">
+        <div class="lockTitle">ESCAPE LOCK</div>
+        <div style="font-size:12px; opacity:.75;">2 digits</div>
+      </div>
+      <div class="digits" id="r2-digits"></div>
+      <button class="lockBtn" id="r2-escapeBtn">Continue</button>
+      <div class="lockMsg" id="r2-lockMsg"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="r2-toast"></div>
+</div>
+
+<!-- =========================
+     ROOM 3
+     ========================= -->
+<div id="room3" aria-hidden="true">
+  <div class="room3-inner" id="r3-inner">
+    <div class="stage">
+      <div class="frameWrap">
+        <div class="frameBezel">
+          <div class="photo" id="r3-photo" aria-label="Picture">
+            <!-- richer classroom "photo" with 8 seats pattern 10001011 (occupied 1/5/7/8) -->
+            <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+              <defs>
+                <linearGradient id="wall" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0" stop-color="#f6f1e8"/>
+                  <stop offset="1" stop-color="#efe6d8"/>
+                </linearGradient>
+                <linearGradient id="board" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0" stop-color="#2f7260"/>
+                  <stop offset="1" stop-color="#1f564a"/>
+                </linearGradient>
+                <linearGradient id="floor" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0" stop-color="#d7cfc3"/>
+                  <stop offset="1" stop-color="#c2b7a7"/>
+                </linearGradient>
+                <radialGradient id="sun" cx="0.20" cy="0.20" r="0.95">
+                  <stop offset="0" stop-color="rgba(255,215,150,0.52)"/>
+                  <stop offset="1" stop-color="rgba(255,215,150,0)"/>
+                </radialGradient>
+                <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+                  <feGaussianBlur stdDeviation="12" result="b"/>
+                  <feOffset dx="0" dy="10" result="o"/>
+                  <feColorMatrix in="o" type="matrix" values="
+                    0 0 0 0 0
+                    0 0 0 0 0
+                    0 0 0 0 0
+                    0 0 0 .28 0" result="s"/>
+                  <feMerge><feMergeNode in="s"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+                <filter id="film" x="-20%" y="-20%" width="140%" height="140%">
+                  <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="2" stitchTiles="stitch" result="n"/>
+                  <feColorMatrix in="n" type="matrix" values="
+                    1 0 0 0 0
+                    0 1 0 0 0
+                    0 0 1 0 0
+                    0 0 0 0.18 0" result="g"/>
+                  <feBlend in="SourceGraphic" in2="g" mode="multiply"/>
+                </filter>
+
+                <g id="chair">
+                  <rect x="-46" y="-16" width="92" height="30" rx="12" fill="rgba(20,28,40,0.22)"/>
+                  <rect x="-38" y="-92" width="76" height="80" rx="16" fill="rgba(20,28,40,0.16)"/>
+                  <rect x="-34" y="12" width="14" height="72" rx="7" fill="rgba(20,28,40,0.24)"/>
+                  <rect x="20" y="12" width="14" height="72" rx="7" fill="rgba(20,28,40,0.24)"/>
+                </g>
+                <g id="student">
+                  <ellipse cx="0" cy="-132" rx="22" ry="22" fill="rgba(20,28,40,0.22)"/>
+                  <path d="M -36 -110 Q 0 -154 36 -110 L 28 -54 Q 0 -30 -28 -54 Z"
+                        fill="rgba(20,28,40,0.18)"/>
+                </g>
+                <g id="desk">
+                  <path d="M -70 -2 L 70 -2 L 58 40 L -58 40 Z" fill="rgba(20,28,40,0.10)"/>
+                  <rect x="-56" y="40" width="12" height="62" rx="6" fill="rgba(20,28,40,0.18)"/>
+                  <rect x="44" y="40" width="12" height="62" rx="6" fill="rgba(20,28,40,0.18)"/>
+                  <path d="M -54 48 L 54 48" stroke="rgba(255,255,255,0.12)" stroke-width="3" stroke-linecap="round"/>
+                </g>
+              </defs>
+
+              <rect x="0" y="0" width="1600" height="900" fill="url(#wall)"/>
+              <rect x="0" y="0" width="1600" height="900" fill="url(#sun)"/>
+
+              <!-- windows left -->
+              <g filter="url(#softShadow)" opacity="0.95">
+                <rect x="40" y="110" width="170" height="520" rx="24" fill="rgba(255,255,255,0.30)"/>
+                <rect x="58" y="130" width="134" height="140" rx="18" fill="rgba(90,150,255,0.18)"/>
+                <rect x="58" y="286" width="134" height="140" rx="18" fill="rgba(90,150,255,0.14)"/>
+                <rect x="58" y="442" width="134" height="168" rx="18" fill="rgba(90,150,255,0.10)"/>
+              </g>
+
+              <!-- chalkboard -->
+              <g filter="url(#softShadow)">
+                <rect x="250" y="120" width="1100" height="350" rx="26" fill="rgba(0,0,0,0.08)"/>
+                <rect x="270" y="140" width="1060" height="310" rx="24" fill="url(#board)"/>
+                <rect x="270" y="450" width="1060" height="12" rx="6" fill="rgba(255,255,255,0.18)"/>
+                <!-- faint chalk marks (no numbers) -->
+                <path d="M 360 240 C 520 190 640 210 780 190" stroke="rgba(255,255,255,0.18)" stroke-width="6" stroke-linecap="round" fill="none"/>
+                <path d="M 380 290 C 540 260 670 280 860 250" stroke="rgba(255,255,255,0.14)" stroke-width="5" stroke-linecap="round" fill="none"/>
+                <path d="M 420 340 C 610 320 760 340 980 310" stroke="rgba(255,255,255,0.12)" stroke-width="5" stroke-linecap="round" fill="none"/>
+              </g>
+
+              <!-- clock -->
+              <g transform="translate(800,92)" filter="url(#softShadow)">
+                <circle r="48" fill="rgba(255,255,255,0.78)" stroke="rgba(20,28,40,0.18)" stroke-width="4"/>
+                <circle r="3" fill="rgba(20,28,40,0.35)"/>
+                <line x1="0" y1="0" x2="-12" y2="-22" stroke="rgba(20,28,40,0.55)" stroke-width="4" stroke-linecap="round"/>
+                <line x1="0" y1="0" x2="0" y2="-28" stroke="rgba(20,28,40,0.55)" stroke-width="4" stroke-linecap="round"/>
+              </g>
+
+              <!-- floor -->
+              <path d="M0,560 C320,520 640,520 800,540 C1020,570 1280,590 1600,560 L1600,900 L0,900 Z" fill="url(#floor)"/>
+              <path d="M0,560 C320,520 640,520 800,540 C1020,570 1280,590 1600,560" fill="none" stroke="rgba(20,28,40,0.08)" stroke-width="3"/>
+
+              <!-- teacher desk -->
+              <g transform="translate(1220,560)" filter="url(#softShadow)" opacity="0.95">
+                <path d="M -180 -20 L 180 -20 L 150 120 L -150 120 Z" fill="rgba(20,28,40,0.08)"/>
+                <path d="M -160 4 L 160 4 L 132 108 L -132 108 Z" fill="rgba(255,255,255,0.08)"/>
+                <rect x="-138" y="14" width="88" height="12" rx="6" fill="rgba(255,255,255,0.10)"/>
+                <rect x="52" y="14" width="88" height="12" rx="6" fill="rgba(255,255,255,0.10)"/>
+              </g>
+
+              <!-- 8 seats + desks row (pattern 10001011 => occupied 1,5,7,8) -->
+              <g transform="translate(250,690) skewX(-8)" filter="url(#film)">
+                <g transform="translate(0,0)">
+                  <g transform="translate(0,36)"><use href="#desk"/></g>
+                  <use href="#chair"/><use href="#student"/>
+                </g>
+                <g transform="translate(170,0)">
+                  <g transform="translate(0,36)"><use href="#desk"/></g>
+                  <use href="#chair"/>
+                </g>
+                <g transform="translate(340,0)">
+                  <g transform="translate(0,36)"><use href="#desk"/></g>
+                  <use href="#chair"/>
+                </g>
+                <g transform="translate(510,0)">
+                  <g transform="translate(0,36)"><use href="#desk"/></g>
+                  <use href="#chair"/>
+                </g>
+                <g transform="translate(680,0)">
+                  <g transform="translate(0,36)"><use href="#desk"/></g>
+                  <use href="#chair"/><use href="#student"/>
+                </g>
+                <g transform="translate(850,0)">
+                  <g transform="translate(0,36)"><use href="#desk"/></g>
+                  <use href="#chair"/>
+                </g>
+                <g transform="translate(1020,0)">
+                  <g transform="translate(0,36)"><use href="#desk"/></g>
+                  <use href="#chair"/><use href="#student"/>
+                </g>
+                <g transform="translate(1190,0)">
+                  <g transform="translate(0,36)"><use href="#desk"/></g>
+                  <use href="#chair"/><use href="#student"/>
+                </g>
+              </g>
+
+              <!-- vignette -->
+              <rect x="0" y="0" width="1600" height="900" fill="rgba(0,0,0,0.12)"/>
+              <rect x="40" y="40" width="1520" height="820" rx="30" fill="none" stroke="rgba(255,255,255,0.16)" stroke-width="2"/>
+            </svg>
+          </div>
+          <div class="photoHint">Click the picture.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="r3-lock" aria-hidden="true">
+    <div class="top">
+      <div class="t">PICTURE LOCK</div>
+      <button class="x" id="r3-close" aria-label="Close">✕</button>
+    </div>
+    <div class="sub">8 seats → binary → decimal.</div>
+    <div class="digits" id="r3-digits"></div>
+    <button class="btn" id="r3-btn">Unlock</button>
+    <div class="msg" id="r3-msg"></div>
+  </div>
+</div>
+
+<!-- =========================
+     ROOM 4
+     ========================= -->
+<div id="room4" aria-hidden="true">
+  <div class="inner" id="r4-inner">
+    <div class="hud">
+      <div class="label">COORDINATE</div>
+      <input id="r4-input" placeholder="type: 35,139" autocomplete="off" />
+      <button id="r4-go">Search</button>
+      <div class="err" id="r4-err"></div>
+    </div>
+
+    <div class="hint">Use the two numbers you found.</div>
+
+    <div class="mapStage">
+      <div class="mapWrap">
+        <div class="mapViewport" id="r4-viewport">
+          <svg viewBox="0 0 1600 900" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <defs>
+              <radialGradient id="ocean" cx="0.50" cy="0.35" r="1.0">
+                <stop offset="0" stop-color="rgba(90,170,255,0.35)"/>
+                <stop offset="1" stop-color="rgba(10,20,35,0.95)"/>
+              </radialGradient>
+              <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="8" result="b"/>
+                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+
+            <rect x="0" y="0" width="1600" height="900" fill="url(#ocean)"/>
+
+            <g fill="rgba(255,255,255,0.10)" stroke="rgba(255,255,255,0.10)" stroke-width="2">
+              <path d="M210,260 C260,190 360,160 460,190 C560,220 600,280 560,340 C520,410 400,420 340,390 C280,360 200,330 210,260 Z"/>
+              <path d="M470,470 C520,450 580,470 600,520 C620,580 590,650 540,700 C490,750 460,710 450,660 C440,610 430,520 470,470 Z"/>
+              <path d="M770,260 C820,220 900,220 960,250 C1020,280 1040,330 1010,370 C980,410 920,410 890,440 C860,470 870,530 840,580 C810,630 760,650 720,620 C680,590 690,520 710,470 C730,420 690,360 700,320 C710,280 740,280 770,260 Z"/>
+              <path d="M980,220 C1080,170 1240,190 1340,260 C1440,330 1480,420 1400,470 C1320,520 1260,480 1210,500 C1160,520 1100,590 1030,580 C960,570 950,520 980,470 C1010,420 980,360 950,320 C920,280 930,250 980,220 Z"/>
+              <path d="M1260,650 C1320,620 1400,640 1440,690 C1480,740 1450,780 1390,800 C1330,820 1280,790 1250,740 C1220,690 1220,670 1260,650 Z"/>
+            </g>
+
+            <g stroke="rgba(255,255,255,0.06)" stroke-width="2">
+              <path d="M0,220 L1600,220"/>
+              <path d="M0,360 L1600,360"/>
+              <path d="M0,500 L1600,500"/>
+              <path d="M0,640 L1600,640"/>
+              <path d="M320,0 L320,900"/>
+              <path d="M640,0 L640,900"/>
+              <path d="M960,0 L960,900"/>
+              <path d="M1280,0 L1280,900"/>
+            </g>
+
+            <!-- noodle place glow (approx Japan) -->
+            <g filter="url(#glow)">
+              <circle cx="1170" cy="415" r="10" fill="rgba(255,220,150,0.95)"/>
+              <circle cx="1170" cy="415" r="36" fill="rgba(255,180,90,0.16)"/>
+            </g>
+          </svg>
+
+          <div class="marker" id="r4-marker"></div>
+        </div>
+
+        <div class="mapVignette"></div>
+      </div>
+    </div>
+
+    <!-- WIN CARD now shows hint.png -->
+    <div class="winCard" id="r4-win">
+      <div class="ramenArt" aria-hidden="true">
+        <img src="hint.png" alt="Noodle place hint" class="winImg">
+      </div>
+      <div class="winText">
+        <div class="h">Thanks for playing.</div>
+        <div class="p">
+          You found the noodle place.<br/>
+          Gifts will be given in person.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   SCENE SWITCH (Room 1 -> Room 2 -> Room 3 -> Room 4)
+   ========================================================= */
+let ACTIVE_ROOM = 1;
+
+function brightTransition(go){
+  const transition = document.getElementById("transition");
+  transition.classList.add("show");
+  transition.style.opacity = "0";
+  transition.style.filter = "blur(0px)";
+  transition.style.background = "rgba(255,255,255,1)";
+
+  transition.animate(
+    [{ opacity: 0, filter: "blur(0px)" }, { opacity: 1, filter: "blur(14px)" }],
+    { duration: 420, easing: "ease-out", fill: "forwards" }
+  );
+
+  setTimeout(() => {
+    go();
+    transition.animate(
+      [{ opacity: 1, filter: "blur(14px)" }, { opacity: 0, filter: "blur(0px)" }],
+      { duration: 700, easing: "ease-in-out", fill: "forwards" }
+    );
+    setTimeout(() => transition.classList.remove("show"), 720);
+  }, 360);
+}
+
+function enterRoom2(){
+  ACTIVE_ROOM = 2;
+  document.getElementById("intro").style.display = "none";
+  const room2 = document.getElementById("room2");
+  room2.style.display = "block";
+  room2.setAttribute("aria-hidden", "false");
+
+  if (!enterRoom2._inited){
+    initRoom2();
+    enterRoom2._inited = true;
+  }
+
+  const inner = document.getElementById("r2-inner");
+  inner.style.filter = "blur(18px)";
+  inner.style.opacity = "0.0";
+  requestAnimationFrame(() => { inner.style.filter = "blur(0px)"; inner.style.opacity = "1"; });
+}
+
+function enterRoom3(){
+  ACTIVE_ROOM = 3;
+  document.getElementById("room2").style.display = "none";
+  const room3 = document.getElementById("room3");
+  room3.style.display = "block";
+  room3.setAttribute("aria-hidden", "false");
+
+  if (!enterRoom3._inited){
+    initRoom3();
+    enterRoom3._inited = true;
+  }
+
+  const inner = document.getElementById("r3-inner");
+  inner.style.filter = "blur(18px)";
+  inner.style.opacity = "0.0";
+  requestAnimationFrame(() => { inner.style.filter = "blur(0px)"; inner.style.opacity = "1"; });
+}
+
+function enterRoom4(){
+  ACTIVE_ROOM = 4;
+  document.getElementById("room3").style.display = "none";
+  const room4 = document.getElementById("room4");
+  room4.style.display = "block";
+  room4.setAttribute("aria-hidden", "false");
+
+  if (!enterRoom4._inited){
+    initRoom4();
+    enterRoom4._inited = true;
+  }
+
+  const inner = document.getElementById("r4-inner");
+  inner.style.filter = "blur(18px)";
+  inner.style.opacity = "0.0";
+  requestAnimationFrame(() => { inner.style.filter = "blur(0px)"; inner.style.opacity = "1"; });
+}
+
+/* =========================================================
+   ROOM 1 (Door) - hotspot numbers EXACT
+   ========================================================= */
+(function room1(){
+  const CFG = {
+    code: "REALITY", // keep as-is for your current setup
+    focus: { x: 0.44, y: 0.52 },
+    zoomMin: 1.0,
+    zoomMax: 1.55,
+    openingEnd: 1.0,
+
+    // EXACT values you provided (unchanged)
+    door: { x: 0.317, y: 0.135, w: 0.205, h: 0.715 },
+    bell: { x: 0.576, y: 0.429, w: 0.035, h: 0.110 },
+    lockAnchor: { x: 0.510, y: 0.535 },
+  };
+
+  const scene = document.getElementById("scene");
+  const titleLayer = document.getElementById("title-layer");
+  const camera = document.getElementById("camera");
+  const doorBtn = document.getElementById("door-hotspot");
+  const bellBtn = document.getElementById("bell-hotspot");
+  const lockAnchor = document.getElementById("lock-anchor");
+  const lockPanel = document.getElementById("door-lock");
+  const lockClose = document.getElementById("lock-close");
+  const wheelsEl = document.getElementById("lock-wheels");
+  const unlockBtn = document.getElementById("unlock-btn");
+  const hintMsg = document.getElementById("hint-message");
+  const npcBubble = document.getElementById("npc-bubble");
+  const toast = document.getElementById("toast");
+  const song = document.getElementById("song");
+
+  let progress = 0;
+  let openingDone = false;
+  let lockOpen = false;
+
+  const clamp01 = v => Math.max(0, Math.min(1, v));
+  function showToast(t){
+    toast.textContent = t;
+    toast.classList.add("show");
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(()=>toast.classList.remove("show"), 900);
+  }
+  function setRect(el,r){
+    el.style.left=(r.x*100)+"%";
+    el.style.top=(r.y*100)+"%";
+    el.style.width=(r.w*100)+"%";
+    el.style.height=(r.h*100)+"%";
+  }
+  function setPoint(el,p){
+    el.style.left=(p.x*100)+"%";
+    el.style.top=(p.y*100)+"%";
+  }
+  function positionLockOverlay(){
+    const r = lockAnchor.getBoundingClientRect();
+    lockPanel.style.left = (r.left + r.width/2) + "px";
+    lockPanel.style.top  = (r.top  + r.height/2) + "px";
+  }
+
+  setRect(doorBtn, CFG.door);
+  setRect(bellBtn, CFG.bell);
+  setPoint(lockAnchor, CFG.lockAnchor);
+
+  function applyCamera(){
+    const show = clamp01((progress - 0.10) / 0.30);
+    scene.style.opacity = show.toFixed(3);
+    titleLayer.style.opacity = (1 - show).toFixed(3);
+
+    const z = CFG.zoomMin + (CFG.zoomMax - CFG.zoomMin) * (progress * progress);
+    const dx = (0.5 - CFG.focus.x) * innerWidth  * (z - 1);
+    const dy = (0.5 - CFG.focus.y) * innerHeight * (z - 1);
+    camera.style.transform = `translate(${dx}px, ${dy}px) scale(${z})`;
+
+    if (lockOpen) positionLockOverlay();
+  }
+  applyCamera();
+
+  window.addEventListener("resize", () => {
+    if (ACTIVE_ROOM === 1) applyCamera();
+  });
+
+  // opening: only wheel down; later can zoom back
+  window.addEventListener("wheel", (e) => {
+    if (ACTIVE_ROOM !== 1) return;
+    e.preventDefault();
+    if (lockOpen) return;
+
+    const delta = e.deltaY;
+
+    if (!openingDone){
+      if (delta > 0){
+        progress = clamp01(progress + Math.min(0.09, delta * 0.0007));
+        if (progress >= CFG.openingEnd){
+          progress = CFG.openingEnd;
+          openingDone = true;
+          doorBtn.classList.add("enabled");
+          bellBtn.classList.add("enabled");
+          showToast("…");
+        }
+        applyCamera();
+      }
+      return;
+    }
+
+    // after opening: both directions
+    progress = clamp01(progress + (-delta) * 0.0007);
+    applyCamera();
+  }, { passive:false });
+
+  bellBtn.addEventListener("click", () => {
+    if (ACTIVE_ROOM !== 1) return;
+    showToast("🔔");
+    try{
+      song.currentTime = 0;
+      song.play().catch(()=>{});
+    }catch(_){}
+  });
+
+  function openNPC(){
+    npcBubble.classList.add("show");
+    npcBubble.setAttribute("aria-hidden", "false");
+    clearTimeout(openNPC._t);
+    openNPC._t = setTimeout(()=>{
+      npcBubble.classList.remove("show");
+      npcBubble.setAttribute("aria-hidden", "true");
+    }, 2600);
+  }
+
+  function openLock(){
+    lockOpen = true;
+    hintMsg.textContent = "";
+    positionLockOverlay();
+    lockPanel.classList.add("show");
+    lockPanel.setAttribute("aria-hidden", "false");
+    setTimeout(()=> wheelsEl.children[0]?.focus(), 0);
+  }
+  function closeLock(){
+    lockOpen = false;
+    lockPanel.classList.remove("show");
+    lockPanel.setAttribute("aria-hidden", "true");
+    hintMsg.textContent = "";
+  }
+
+  doorBtn.addEventListener("click", () => {
+    if (ACTIVE_ROOM !== 1) return;
+    showToast("The door is closed.");
+    openNPC();
+    openLock();
+  });
+
+  lockClose.addEventListener("click", closeLock);
+  window.addEventListener("keydown", (e) => {
+    if (ACTIVE_ROOM !== 1) return;
+    if (e.key === "Escape" && lockOpen) closeLock();
+  });
+  document.addEventListener("pointerdown", (e) => {
+    if (ACTIVE_ROOM !== 1) return;
+    if (!lockOpen) return;
+    if (!lockPanel.contains(e.target) && e.target !== doorBtn) closeLock();
+  });
+
+  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+  const CODE = CFG.code.toUpperCase();
+  const wheelState = new Array(CODE.length).fill(0);
+
+  function buildWheels(){
+    wheelsEl.innerHTML = "";
+    for (let i = 0; i < CODE.length; i++){
+      const w = document.createElement("div");
+      w.className = "wheel";
+      w.textContent = letters[wheelState[i]];
+      w.tabIndex = 0;
+
+      function setVal(next){
+        wheelState[i] = (next + 26) % 26;
+        w.textContent = letters[wheelState[i]];
+      }
+      function step(dir){ setVal(wheelState[i] + dir); }
+
+      w.addEventListener("wheel", (e) => {
+        e.preventDefault();
+        step(e.deltaY > 0 ? -1 : +1);
+      }, { passive:false });
+
+      w.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowUp")    { e.preventDefault(); step(+1); }
+        if (e.key === "ArrowDown")  { e.preventDefault(); step(-1); }
+        if (e.key === "ArrowRight") { e.preventDefault(); wheelsEl.children[Math.min(CODE.length-1, i+1)].focus(); }
+        if (e.key === "ArrowLeft")  { e.preventDefault(); wheelsEl.children[Math.max(0, i-1)].focus(); }
+      });
+
+      w.addEventListener("pointerdown", () => w.focus());
+      wheelsEl.appendChild(w);
+    }
+  }
+  function enteredCode(){ return wheelState.map(i => letters[i]).join(""); }
+  buildWheels();
+
+  unlockBtn.addEventListener("click", () => {
+    if (ACTIVE_ROOM !== 1) return;
+    if (enteredCode() === CODE){
+      showToast("Unlocked.");
+      closeLock();
+      setTimeout(() => brightTransition(enterRoom2), 260);
+    } else {
+      hintMsg.textContent = "Not quite…";
+    }
+  });
+})();
+
+/* =========================================================
+   ROOM 2 (Letters room)
+   ========================================================= */
+function initRoom2(){
+  const TARGET = "FAVORITE PAPER";
+  const ESCAPE_CODE = "35";
+
+  const tilesWrap = document.getElementById("r2-tiles");
+  const slotsWrap = document.getElementById("r2-slots");
+  const postHint = document.getElementById("r2-postHint");
+  const escapeLock = document.getElementById("r2-escapeLock");
+  const digitsEl = document.getElementById("r2-digits");
+  const lockMsg = document.getElementById("r2-lockMsg");
+  const escapeBtn = document.getElementById("r2-escapeBtn");
+  const toast = document.getElementById("r2-toast");
+  const assembly = document.getElementById("r2-assembly");
+
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add("show");
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(()=>toast.classList.remove("show"), 900);
+  }
+
+  const targetChars = [...TARGET];
+  const slotEls = [];
+  const placed = new Array(targetChars.length).fill(null);
+  const isSpace = i => targetChars[i] === " ";
+
+  function buildSlots(){
+    slotsWrap.innerHTML = "";
+    slotEls.length = 0;
+    for (let i=0;i<targetChars.length;i++){
+      const s = document.createElement("div");
+      s.className = "slot" + (isSpace(i) ? " space" : "");
+      s.textContent = "";
+      slotsWrap.appendChild(s);
+      slotEls.push(s);
+    }
+  }
+  buildSlots();
+
+  const slotCenter = (i) => {
+    const r = slotEls[i].getBoundingClientRect();
+    return { cx:r.left + r.width/2, cy:r.top + r.height/2 };
+  };
+
+  function shuffle(arr){
+    for (let i=arr.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+    return arr;
+  }
+
+  const TILE_SIZE = 380;
+  const tiles = [];
+  let nextId = 1;
+  let dragging = null;
+
+  function setDepthStyle(el, z){
+    const scale = z;
+    const opa  = 0.70 + (z - 0.72) * 0.40;
+    const shadow = 0.52 + (z - 0.72) * 1.05;
+    el.style.setProperty("--scale", scale.toFixed(3));
+    el.style.setProperty("--opa", opa.toFixed(3));
+    el.style.setProperty("--shadow", shadow.toFixed(3));
+  }
+
+  function spawnTiles(){
+    tilesWrap.innerHTML = "";
+    tiles.length = 0;
+
+    const tileChars = targetChars.filter(c => c !== " ");
+    const shuffled = shuffle([...tileChars]);
+
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+
+    shuffled.forEach((ch)=>{
+      const el = document.createElement("div");
+      el.className = "tile";
+      el.textContent = ch;
+      tilesWrap.appendChild(el);
+
+      const id = nextId++;
+      const z = 0.72 + Math.random() * 0.70; // depth
+      setDepthStyle(el, z);
+
+      const cx = w * (0.06 + Math.random() * 0.88);
+      const cy = h * (0.06 + Math.random() * 0.40);
+
+      const speed = 0.30 + (1.42 - z) * 0.72;
+
+      const t = {
+        id, char: ch, el,
+        x: cx - TILE_SIZE/2,
+        y: cy - TILE_SIZE/2,
+        vx:(Math.random()*0.56-0.28) * speed,
+        vy:(Math.random()*0.56-0.28) * speed,
+        locked:false
+      };
+      tiles.push(t);
+
+      el.style.left = t.x + "px";
+      el.style.top  = t.y + "px";
+
+      enableDrag(t);
+    });
+  }
+
+  function enableDrag(t){
+    t.el.addEventListener("pointerdown", (e)=>{
+      if (ACTIVE_ROOM !== 2) return;
+      if (t.locked) return;
+      t.el.setPointerCapture(e.pointerId);
+      dragging = { id:t.id, ox: e.clientX - t.x, oy: e.clientY - t.y };
+    });
+
+    t.el.addEventListener("pointermove", (e)=>{
+      if (ACTIVE_ROOM !== 2) return;
+      if (!dragging || dragging.id !== t.id) return;
+      t.x = e.clientX - dragging.ox;
+      t.y = e.clientY - dragging.oy;
+      t.el.style.left = t.x + "px";
+      t.el.style.top  = t.y + "px";
+    });
+
+    t.el.addEventListener("pointerup", ()=>{
+      if (ACTIVE_ROOM !== 2) return;
+      if (!dragging || dragging.id !== t.id) return;
+      dragging = null;
+      trySnapToNearestMatchingSlot(t);
+    });
+  }
+
+  function updateSlots(){
+    for (let i=0;i<slotEls.length;i++){
+      const s = slotEls[i];
+      if (isSpace(i)) continue;
+      s.classList.remove("correct");
+      if (placed[i] !== null){
+        const tile = tiles.find(x=>x.id===placed[i]);
+        s.textContent = tile ? tile.char : "";
+        s.classList.add("correct");
+      } else {
+        s.textContent = "";
+      }
+    }
+  }
+
+  function checkComplete(){
+    for (let i=0;i<targetChars.length;i++){
+      if (isSpace(i)) continue;
+      if (placed[i] === null) return false;
+    }
+    return true;
+  }
+
+  function trySnapToNearestMatchingSlot(t){
+    const candidates = [];
+    for (let i=0;i<targetChars.length;i++){
+      if (isSpace(i)) continue;
+      if (placed[i] !== null) continue;
+      if (targetChars[i] !== t.char) continue;
+
+      const sc = slotCenter(i);
+      const dx = (t.x + TILE_SIZE/2) - sc.cx;
+      const dy = (t.y + TILE_SIZE/2) - sc.cy;
+      const dist = Math.hypot(dx,dy);
+      candidates.push({ i, sc, dist });
+    }
+
+    if (!candidates.length){ showToast("No place for this."); return; }
+    candidates.sort((a,b)=>a.dist-b.dist);
+    const best = candidates[0];
+
+    if (best.dist > 200){ showToast("Not here."); return; }
+
+    placed[best.i] = t.id;
+    t.locked = true;
+    t.el.classList.add("locked");
+
+    t.x = best.sc.cx - TILE_SIZE/2;
+    t.y = best.sc.cy - TILE_SIZE/2;
+    t.el.style.left = t.x + "px";
+    t.el.style.top  = t.y + "px";
+
+    updateSlots();
+
+    if (checkComplete()){
+      showToast("…complete.");
+      postHint.classList.add("show");
+      escapeLock.classList.add("show");
+      buildDigits();
+    }
+  }
+
+  function tick(){
+    if (ACTIVE_ROOM !== 2){ requestAnimationFrame(tick); return; }
+
+    const w = window.innerWidth;
+    const ar = assembly.getBoundingClientRect();
+    const maxY = Math.max(18, ar.top - TILE_SIZE - 10);
+
+    for (const t of tiles){
+      if (t.locked) continue;
+      if (dragging && dragging.id === t.id) continue;
+
+      t.x += t.vx;
+      t.y += t.vy;
+
+      const minX = 10;
+      const maxX = w - TILE_SIZE - 10;
+      const minY = 10;
+
+      if (t.x < minX || t.x > maxX) t.vx *= -1;
+      if (t.y < minY || t.y > maxY) t.vy *= -1;
+
+      t.x = Math.max(minX, Math.min(maxX, t.x));
+      t.y = Math.max(minY, Math.min(maxY, t.y));
+
+      t.el.style.left = t.x + "px";
+      t.el.style.top  = t.y + "px";
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // 2-digit lock (35)
+  let digitState = [0,0];
+  function buildDigits(){
+    digitsEl.innerHTML = "";
+    for (let i=0;i<2;i++){
+      const d = document.createElement("div");
+      d.className = "digit";
+      d.tabIndex = 0;
+      d.textContent = String(digitState[i]);
+
+      function setVal(v){
+        digitState[i] = (v + 10) % 10;
+        d.textContent = String(digitState[i]);
+      }
+      function step(dir){ setVal(digitState[i] + dir); }
+
+      d.addEventListener("wheel", (e)=>{
+        e.preventDefault();
+        step(e.deltaY > 0 ? -1 : +1);
+      }, { passive:false });
+
+      d.addEventListener("keydown", (e)=>{
+        if (e.key === "ArrowUp")   { e.preventDefault(); step(+1); }
+        if (e.key === "ArrowDown") { e.preventDefault(); step(-1); }
+        if (e.key === "ArrowRight"){ e.preventDefault(); digitsEl.children[Math.min(1,i+1)].focus(); }
+        if (e.key === "ArrowLeft") { e.preventDefault(); digitsEl.children[Math.max(0,i-1)].focus(); }
+      });
+
+      d.addEventListener("pointerdown", ()=> d.focus());
+      digitsEl.appendChild(d);
+    }
+    setTimeout(()=>digitsEl.children[0]?.focus(), 0);
+  }
+
+  escapeBtn.addEventListener("click", ()=>{
+    const attempt = digitState.join("");
+    if (attempt === ESCAPE_CODE){
+      lockMsg.textContent = "";
+      showToast("Unlocked.");
+      setTimeout(() => brightTransition(enterRoom3), 280);
+    } else {
+      lockMsg.textContent = "Not quite…";
+    }
+  });
+
+  window.addEventListener("resize", ()=>{
+    if (ACTIVE_ROOM !== 2) return;
+    for (let i=0;i<targetChars.length;i++){
+      if (isSpace(i)) continue;
+      const tid = placed[i];
+      if (!tid) continue;
+      const t = tiles.find(x=>x.id===tid);
+      if (!t) continue;
+      const sc = slotCenter(i);
+      t.x = sc.cx - TILE_SIZE/2;
+      t.y = sc.cy - TILE_SIZE/2;
+      t.el.style.left = t.x + "px";
+      t.el.style.top  = t.y + "px";
+    }
+  });
+
+  spawnTiles();
+  updateSlots();
+  requestAnimationFrame(tick);
+}
+
+/* =========================================================
+   ROOM 3 (Picture lock) -> on success go Room4
+   ========================================================= */
+function initRoom3(){
+  const PHOTO_CODE = "139";
+
+  const photo = document.getElementById("r3-photo");
+  const lock = document.getElementById("r3-lock");
+  const closeBtn = document.getElementById("r3-close");
+  const digitsEl = document.getElementById("r3-digits");
+  const btn = document.getElementById("r3-btn");
+  const msg = document.getElementById("r3-msg");
+
+  let open = false;
+
+  function openLock(){
+    open = true;
+    msg.textContent = "";
+    lock.classList.add("show");
+    lock.setAttribute("aria-hidden","false");
+    setTimeout(()=>digitsEl.children[0]?.focus(), 0);
+  }
+  function closeLock(){
+    open = false;
+    lock.classList.remove("show");
+    lock.setAttribute("aria-hidden","true");
+    msg.textContent = "";
+  }
+
+  photo.addEventListener("click", () => {
+    if (ACTIVE_ROOM !== 3) return;
+    openLock();
+  });
+  closeBtn.addEventListener("click", closeLock);
+  window.addEventListener("keydown", (e) => {
+    if (ACTIVE_ROOM !== 3) return;
+    if (e.key === "Escape" && open) closeLock();
+  });
+  document.addEventListener("pointerdown", (e) => {
+    if (ACTIVE_ROOM !== 3) return;
+    if (!open) return;
+    if (!lock.contains(e.target) && e.target !== photo) closeLock();
+  });
+
+  // 3-digit wheels
+  let state = [0,0,0];
+
+  function buildDigits(){
+    digitsEl.innerHTML = "";
+    for (let i=0;i<3;i++){
+      const d = document.createElement("div");
+      d.className = "digit";
+      d.tabIndex = 0;
+      d.textContent = String(state[i]);
+
+      function setVal(v){
+        state[i] = (v + 10) % 10;
+        d.textContent = String(state[i]);
+      }
+      function step(dir){ setVal(state[i] + dir); }
+
+      d.addEventListener("wheel", (e)=>{
+        e.preventDefault();
+        step(e.deltaY > 0 ? -1 : +1);
+      }, { passive:false });
+
+      d.addEventListener("keydown", (e)=>{
+        if (e.key === "ArrowUp")   { e.preventDefault(); step(+1); }
+        if (e.key === "ArrowDown") { e.preventDefault(); step(-1); }
+        if (e.key === "ArrowRight"){ e.preventDefault(); digitsEl.children[Math.min(2,i+1)].focus(); }
+        if (e.key === "ArrowLeft") { e.preventDefault(); digitsEl.children[Math.max(0,i-1)].focus(); }
+      });
+
+      d.addEventListener("pointerdown", ()=> d.focus());
+      digitsEl.appendChild(d);
+    }
+  }
+  buildDigits();
+
+  btn.addEventListener("click", ()=>{
+    const attempt = state.join("");
+    if (attempt === PHOTO_CODE){
+      msg.textContent = "";
+      closeLock();
+      setTimeout(() => brightTransition(enterRoom4), 320);
+    } else {
+      msg.textContent = "Not quite…";
+    }
+  });
+}
+
+/* =========================================================
+   ROOM 4 (Coordinate Search)
+   Accept only: 35,139
+   ========================================================= */
+function initRoom4(){
+  const room4 = document.getElementById("room4");
+  const input = document.getElementById("r4-input");
+  const btn = document.getElementById("r4-go");
+  const err = document.getElementById("r4-err");
+  const viewport = document.getElementById("r4-viewport");
+
+  function normalize(s){
+    return (s || "")
+      .trim()
+      .replace(/\s+/g,"")
+      .replace(/[，]/g,",");
+  }
+
+  function doZoom(){
+    // Zoom toward the glow/marker location
+    viewport.style.transform = "translate(-420px, -110px) scale(2.6)";
+    room4.classList.add("ready");
+  }
+
+  function trySearch(){
+    err.textContent = "";
+    const v = normalize(input.value);
+
+    if (v === "35,139" || v === "35.0,139" || v === "35,139.0"){
+      doZoom();
+      input.blur();
+      return;
+    }
+    err.textContent = "No result.";
+  }
+
+  btn.addEventListener("click", trySearch);
+  input.addEventListener("keydown", (e)=>{ if (e.key === "Enter") trySearch(); });
+
+  // start at full world
+  viewport.style.transform = "translate(0px, 0px) scale(1)";
+}
+</script>
+
+</body>
+</html>
