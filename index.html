@@ -7,18 +7,15 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;800;900&family=Shippori+Mincho:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=Shippori+Mincho:wght@500;700&display=swap" rel="stylesheet">
 
 <!-- REAL MAP: Leaflet (OpenStreetMap tiles) -->
-<link
-  rel="stylesheet"
-  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
 :root{
   --title-font: "Shippori Mincho", serif;
-  --ui-font: "Inter", system-ui, sans-serif;
+  --ui-font: "Inter", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans";
 }
 html,body{ margin:0; padding:0; height:100%; overflow:hidden; font-family:var(--ui-font); background:#000; }
 button,input{ font-family:inherit; }
@@ -156,29 +153,31 @@ button,input{ font-family:inherit; }
 #room2 .room2-inner{ position:absolute; inset:0; transition: filter 0.9s ease, opacity 0.9s ease; filter: blur(18px); opacity: 0.0; }
 #room2 .frame{ position:absolute; inset:0; pointer-events:none; box-shadow: inset 0 0 200px rgba(0,0,0,0.05); }
 
+/* 这里改：字母更细更锐，不那么粗 */
 #room2 .tile{
   position:absolute;
-  width: 380px; height: 380px;
+  width: 360px; height: 360px;
   display:flex; align-items:center; justify-content:center;
-  font-weight: 900; font-size: 290px;
+  font-weight: 700;                 /* ↓ 从 900 降到 700 */
+  font-size: 290px;
   letter-spacing: -0.03em;
-  color: rgba(10,16,28,0.88);
+  color: rgba(10,16,28,0.86);
   user-select:none; cursor: grab; touch-action:none;
   transform: translateY(var(--lift, 0px)) scale(var(--scale, 1));
   opacity: var(--opa, 1);
   text-shadow:
-    0 calc(36px * var(--shadow, 1)) calc(98px * var(--shadow, 1)) rgba(0,0,0,0.14),
-    0 calc(14px * var(--shadow, 1)) calc(30px * var(--shadow, 1)) rgba(0,0,0,0.08);
+    0 calc(22px * var(--shadow, 1)) calc(60px * var(--shadow, 1)) rgba(0,0,0,0.10),
+    0 calc(10px * var(--shadow, 1)) calc(18px * var(--shadow, 1)) rgba(0,0,0,0.06);
   transition: transform .12s ease;
 }
 #room2 .tile:hover{ --lift: -7px; }
 #room2 .tile:active{ cursor: grabbing; --lift: -3px; }
 #room2 .tile.locked{
-  color: rgba(16,185,129,0.96);
+  color: rgba(16,185,129,0.92);
   cursor: default;
   text-shadow:
-    0 calc(36px * var(--shadow, 1)) calc(98px * var(--shadow, 1)) rgba(16,185,129,0.12),
-    0 calc(14px * var(--shadow, 1)) calc(30px * var(--shadow, 1)) rgba(0,0,0,0.06);
+    0 calc(18px * var(--shadow, 1)) calc(50px * var(--shadow, 1)) rgba(16,185,129,0.10),
+    0 calc(10px * var(--shadow, 1)) calc(18px * var(--shadow, 1)) rgba(0,0,0,0.05);
 }
 
 #room2 .assembly{
@@ -202,7 +201,7 @@ button,input{ font-family:inherit; }
   border: 1px dashed rgba(17,24,39,0.14);
   background: rgba(17,24,39,0.012);
   display:flex; align-items:center; justify-content:center;
-  font-weight: 900; font-size: 40px;
+  font-weight: 800; font-size: 40px;
   color: rgba(17,24,39,0.22);
 }
 #room2 .slot.space{ width: 34px; border:none; background:transparent; }
@@ -283,7 +282,7 @@ button,input{ font-family:inherit; }
 #room2 .toast.show{ opacity:1; transform: translateX(-50%) translateY(-6px); }
 
 /* =========================
-   ROOM 3
+   ROOM 3 (your 0/1 images -> 10001011)
    ========================= */
 #room3{
   position:fixed; inset:0;
@@ -294,34 +293,49 @@ button,input{ font-family:inherit; }
 #room3 .room3-inner{ position:absolute; inset:0; transition: filter 0.9s ease, opacity 0.9s ease; filter: blur(18px); opacity: 0.0; }
 #room3 .stage{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding: 48px 20px 40px; }
 #room3 .frameWrap{
-  width: min(1020px, 94vw);
-  aspect-ratio: 16/9;
+  width: min(1180px, 94vw);
   border-radius: 28px;
   background: rgba(255,255,255,0.74);
   border: 1px solid rgba(17,24,39,0.10);
   backdrop-filter: blur(12px);
   box-shadow: 0 30px 160px rgba(0,0,0,0.12);
-  position: relative; overflow:hidden;
-}
-#room3 .frameBezel{
-  position:absolute; inset:14px;
-  border-radius: 20px;
-  border: 1px solid rgba(17,24,39,0.12);
-  background: radial-gradient(circle at 50% 30%, rgba(0,0,0,0.05), rgba(255,255,255,0.92));
+  position: relative;
   overflow:hidden;
+  padding: 18px;
 }
-#room3 .photo{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; cursor:pointer; }
-#room3 .photo svg{ width:100%; height:100%; display:block; }
-#room3 .photoHint{
-  position:absolute; left:18px; bottom:16px;
-  font-size: 12px; font-weight: 800; letter-spacing: .10em;
+#room3 .strip{
+  width:100%;
+  display:grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 10px;
+  align-items:stretch;
+}
+#room3 .seat{
+  border-radius: 18px;
+  overflow:hidden;
+  border: 1px solid rgba(17,24,39,0.10);
+  background: rgba(0,0,0,0.03);
+  aspect-ratio: 4 / 3;
+}
+#room3 .seat img{
+  width:100%;
+  height:100%;
+  object-fit: cover;
+  display:block;
+  transform: scale(1.01);
+}
+#room3 .tapHint{
+  position:absolute; left:50%; bottom: 16px;
+  transform: translateX(-50%);
+  font-size: 12px; font-weight: 800; letter-spacing: .12em;
   padding: 10px 12px; border-radius: 999px;
   color: rgba(17,24,39,0.75);
-  background: rgba(255,255,255,0.72);
+  background: rgba(255,255,255,0.76);
   border: 1px solid rgba(17,24,39,0.10);
   backdrop-filter: blur(10px);
   pointer-events:none;
 }
+
 #r3-lock{
   position:fixed; left:50%; top:50%;
   transform: translate(-50%, -50%);
@@ -446,9 +460,7 @@ button,input{ font-family:inherit; }
   border: 1px solid rgba(255,255,255,0.14);
   box-shadow: 0 30px 160px rgba(0,0,0,0.55);
 }
-#map{
-  width:100%; height:100%;
-}
+#map{ width:100%; height:100%; }
 #room4 .mapVignette{
   position:absolute; inset:0;
   pointer-events:none;
@@ -456,13 +468,13 @@ button,input{ font-family:inherit; }
   border-radius: 28px;
 }
 
-/* Win card */
+/* Win card: hint.png 更大 */
 #room4 .winCard{
   position:absolute;
   left:50%;
   bottom: 22px;
   transform: translateX(-50%) translateY(12px);
-  width: min(1020px, 94vw);
+  width: min(1120px, 94vw);
   padding: 16px 16px 14px;
   border-radius: 22px;
   background: rgba(0,0,0,0.55);
@@ -483,8 +495,8 @@ button,input{ font-family:inherit; }
   pointer-events:auto;
 }
 #room4 .ramenArt{
-  width: 240px;
-  height: 150px;
+  width: 420px;               /* ↑ 更大 */
+  height: 260px;              /* ↑ 更大 */
   border-radius: 18px;
   background: rgba(255,255,255,0.08);
   border: 1px solid rgba(255,255,255,0.12);
@@ -492,6 +504,7 @@ button,input{ font-family:inherit; }
   align-items:center;
   justify-content:center;
   overflow:hidden;
+  flex: 0 0 auto;
 }
 #room4 .winImg{ width:100%; height:100%; object-fit:cover; display:block; }
 #room4 .winText .h{
@@ -503,7 +516,7 @@ button,input{ font-family:inherit; }
 }
 #room4 .winText .p{ font-size: 14px; line-height: 1.55; opacity: .92; }
 
-/* Leaflet tweaks (clean look) */
+/* Leaflet tweaks */
 .leaflet-control-container{ display:none; }
 .leaflet-tile{ filter: saturate(1.08) contrast(1.02); }
 </style>
@@ -594,128 +607,14 @@ button,input{ font-family:inherit; }
 </div>
 
 <!-- =========================
-     ROOM 3
+     ROOM 3 (0/1 images strip)
      ========================= -->
 <div id="room3" aria-hidden="true">
   <div class="room3-inner" id="r3-inner">
     <div class="stage">
-      <div class="frameWrap">
-        <div class="frameBezel">
-          <div class="photo" id="r3-photo" aria-label="Picture">
-            <!-- (same svg classroom as before; omitted here for brevity) -->
-            <!-- IMPORTANT: keep your current rich SVG here unchanged -->
-            <!-- To keep "whole code" runnable, paste your existing SVG here -->
-            <!-- For this answer, I keep it exactly as your previous file: -->
-            <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-              <defs>
-                <linearGradient id="wall" x1="0" x2="0" y1="0" y2="1">
-                  <stop offset="0" stop-color="#f6f1e8"/>
-                  <stop offset="1" stop-color="#efe6d8"/>
-                </linearGradient>
-                <linearGradient id="board" x1="0" x2="0" y1="0" y2="1">
-                  <stop offset="0" stop-color="#2f7260"/>
-                  <stop offset="1" stop-color="#1f564a"/>
-                </linearGradient>
-                <linearGradient id="floor" x1="0" x2="0" y1="0" y2="1">
-                  <stop offset="0" stop-color="#d7cfc3"/>
-                  <stop offset="1" stop-color="#c2b7a7"/>
-                </linearGradient>
-                <radialGradient id="sun" cx="0.20" cy="0.20" r="0.95">
-                  <stop offset="0" stop-color="rgba(255,215,150,0.52)"/>
-                  <stop offset="1" stop-color="rgba(255,215,150,0)"/>
-                </radialGradient>
-                <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
-                  <feGaussianBlur stdDeviation="12" result="b"/>
-                  <feOffset dx="0" dy="10" result="o"/>
-                  <feColorMatrix in="o" type="matrix" values="
-                    0 0 0 0 0
-                    0 0 0 0 0
-                    0 0 0 0 0
-                    0 0 0 .28 0" result="s"/>
-                  <feMerge><feMergeNode in="s"/><feMergeNode in="SourceGraphic"/></feMerge>
-                </filter>
-                <filter id="film" x="-20%" y="-20%" width="140%" height="140%">
-                  <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="2" stitchTiles="stitch" result="n"/>
-                  <feColorMatrix in="n" type="matrix" values="
-                    1 0 0 0 0
-                    0 1 0 0 0
-                    0 0 1 0 0
-                    0 0 0 0.18 0" result="g"/>
-                  <feBlend in="SourceGraphic" in2="g" mode="multiply"/>
-                </filter>
-                <g id="chair">
-                  <rect x="-46" y="-16" width="92" height="30" rx="12" fill="rgba(20,28,40,0.22)"/>
-                  <rect x="-38" y="-92" width="76" height="80" rx="16" fill="rgba(20,28,40,0.16)"/>
-                  <rect x="-34" y="12" width="14" height="72" rx="7" fill="rgba(20,28,40,0.24)"/>
-                  <rect x="20" y="12" width="14" height="72" rx="7" fill="rgba(20,28,40,0.24)"/>
-                </g>
-                <g id="student">
-                  <ellipse cx="0" cy="-132" rx="22" ry="22" fill="rgba(20,28,40,0.22)"/>
-                  <path d="M -36 -110 Q 0 -154 36 -110 L 28 -54 Q 0 -30 -28 -54 Z"
-                        fill="rgba(20,28,40,0.18)"/>
-                </g>
-                <g id="desk">
-                  <path d="M -70 -2 L 70 -2 L 58 40 L -58 40 Z" fill="rgba(20,28,40,0.10)"/>
-                  <rect x="-56" y="40" width="12" height="62" rx="6" fill="rgba(20,28,40,0.18)"/>
-                  <rect x="44" y="40" width="12" height="62" rx="6" fill="rgba(20,28,40,0.18)"/>
-                  <path d="M -54 48 L 54 48" stroke="rgba(255,255,255,0.12)" stroke-width="3" stroke-linecap="round"/>
-                </g>
-              </defs>
-
-              <rect x="0" y="0" width="1600" height="900" fill="url(#wall)"/>
-              <rect x="0" y="0" width="1600" height="900" fill="url(#sun)"/>
-
-              <g filter="url(#softShadow)" opacity="0.95">
-                <rect x="40" y="110" width="170" height="520" rx="24" fill="rgba(255,255,255,0.30)"/>
-                <rect x="58" y="130" width="134" height="140" rx="18" fill="rgba(90,150,255,0.18)"/>
-                <rect x="58" y="286" width="134" height="140" rx="18" fill="rgba(90,150,255,0.14)"/>
-                <rect x="58" y="442" width="134" height="168" rx="18" fill="rgba(90,150,255,0.10)"/>
-              </g>
-
-              <g filter="url(#softShadow)">
-                <rect x="250" y="120" width="1100" height="350" rx="26" fill="rgba(0,0,0,0.08)"/>
-                <rect x="270" y="140" width="1060" height="310" rx="24" fill="url(#board)"/>
-                <rect x="270" y="450" width="1060" height="12" rx="6" fill="rgba(255,255,255,0.18)"/>
-                <path d="M 360 240 C 520 190 640 210 780 190" stroke="rgba(255,255,255,0.18)" stroke-width="6" stroke-linecap="round" fill="none"/>
-                <path d="M 380 290 C 540 260 670 280 860 250" stroke="rgba(255,255,255,0.14)" stroke-width="5" stroke-linecap="round" fill="none"/>
-                <path d="M 420 340 C 610 320 760 340 980 310" stroke="rgba(255,255,255,0.12)" stroke-width="5" stroke-linecap="round" fill="none"/>
-              </g>
-
-              <g transform="translate(800,92)" filter="url(#softShadow)">
-                <circle r="48" fill="rgba(255,255,255,0.78)" stroke="rgba(20,28,40,0.18)" stroke-width="4"/>
-                <circle r="3" fill="rgba(20,28,40,0.35)"/>
-                <line x1="0" y1="0" x2="-12" y2="-22" stroke="rgba(20,28,40,0.55)" stroke-width="4" stroke-linecap="round"/>
-                <line x1="0" y1="0" x2="0" y2="-28" stroke="rgba(20,28,40,0.55)" stroke-width="4" stroke-linecap="round"/>
-              </g>
-
-              <path d="M0,560 C320,520 640,520 800,540 C1020,570 1280,590 1600,560 L1600,900 L0,900 Z" fill="url(#floor)"/>
-              <path d="M0,560 C320,520 640,520 800,540 C1020,570 1280,590 1600,560" fill="none" stroke="rgba(20,28,40,0.08)" stroke-width="3"/>
-
-              <g transform="translate(1220,560)" filter="url(#softShadow)" opacity="0.95">
-                <path d="M -180 -20 L 180 -20 L 150 120 L -150 120 Z" fill="rgba(20,28,40,0.08)"/>
-                <path d="M -160 4 L 160 4 L 132 108 L -132 108 Z" fill="rgba(255,255,255,0.08)"/>
-                <rect x="-138" y="14" width="88" height="12" rx="6" fill="rgba(255,255,255,0.10)"/>
-                <rect x="52" y="14" width="88" height="12" rx="6" fill="rgba(255,255,255,0.10)"/>
-              </g>
-
-              <!-- 8 seats row: 10001011 => occupied 1,5,7,8 -->
-              <g transform="translate(250,690) skewX(-8)" filter="url(#film)">
-                <g transform="translate(0,0)"><g transform="translate(0,36)"><use href="#desk"/></g><use href="#chair"/><use href="#student"/></g>
-                <g transform="translate(170,0)"><g transform="translate(0,36)"><use href="#desk"/></g><use href="#chair"/></g>
-                <g transform="translate(340,0)"><g transform="translate(0,36)"><use href="#desk"/></g><use href="#chair"/></g>
-                <g transform="translate(510,0)"><g transform="translate(0,36)"><use href="#desk"/></g><use href="#chair"/></g>
-                <g transform="translate(680,0)"><g transform="translate(0,36)"><use href="#desk"/></g><use href="#chair"/><use href="#student"/></g>
-                <g transform="translate(850,0)"><g transform="translate(0,36)"><use href="#desk"/></g><use href="#chair"/></g>
-                <g transform="translate(1020,0)"><g transform="translate(0,36)"><use href="#desk"/></g><use href="#chair"/><use href="#student"/></g>
-                <g transform="translate(1190,0)"><g transform="translate(0,36)"><use href="#desk"/></g><use href="#chair"/><use href="#student"/></g>
-              </g>
-
-              <rect x="0" y="0" width="1600" height="900" fill="rgba(0,0,0,0.12)"/>
-              <rect x="40" y="40" width="1520" height="820" rx="30" fill="none" stroke="rgba(255,255,255,0.16)" stroke-width="2"/>
-            </svg>
-          </div>
-          <div class="photoHint">Click the picture.</div>
-        </div>
+      <div class="frameWrap" id="r3-frame" role="button" aria-label="Classroom strip">
+        <div class="strip" id="r3-strip"></div>
+        <div class="tapHint">Click the strip.</div>
       </div>
     </div>
   </div>
@@ -739,13 +638,13 @@ button,input{ font-family:inherit; }
   <div class="inner" id="r4-inner">
     <div class="hud">
       <div class="label">COORDINATE</div>
-      <input id="r4-lat" placeholder="Latitude (35)" inputmode="decimal" autocomplete="off" />
-      <input id="r4-lng" placeholder="Longitude (139)" inputmode="decimal" autocomplete="off" />
+      <input id="r4-lat" placeholder="Latitude" inputmode="decimal" autocomplete="off" />
+      <input id="r4-lng" placeholder="Longitude" inputmode="decimal" autocomplete="off" />
       <button id="r4-go">Search</button>
       <div class="err" id="r4-err"></div>
     </div>
 
-    <div class="hint">Use the two numbers you found: 35 and 139.</div>
+    <div class="hint">Use the two numbers you found.</div>
 
     <div class="mapWrap">
       <div id="map"></div>
@@ -759,7 +658,7 @@ button,input{ font-family:inherit; }
       <div class="winText">
         <div class="h">Thanks for playing.</div>
         <div class="p">
-          Noodle place coordinate: <b>35, 139</b><br/>
+          You found the place.<br/>
           Gifts will be given in person.
         </div>
       </div>
@@ -857,7 +756,7 @@ function enterRoom4(){
    ========================================================= */
 (function room1(){
   const CFG = {
-    code: "REALITY", // keep your current room1 code behavior unchanged
+    code: "REALITY",
     focus: { x: 0.44, y: 0.52 },
     zoomMin: 1.0,
     zoomMax: 1.55,
@@ -1112,15 +1011,15 @@ function initRoom2(){
     return arr;
   }
 
-  const TILE_SIZE = 380;
+  const TILE_SIZE = 360;
   const tiles = [];
   let nextId = 1;
   let dragging = null;
 
   function setDepthStyle(el, z){
     const scale = z;
-    const opa  = 0.70 + (z - 0.72) * 0.40;
-    const shadow = 0.52 + (z - 0.72) * 1.05;
+    const opa  = 0.72 + (z - 0.72) * 0.34;
+    const shadow = 0.56 + (z - 0.72) * 0.90;
     el.style.setProperty("--scale", scale.toFixed(3));
     el.style.setProperty("--opa", opa.toFixed(3));
     el.style.setProperty("--shadow", shadow.toFixed(3));
@@ -1143,13 +1042,13 @@ function initRoom2(){
       tilesWrap.appendChild(el);
 
       const id = nextId++;
-      const z = 0.72 + Math.random() * 0.70;
+      const z = 0.78 + Math.random() * 0.62;
       setDepthStyle(el, z);
 
       const cx = w * (0.06 + Math.random() * 0.88);
       const cy = h * (0.06 + Math.random() * 0.40);
 
-      const speed = 0.30 + (1.42 - z) * 0.72;
+      const speed = 0.26 + (1.42 - z) * 0.70;
 
       const t = {
         id, char: ch, el,
@@ -1343,20 +1242,35 @@ function initRoom2(){
 }
 
 /* =========================================================
-   ROOM 3
+   ROOM 3 (your 0/1 images strip) -> binary 10001011 -> decimal 139
    ========================================================= */
 function initRoom3(){
   const PHOTO_CODE = "139";
 
-  const photo = document.getElementById("r3-photo");
+  const frame = document.getElementById("r3-frame");
+  const strip = document.getElementById("r3-strip");
   const lock = document.getElementById("r3-lock");
   const closeBtn = document.getElementById("r3-close");
   const digitsEl = document.getElementById("r3-digits");
   const btn = document.getElementById("r3-btn");
   const msg = document.getElementById("r3-msg");
 
-  let open = false;
+  // 10001011: seats 1,5,7,8 occupied
+  const bits = [1,0,0,0,1,0,1,1];
 
+  // build strip from your assets: 0.png and 1.png
+  strip.innerHTML = "";
+  for (let i=0;i<8;i++){
+    const cell = document.createElement("div");
+    cell.className = "seat";
+    const img = document.createElement("img");
+    img.src = bits[i] ? "1.png" : "0.png";
+    img.alt = bits[i] ? "occupied seat" : "empty seat";
+    cell.appendChild(img);
+    strip.appendChild(cell);
+  }
+
+  let open = false;
   function openLock(){
     open = true;
     msg.textContent = "";
@@ -1371,13 +1285,16 @@ function initRoom3(){
     msg.textContent = "";
   }
 
-  photo.addEventListener("click", () => { if (ACTIVE_ROOM !== 3) return; openLock(); });
+  frame.addEventListener("click", () => { if (ACTIVE_ROOM !== 3) return; openLock(); });
   closeBtn.addEventListener("click", closeLock);
-  window.addEventListener("keydown", (e) => { if (ACTIVE_ROOM !== 3) return; if (e.key === "Escape" && open) closeLock(); });
+  window.addEventListener("keydown", (e) => {
+    if (ACTIVE_ROOM !== 3) return;
+    if (e.key === "Escape" && open) closeLock();
+  });
   document.addEventListener("pointerdown", (e) => {
     if (ACTIVE_ROOM !== 3) return;
     if (!open) return;
-    if (!lock.contains(e.target) && e.target !== photo) closeLock();
+    if (!lock.contains(e.target) && !frame.contains(e.target)) closeLock();
   });
 
   let state = [0,0,0];
@@ -1420,7 +1337,7 @@ function initRoom3(){
 
 /* =========================================================
    ROOM 4 (REAL MAP + 2 inputs)
-   Noodle place coordinate: 35, 139
+   Final: ラーメン二郎 横浜関内店 coordinates
    ========================================================= */
 function initRoom4(){
   const room4 = document.getElementById("room4");
@@ -1429,8 +1346,9 @@ function initRoom4(){
   const btn = document.getElementById("r4-go");
   const err = document.getElementById("r4-err");
 
-  const NOODLE = { lat: 35, lng: 139 }; // <- “面馆”坐标就是这个
-  const EPS = 0.00001;
+  // Navitime coordinates (real)
+  const NOODLE = { lat: 35.442006, lng: 139.630649 }; // :contentReference[oaicite:1]{index=1}
+  const EPS = 0.00025; // allow small input tolerance
 
   // init real map
   const map = L.map("map", {
@@ -1438,11 +1356,9 @@ function initRoom4(){
     attributionControl: false,
     dragging: true,
     scrollWheelZoom: true
-  }).setView([20, 0], 2);
+  }).setView([35.2, 139.3], 7);
 
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 19
-  }).addTo(map);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
 
   let marker = null;
 
@@ -1453,8 +1369,7 @@ function initRoom4(){
   function closeEnough(a,b){ return Math.abs(a-b) < EPS; }
 
   function winAt(lat, lng){
-    // cinematic fly + then show marker + win UI
-    map.flyTo([lat, lng], 13, { animate:true, duration: 2.2 });
+    map.flyTo([lat, lng], 16, { animate:true, duration: 2.2 });
 
     setTimeout(() => {
       if (marker) map.removeLayer(marker);
@@ -1462,8 +1377,8 @@ function initRoom4(){
 
       marker.bindPopup(`
         <div style="font-family: Inter, system-ui; font-weight:900; padding:2px 4px;">
-          NOODLE PLACE<br/>
-          <span style="font-weight:800; opacity:.8; font-size:12px;">${lat.toFixed(3)}, ${lng.toFixed(3)}</span>
+          ラーメン二郎 横浜関内店<br/>
+          <span style="font-weight:800; opacity:.85; font-size:12px;">${lat.toFixed(6)}, ${lng.toFixed(6)}</span>
         </div>
       `, { closeButton:false, autoClose:false, closeOnClick:false }).openPopup();
 
@@ -1482,7 +1397,6 @@ function initRoom4(){
       return;
     }
 
-    // only accept the correct coordinate from the puzzles
     if (closeEnough(lat, NOODLE.lat) && closeEnough(lng, NOODLE.lng)){
       winAt(NOODLE.lat, NOODLE.lng);
       latInput.blur(); lngInput.blur();
@@ -1496,9 +1410,9 @@ function initRoom4(){
   latInput.addEventListener("keydown", (e)=>{ if (e.key === "Enter") trySearch(); });
   lngInput.addEventListener("keydown", (e)=>{ if (e.key === "Enter") trySearch(); });
 
-  // helpful default placeholders (but not auto-filled)
-  latInput.placeholder = "Latitude (35)";
-  lngInput.placeholder = "Longitude (139)";
+  // IMPORTANT: do not show 35/139 anywhere
+  latInput.value = "";
+  lngInput.value = "";
 }
 </script>
 
