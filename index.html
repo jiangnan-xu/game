@@ -17,6 +17,10 @@
   --ui-font: "Inter", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
   --serif-font: "Shippori Mincho", serif;
   --roman-font: "Cinzel", serif;
+
+  --digit-bg: #0b1020;
+  --digit-border: rgba(255,255,255,0.18);
+  --digit-text: rgba(255,255,255,0.95);
 }
 
 html,body{ margin:0; padding:0; height:100%; overflow:hidden; background:#000; font-family:var(--ui-font); }
@@ -99,7 +103,7 @@ button,input{ font-family:inherit; }
 #opening .blackout{
   position:absolute; inset:0;
   background:#000;
-  opacity: 0.0; /* controlled by scroll */
+  opacity: 0.0;
 }
 #opening .titleWrap{
   position:absolute; inset:0;
@@ -254,19 +258,20 @@ button,input{ font-family:inherit; }
 }
 .lockRow{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom: 8px; }
 .lockTitle{ font-weight: 900; font-size: 13px; letter-spacing: .10em; opacity: .92; }
+
 .digits{ display:flex; gap:10px; justify-content:center; margin: 8px 0 8px; }
 .digit{
   width: 56px; height: 72px;
   border-radius: 18px;
-  background: linear-gradient(rgba(255,255,255,0.16), rgba(255,255,255,0.06));
-  border: 1px solid rgba(255,255,255,0.18);
+  background: linear-gradient(rgba(255,255,255,0.10), rgba(255,255,255,0.04));
+  border: 1px solid rgba(255,255,255,0.16);
   display:flex; align-items:center; justify-content:center;
   font-weight: 700; font-size: 28px;
   font-family: var(--roman-font);
   user-select:none; cursor: grab; outline:none;
-  color:#fff;
+  color: rgba(255,255,255,0.92);
 }
-.digit:focus{ outline: 2px solid rgba(255,255,255,0.30); box-shadow: 0 0 0 5px rgba(255,255,255,0.10); }
+
 .lockBtn{
   width:100%;
   border:none;
@@ -370,7 +375,7 @@ button,input{ font-family:inherit; }
 .hint-message{ margin-top:8px; color:#b91c1c; font-weight:900; min-height:16px; font-size:12px; }
 
 /* =========================
-   ROOM 3: Classroom + Computer boot password (139)
+   ROOM 3: Classroom + Computer boot screen (added)
    ========================= */
 #roomClass{
   position:fixed; inset:0; display:none; overflow:hidden;
@@ -442,13 +447,50 @@ button,input{ font-family:inherit; }
   padding: 16px;
   position:relative;
 }
+
+/* Computer screen "boot" look */
+.screenFrame{
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(0,0,0,0.55);
+  overflow:hidden;
+  box-shadow: inset 0 0 40px rgba(0,0,0,0.7);
+}
+.screenGlass{
+  position:relative;
+  padding: 14px;
+  min-height: 220px;
+  background:
+    radial-gradient(circle at 50% 30%, rgba(255,255,255,0.10), rgba(0,0,0,0.65) 70%),
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.20));
+}
+.scanlines{
+  position:absolute; inset:0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.02),
+    rgba(255,255,255,0.02) 2px,
+    rgba(0,0,0,0.02) 4px,
+    rgba(0,0,0,0.02) 6px
+  );
+  opacity: 0.28;
+  pointer-events:none;
+  mix-blend-mode: overlay;
+}
+@keyframes flicker {
+  0%{ opacity:1; }
+  50%{ opacity:0.88; }
+  100%{ opacity:1; }
+}
+.flicker{ animation: flicker 1.2s infinite ease-in-out; }
+
 .screenTop{
   display:flex; align-items:center; justify-content:space-between;
   gap:10px; margin-bottom: 10px;
 }
 .screenTitle{
   font-weight:900;
-  letter-spacing:.10em;
+  letter-spacing:.12em;
   font-size:12px;
   opacity:.92;
 }
@@ -456,12 +498,6 @@ button,input{ font-family:inherit; }
   width:10px; height:10px; border-radius:999px;
   background: rgba(255,255,255,0.28);
   box-shadow: 0 0 0 4px rgba(255,255,255,0.08);
-}
-.screenBody{
-  border-radius: 18px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(0,0,0,0.28);
-  padding: 12px;
 }
 .screenText{
   font-family: var(--serif-font);
@@ -484,38 +520,40 @@ button,input{ font-family:inherit; }
   transform: translate(-50%, -50%);
   z-index:220; width: min(390px, 92vw);
   display:none;
-  background: rgba(255,255,255,0.92);
-  border: 1px solid rgba(17,24,39,0.10);
+  background: rgba(0,0,0,0.60);
+  border: 1px solid rgba(255,255,255,0.14);
   border-radius: 18px;
   padding: 12px 12px 10px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 20px 90px rgba(0,0,0,0.22);
-  color:#111;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 20px 90px rgba(0,0,0,0.40);
+  color:#fff;
 }
 #bootLock.show{ display:block; }
 #bootLock .top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom: 8px; }
 #bootLock .t{ font-weight: 900; letter-spacing: .12em; font-size: 12px; opacity: .9; }
 #bootLock .x{
   width:32px; height:32px; border-radius:999px;
-  border: 0.6px solid rgba(17,24,39,.10);
-  background: rgba(17,24,39,.05);
-  cursor:pointer; font-weight:900;
+  border: 1px solid rgba(255,255,255,.16);
+  background: rgba(255,255,255,.06);
+  cursor:pointer; font-weight:900; color:#fff;
 }
 #bootLock .sub{
-  font-size: 12px; color: rgba(17,24,39,0.72);
+  font-size: 12px; color: rgba(255,255,255,0.82);
   margin-bottom: 8px; letter-spacing: .12em; font-weight: 900;
 }
 #bootLock .digits{ display:flex; justify-content:center; gap:10px; margin: 10px 0; }
 #bootLock .digit{
   width: 56px; height: 72px; border-radius: 18px;
-  background: linear-gradient(#f8fafc,#eef2ff);
-  border: 1px solid rgba(59,130,246,0.22);
+  background: var(--digit-bg);
+  border: 1px solid var(--digit-border);
   display:flex; align-items:center; justify-content:center;
   font-weight: 700; font-size: 28px;
   font-family: var(--roman-font);
   user-select:none; cursor: grab; outline:none;
+  color: var(--digit-text);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 -8px 20px rgba(0,0,0,0.65);
 }
-#bootLock .digit:focus{ outline: 2px solid rgba(59,130,246,0.35); box-shadow: 0 0 0 5px rgba(59,130,246,0.12); }
+#bootLock .digit:focus{ outline: 2px solid rgba(255,255,255,0.26); box-shadow: 0 0 0 5px rgba(255,255,255,0.10); }
 #bootLock .btn{
   width:100%;
   border:none; border-radius: 999px;
@@ -523,8 +561,17 @@ button,input{ font-family:inherit; }
   font-weight: 900;
   cursor:pointer;
   background: linear-gradient(135deg, #fde68a, #fb923c);
+  color:#111;
 }
-#bootLock .msg{ margin-top: 8px; font-size: 12px; font-weight: 900; min-height: 16px; color: #b91c1c; }
+#bootLock .msg{ margin-top: 8px; font-size: 12px; font-weight: 900; min-height: 16px; color: rgba(255,160,160,0.95); }
+
+/* make Dream digits clearer too */
+#dreamDigits .digit{
+  background: var(--digit-bg);
+  border: 1px solid var(--digit-border);
+  color: var(--digit-text);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 -8px 20px rgba(0,0,0,0.65);
+}
 
 /* =========================
    ROOM 4: Map (real map)
@@ -691,7 +738,7 @@ button,input{ font-family:inherit; }
       <div class="intro">
         You wake up.<br/>
         The door is there — but the memory to leave is missing.<br/>
-        Find the fragments.
+        Solve the trials. Recover the keys.
       </div>
       <div class="scroll">SCROLL</div>
     </div>
@@ -717,7 +764,7 @@ button,input{ font-family:inherit; }
     <div id="dreamWakeLock">
       <div class="lockCard" id="dreamLockCard">
         <div class="lockRow">
-          <div class="lockTitle">FRAGMENT</div>
+          <div class="lockTitle">CHECKPOINT</div>
           <div style="font-size:12px; opacity:.85;">2 digits</div>
         </div>
         <div class="digits" id="dreamDigits"></div>
@@ -767,18 +814,20 @@ button,input{ font-family:inherit; }
       </div>
 
       <div class="panel" id="computer">
-        <div class="screenTop">
-          <div class="screenTitle">BOOT REQUIRED</div>
-          <div class="screenDot" aria-hidden="true"></div>
-        </div>
-        <div class="screenBody">
-          <div class="screenText" id="screenText">
-            A fragment is locked behind this machine.<br/>
-            It only remembers one thing clearly:<br/>
-            <b>who was there — and who wasn’t.</b><br/><br/>
-            Read the row. Then boot.
+        <div class="screenFrame">
+          <div class="screenGlass flicker" id="screenGlass">
+            <div class="scanlines"></div>
+            <div class="screenTop">
+              <div class="screenTitle" id="screenTitle">STANDBY</div>
+              <div class="screenDot" aria-hidden="true"></div>
+            </div>
+            <div class="screenText" id="screenText">
+              The system can’t load the missing memory.<br/>
+              It only retained a single row of presence.<br/><br/>
+              Tap the seats.
+            </div>
+            <div class="screenHint" id="screenHint">two states · eight seats</div>
           </div>
-          <div class="screenHint" id="screenHint">two states · eight seats</div>
         </div>
       </div>
     </div>
@@ -807,7 +856,7 @@ button,input{ font-family:inherit; }
       <div class="err" id="mapErr"></div>
     </div>
 
-    <div class="hint">Use the recovered fragments.</div>
+    <div class="hint">Use the two numbers you recovered.</div>
 
     <div class="mapWrap">
       <div id="map"></div>
@@ -829,7 +878,7 @@ button,input{ font-family:inherit; }
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 /* =========================================================
-   NPC: short, auto fade, no OK
+   NPC: short, auto fade
    ========================================================= */
 const NPC = (() => {
   const box = document.getElementById("npc");
@@ -845,8 +894,7 @@ const NPC = (() => {
     if (t) clearTimeout(t);
     t = null;
   }
-
-  function show(msg, {duration=2600, pin=false}={}){
+  function show(msg, {duration=2500, pin=false}={}){
     pinned = !!pin;
     line.textContent = msg;
     box.classList.add("show");
@@ -856,14 +904,12 @@ const NPC = (() => {
       t = setTimeout(hide, duration);
     }
   }
-
   close.addEventListener("click", hide);
   document.addEventListener("pointerdown", (e) => {
     if (!box.classList.contains("show")) return;
     if (pinned) return;
     if (!box.contains(e.target)) hide();
   });
-
   return { show, hide };
 })();
 
@@ -880,7 +926,6 @@ function showOnly(id){
   }
   ACTIVE = id;
 }
-
 function fadeInInner(innerId){
   const el = document.getElementById(innerId);
   el.style.filter = "blur(14px)";
@@ -891,7 +936,7 @@ function fadeInInner(innerId){
 /* =========================================================
    OPENING: scroll = blackout then enter dream (no zoom)
    ========================================================= */
-const opening = (() => {
+(() => {
   const blackout = document.getElementById("blackout");
   const titleWrap = document.getElementById("titleWrap");
   const openingImg = document.getElementById("openingImg");
@@ -899,12 +944,9 @@ const opening = (() => {
   let entered = false;
 
   function apply(){
-    // p 0..1
-    // Title fades early, blackout ramps late
     const titleAlpha = Math.max(0, 1 - p*1.35);
     titleWrap.style.opacity = titleAlpha.toFixed(3);
 
-    // door blur breathes slightly as you scroll, but never zoom
     const blur = 14 + p*10;
     openingImg.style.filter = `blur(${blur}px) saturate(1.05) contrast(1.03)`;
 
@@ -917,34 +959,26 @@ const opening = (() => {
     showOnly("roomDream");
     fadeInInner("dreamInner");
     if (!initDream._inited){ initDream(); initDream._inited = true; }
-    NPC.show("Fragments surface first in dreams.", {duration:2600});
+    NPC.show("Dream first. Then the door.", {duration:2200});
   }
 
   window.addEventListener("wheel", (e) => {
     if (ACTIVE !== "opening") return;
     e.preventDefault();
+    if (e.deltaY <= 0) return;
 
-    const delta = e.deltaY;
-    if (delta <= 0) return;
-
-    p = Math.min(1, p + Math.min(0.10, delta * 0.00065));
+    p = Math.min(1, p + Math.min(0.10, e.deltaY * 0.00065));
     apply();
-
     if (!entered && p >= 1){
-      // tiny beat of black
-      setTimeout(enterDream, 180);
+      setTimeout(enterDream, 160);
     }
   }, { passive:false });
 
   apply();
-  return {};
 })();
 
 /* =========================================================
    ROOM 1: DREAM letters
-   - Drag into slot => letter disappears (no leftover)
-   - Floating continues for remaining letters
-   - Unlock fragment: 35
    ========================================================= */
 function initDream(){
   const TARGET = "FAVORITE PAPER";
@@ -1125,13 +1159,12 @@ function initDream(){
     candidates.sort((a,b)=>a.dist-b.dist);
     const best = candidates[0];
 
-    // easier snapping
     if (best.dist > 220){ showToast("Not here."); return; }
 
     placed[best.i] = t.id;
     updateSlots();
 
-    // disappear immediately (no leftover)
+    // disappear immediately
     t.removed = true;
     t.el.style.opacity = "0";
     t.el.style.transform = "scale(0.92)";
@@ -1142,7 +1175,7 @@ function initDream(){
       hint.classList.add("show");
       lockWrap.classList.add("show");
       buildDigits();
-      NPC.show("Hold on to the number. It’s a fragment.", {duration:2600});
+      NPC.show("A number wakes the path.", {duration:2200});
     }
   }
 
@@ -1204,7 +1237,7 @@ function initDream(){
     if (attempt === CODE){
       msg.textContent = "";
       showToast("…");
-      NPC.show("Not awake yet. Back to the door.", {duration:2200});
+      NPC.show("Back to the door.", {duration:1800});
       enterDoorRoom();
     } else {
       msg.textContent = "Not quite…";
@@ -1225,27 +1258,20 @@ function initDream(){
 }
 
 /* =========================================================
-   ROOM 2: DOOR
-   - hotspots kept EXACTLY as you provided
-   - bell plays song (no player UI)
-   - door => letter lock
-   - unlock => "door opens" into classroom/computer
+   ROOM 2: DOOR (hotspots exact)
    ========================================================= */
 function enterDoorRoom(){
   showOnly("roomDoor");
   const scene = document.getElementById("doorScene");
   scene.style.opacity = "1";
-  fadeInInner("doorScene");
   if (!initDoor._inited){ initDoor(); initDoor._inited=true; }
-  NPC.show("The door won’t open without the fragments.", {duration:2600});
+  NPC.show("The door waits for the route.", {duration:2200});
 }
 
 function initDoor(){
   const CFG = {
-    // internal only; UI never says this word
-    code: "REALITY",
+    code: "REALITY", // internal only; not shown in UI
 
-    // stable focus / small zoom only (keeps hotspots consistent)
     focus: { x: 0.44, y: 0.52 },
     zoomMin: 1.18,
     zoomMax: 1.45,
@@ -1315,7 +1341,6 @@ function initDoor(){
     if (ACTIVE !== "roomDoor") return;
     e.preventDefault();
     if (lockOpen) return;
-    // gentle zoom; hotspots remain correct because they are inside the same transformed camera
     progress = Math.max(0.40, Math.min(0.85, progress + (-e.deltaY)*0.00055));
     applyCam();
   }, {passive:false});
@@ -1324,7 +1349,7 @@ function initDoor(){
     if (ACTIVE !== "roomDoor") return;
     showToast("🔔");
     try{ song.currentTime=0; song.play().catch(()=>{}); }catch(_){}
-    NPC.show("The bell keeps you steady.", {duration:2400});
+    NPC.show("The bell keeps you steady.", {duration:2200});
   });
 
   function openLock(){
@@ -1345,7 +1370,7 @@ function initDoor(){
   doorBtn.addEventListener("click", ()=>{
     if (ACTIVE !== "roomDoor") return;
     showToast("Closed.");
-    NPC.show("Closed. Maybe the bell helps.", {duration:2600});
+    NPC.show("Closed. Maybe the bell helps.", {duration:2400});
     openLock();
   });
 
@@ -1360,7 +1385,6 @@ function initDoor(){
     if (!lock.contains(e.target) && e.target !== doorBtn) closeLock();
   });
 
-  // wheels (letters) + arrow up/down support
   const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
   const CODE = CFG.code.toUpperCase();
   const state = new Array(CODE.length).fill(0);
@@ -1392,8 +1416,7 @@ function initDoor(){
     if (entered() === CODE){
       showToast("Unlocked.");
       closeLock();
-      // "door opens" -> classroom/computer
-      NPC.show("The door gives way… into a memory.", {duration:2400});
+      NPC.show("The door gives way… into the boot screen.", {duration:2200});
       enterClassRoom();
     } else {
       hintMsg.textContent="Not quite…";
@@ -1403,17 +1426,13 @@ function initDoor(){
 }
 
 /* =========================================================
-   ROOM 3: CLASSROOM
-   - player taps seats row
-   - subtle hint: two states, eight seats (no loud "binary")
-   - enter 139 to boot
-   - boot success -> map input appears (next room)
+   ROOM 3: CLASSROOM + Computer boot screen
    ========================================================= */
 function enterClassRoom(){
   showOnly("roomClass");
   fadeInInner("classInner");
   if (!initClass._inited){ initClass(); initClass._inited=true; }
-  NPC.show("This machine guards a fragment.", {duration:2400});
+  NPC.show("Tap the row. Then boot.", {duration:2200});
 }
 
 function initClass(){
@@ -1425,13 +1444,12 @@ function initClass(){
   const btn = document.getElementById("bootBtn");
   const msg = document.getElementById("bootMsg");
 
+  const screenTitle = document.getElementById("screenTitle");
   const screenText = document.getElementById("screenText");
   const screenHint = document.getElementById("screenHint");
 
   // 10001011 (seat 1,5,7,8 occupied)
   const bits = [1,0,0,0,1,0,1,1];
-
-  // Boot password is 139
   const CODE = "139";
 
   strip.innerHTML = "";
@@ -1446,25 +1464,35 @@ function initClass(){
   }
 
   let open=false;
-  const openLock = ()=>{
+
+  function openLock(){
     open=true;
     msg.textContent="";
     lock.classList.add("show");
     lock.setAttribute("aria-hidden","false");
     setTimeout(()=>digitsEl.children[0]?.focus(),0);
-  };
-  const closeLock = ()=>{
+  }
+  function closeLock(){
     open=false;
     lock.classList.remove("show");
     lock.setAttribute("aria-hidden","true");
     msg.textContent="";
-  };
+  }
 
+  // Clicking seats triggers "boot sequence" screen first, then password lock
   seatsPanel.addEventListener("click", ()=>{
     if (ACTIVE!=="roomClass") return;
-    // subtle: seats + two states -> bits
+
+    screenTitle.textContent = "BOOT SEQUENCE";
+    screenText.innerHTML = `
+      Presence row detected.<br/>
+      Decode the eight seats.<br/><br/>
+      <b>Password required.</b>
+    `;
+    screenHint.textContent = "two states · eight seats";
     NPC.show("Seats. Presence. Absence.", {duration:2200});
-    openLock();
+
+    setTimeout(openLock, 260);
   });
 
   close.addEventListener("click", closeLock);
@@ -1505,15 +1533,15 @@ function initClass(){
     if (attempt === CODE){
       closeLock();
 
-      // Update screen: boot success + instruction to enter coordinates
+      screenTitle.textContent = "BOOT COMPLETE";
       screenText.innerHTML = `
-        Boot complete.<br/>
-        Fragment recovered.<br/><br/>
-        <b>Enter the coordinate to locate the memory in the world.</b>
+        System online.<br/>
+        Route input unlocked.<br/><br/>
+        <b>Enter the coordinate.</b>
       `;
-      screenHint.textContent = "use the two fragments";
+      screenHint.textContent = "use the two numbers";
 
-      NPC.show("Now place the fragments on a map.", {duration:2400});
+      NPC.show("Now place the two numbers on a map.", {duration:2400});
       setTimeout(enterMapRoom, 520);
 
     } else {
@@ -1525,15 +1553,12 @@ function initClass(){
 
 /* =========================================================
    ROOM 4: MAP
-   - accepts only integer pair (35, 139)
-   - flies to noodle place
-   - shows hint.png big + ending
    ========================================================= */
 function enterMapRoom(){
   showOnly("roomMap");
   fadeInInner("mapInner");
   if (!initMap._inited){ initMap(); initMap._inited=true; }
-  NPC.show("Two fragments. One place.", {duration:2400});
+  NPC.show("Two numbers. One place.", {duration:2200});
 }
 
 function initMap(){
@@ -1543,7 +1568,6 @@ function initMap(){
   const go  = document.getElementById("mapGo");
   const err = document.getElementById("mapErr");
 
-  // noodle place (fixed)
   const SHOP = { lat: 35.442006, lng: 139.630649 };
 
   const parseIntLike = (v)=>{
@@ -1584,7 +1608,6 @@ function initMap(){
 
       room.classList.add("ready");
       NPC.show("Thanks for playing.", {duration:2400});
-
     }, 1700);
   }
 
@@ -1606,7 +1629,7 @@ function initMap(){
    Boot
    ========================================================= */
 showOnly("opening");
-NPC.show("Find the fragments.", {duration:2400});
+NPC.show("Solve the trials. Recover the keys.", {duration:2400});
 </script>
 </body>
 </html>
