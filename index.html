@@ -8,7 +8,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Shippori+Mincho:wght@500;700&family=Cinzel:wght@500;600;700&display=swap" rel="stylesheet">
-
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
@@ -36,7 +35,7 @@ button,input{ font-family:inherit; }
 .pulse-red{ animation: pulseRed 520ms ease-out; }
 
 /* =========================
-   NPC bubble (short, auto fade, NO "Okay")
+   NPC bubble (short, close button)
    ========================= */
 #npc{
   position:fixed; left:50%; bottom:22px;
@@ -73,18 +72,13 @@ button,input{ font-family:inherit; }
 }
 
 /* =========================
-   OPENING: title over blurry door (no zoom),
-   scroll = blackout + slip into dream
+   OPENING (blurry door, scroll -> blackout -> dream)
    ========================= */
 #opening{
   position:fixed; inset:0;
   display:block;
   background:#000;
   overflow:hidden;
-}
-#opening .bg{
-  position:absolute; inset:0;
-  background:#000;
 }
 #opening img{
   position:absolute; inset:0;
@@ -122,9 +116,7 @@ button,input{ font-family:inherit; }
   box-shadow: 0 30px 160px rgba(0,0,0,0.65);
   color:#fff;
 }
-#opening .kicker{
-  letter-spacing:.38em; font-size:12px; opacity:.72; margin-bottom:14px;
-}
+#opening .kicker{ letter-spacing:.38em; font-size:12px; opacity:.72; margin-bottom:14px; }
 #opening .title{
   font-family:var(--title-font);
   font-size: clamp(44px, 6vw, 74px);
@@ -263,14 +255,16 @@ button,input{ font-family:inherit; }
 .digit{
   width: 56px; height: 72px;
   border-radius: 18px;
-  background: linear-gradient(rgba(255,255,255,0.10), rgba(255,255,255,0.04));
-  border: 1px solid rgba(255,255,255,0.16);
+  background: var(--digit-bg);
+  border: 1px solid var(--digit-border);
   display:flex; align-items:center; justify-content:center;
   font-weight: 700; font-size: 28px;
   font-family: var(--roman-font);
   user-select:none; cursor: grab; outline:none;
-  color: rgba(255,255,255,0.92);
+  color: var(--digit-text);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 -8px 20px rgba(0,0,0,0.65);
 }
+.digit:focus{ outline: 2px solid rgba(255,255,255,0.26); box-shadow: 0 0 0 5px rgba(255,255,255,0.10); }
 
 .lockBtn{
   width:100%;
@@ -297,7 +291,7 @@ button,input{ font-family:inherit; }
 .toast.show{ opacity:1; transform: translateX(-50%) translateY(-6px); }
 
 /* =========================
-   ROOM 2: Door scene (hotspots fixed by your numbers)
+   ROOM 2: DOOR scene (hotspots exact)
    ========================= */
 #roomDoor{
   position:fixed; inset:0;
@@ -375,7 +369,7 @@ button,input{ font-family:inherit; }
 .hint-message{ margin-top:8px; color:#b91c1c; font-weight:900; min-height:16px; font-size:12px; }
 
 /* =========================
-   ROOM 3: Classroom + Computer boot screen (added)
+   ROOM 3: CLASSROOM + GUI computer
    ========================= */
 #roomClass{
   position:fixed; inset:0; display:none; overflow:hidden;
@@ -388,6 +382,17 @@ button,input{ font-family:inherit; }
   position:absolute; inset:0;
   transition: filter .55s ease, opacity .55s ease;
   filter: blur(14px); opacity:0;
+}
+
+/* camera wrapper to zoom into the computer */
+#classCamera{
+  position:absolute; inset:0;
+  transform-origin: 50% 50%;
+  transition: transform 900ms cubic-bezier(.2,.9,.1,1), filter 900ms ease;
+  will-change: transform;
+}
+#classCamera.zooming{
+  filter: blur(0px);
 }
 
 #classStage{
@@ -443,138 +448,199 @@ button,input{ font-family:inherit; }
 }
 
 #computer{
-  width: min(560px, 30vw);
+  width: min(640px, 34vw);
   padding: 16px;
   position:relative;
 }
 
-/* Computer screen "boot" look */
-.screenFrame{
+/* GUI Screen */
+#guiFrame{
   border-radius: 22px;
   border: 1px solid rgba(255,255,255,0.14);
   background: rgba(0,0,0,0.55);
   overflow:hidden;
   box-shadow: inset 0 0 40px rgba(0,0,0,0.7);
 }
-.screenGlass{
+#guiScreen{
   position:relative;
-  padding: 14px;
-  min-height: 220px;
+  height: 360px;
   background:
-    radial-gradient(circle at 50% 30%, rgba(255,255,255,0.10), rgba(0,0,0,0.65) 70%),
-    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.20));
+    radial-gradient(circle at 30% 20%, rgba(255,255,255,0.10), rgba(0,0,0,0.55) 70%),
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.28));
 }
-.scanlines{
+#guiWallpaper{
   position:absolute; inset:0;
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(255,255,255,0.02),
-    rgba(255,255,255,0.02) 2px,
-    rgba(0,0,0,0.02) 4px,
-    rgba(0,0,0,0.02) 6px
-  );
-  opacity: 0.28;
-  pointer-events:none;
-  mix-blend-mode: overlay;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(253,230,138,0.10), rgba(0,0,0,0) 45%),
+    radial-gradient(circle at 80% 70%, rgba(59,130,246,0.10), rgba(0,0,0,0) 55%),
+    radial-gradient(circle at 50% 40%, rgba(255,255,255,0.08), rgba(0,0,0,0.52) 70%),
+    #0b1020;
 }
-@keyframes flicker {
-  0%{ opacity:1; }
-  50%{ opacity:0.88; }
-  100%{ opacity:1; }
-}
-.flicker{ animation: flicker 1.2s infinite ease-in-out; }
-
-.screenTop{
+#guiTopBar{
+  position:absolute; left:0; top:0; right:0;
+  height: 36px;
   display:flex; align-items:center; justify-content:space-between;
-  gap:10px; margin-bottom: 10px;
+  padding: 0 10px;
+  background: rgba(0,0,0,0.38);
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+  backdrop-filter: blur(10px);
+  color: rgba(255,255,255,0.92);
 }
-.screenTitle{
-  font-weight:900;
-  letter-spacing:.12em;
-  font-size:12px;
+#guiTopBar .left{
+  display:flex; align-items:center; gap:8px;
+  font-weight:900; letter-spacing:.10em; font-size:11px;
   opacity:.92;
 }
-.screenDot{
-  width:10px; height:10px; border-radius:999px;
-  background: rgba(255,255,255,0.28);
-  box-shadow: 0 0 0 4px rgba(255,255,255,0.08);
+.dot3{ display:flex; gap:6px; align-items:center; }
+.dot3 span{
+  width:9px; height:9px; border-radius:999px;
+  background: rgba(255,255,255,0.16);
+  border: 1px solid rgba(255,255,255,0.10);
 }
-.screenText{
-  font-family: var(--serif-font);
-  font-size: 14px;
-  line-height: 1.65;
-  opacity:.95;
+#guiIcons{
+  position:absolute; left:12px; top: 54px;
+  display:flex; flex-direction:column; gap:10px;
+  color: rgba(255,255,255,0.92);
+  font-size: 11px;
+  letter-spacing:.06em;
 }
-.screenHint{
-  margin-top:10px;
-  font-family: var(--roman-font);
-  font-weight:700;
-  letter-spacing:.12em;
-  opacity:.82;
-  font-size: 12px;
+.icon{
+  width: 70px;
+  padding: 8px 8px 7px;
+  border-radius: 14px;
+  background: rgba(0,0,0,0.22);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+.icon .b{
+  width: 32px; height: 32px; border-radius: 12px;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.10);
+  margin-bottom: 6px;
 }
 
-/* boot lock */
-#bootLock{
-  position:fixed; left:50%; top:50%;
-  transform: translate(-50%, -50%);
-  z-index:220; width: min(390px, 92vw);
-  display:none;
-  background: rgba(0,0,0,0.60);
-  border: 1px solid rgba(255,255,255,0.14);
+/* window */
+.window{
+  position:absolute;
+  left: 96px;
+  top: 64px;
+  width: calc(100% - 120px);
+  height: 250px;
   border-radius: 18px;
-  padding: 12px 12px 10px;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.14);
   backdrop-filter: blur(12px);
-  box-shadow: 0 20px 90px rgba(0,0,0,0.40);
-  color:#fff;
+  box-shadow: 0 26px 80px rgba(0,0,0,0.45);
+  overflow:hidden;
 }
-#bootLock.show{ display:block; }
-#bootLock .top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom: 8px; }
-#bootLock .t{ font-weight: 900; letter-spacing: .12em; font-size: 12px; opacity: .9; }
-#bootLock .x{
-  width:32px; height:32px; border-radius:999px;
-  border: 1px solid rgba(255,255,255,.16);
-  background: rgba(255,255,255,.06);
-  cursor:pointer; font-weight:900; color:#fff;
+.window.hidden{ display:none; }
+.winbar{
+  height: 42px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 0 12px;
+  background: rgba(0,0,0,0.36);
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.92);
 }
-#bootLock .sub{
-  font-size: 12px; color: rgba(255,255,255,0.82);
-  margin-bottom: 8px; letter-spacing: .12em; font-weight: 900;
+.winbar .t{
+  font-weight: 900;
+  letter-spacing: .12em;
+  font-size: 11px;
 }
-#bootLock .digits{ display:flex; justify-content:center; gap:10px; margin: 10px 0; }
-#bootLock .digit{
-  width: 56px; height: 72px; border-radius: 18px;
+.winbar .btns{ display:flex; gap:8px; }
+.winbar .btns span{
+  width:10px; height:10px; border-radius:999px;
+  background: rgba(255,255,255,0.16);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.winbody{
+  padding: 14px;
+  color: rgba(255,255,255,0.94);
+  height: calc(100% - 42px);
+}
+
+/* login window content */
+.loginRow{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
+.loginLabel{ font-family: var(--serif-font); font-size: 14px; opacity:.95; }
+.smallHint{ font-size: 12px; opacity:.75; letter-spacing:.08em; font-weight: 800; }
+
+.loginDigits{
+  display:flex; gap:10px; justify-content:center;
+  margin-top: 12px;
+}
+.loginDigits .digit{
+  width: 56px; height: 72px;
+  border-radius: 18px;
   background: var(--digit-bg);
   border: 1px solid var(--digit-border);
-  display:flex; align-items:center; justify-content:center;
-  font-weight: 700; font-size: 28px;
-  font-family: var(--roman-font);
-  user-select:none; cursor: grab; outline:none;
   color: var(--digit-text);
+  display:flex; align-items:center; justify-content:center;
+  font-family: var(--roman-font);
+  font-size: 28px;
+  font-weight: 700;
+  cursor: grab;
+  user-select:none;
+  outline:none;
   box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 -8px 20px rgba(0,0,0,0.65);
 }
-#bootLock .digit:focus{ outline: 2px solid rgba(255,255,255,0.26); box-shadow: 0 0 0 5px rgba(255,255,255,0.10); }
-#bootLock .btn{
-  width:100%;
-  border:none; border-radius: 999px;
+.loginDigits .digit:focus{ outline: 2px solid rgba(255,255,255,0.26); box-shadow: 0 0 0 5px rgba(255,255,255,0.10); }
+
+.guiBtn{
+  margin-top: 14px;
+  width: 100%;
+  border: none;
+  border-radius: 999px;
   padding: 10px 12px;
   font-weight: 900;
-  cursor:pointer;
+  cursor: pointer;
   background: linear-gradient(135deg, #fde68a, #fb923c);
   color:#111;
 }
-#bootLock .msg{ margin-top: 8px; font-size: 12px; font-weight: 900; min-height: 16px; color: rgba(255,160,160,0.95); }
+.guiMsg{
+  margin-top: 8px;
+  min-height: 16px;
+  font-size: 12px;
+  font-weight: 900;
+  color: rgba(255,160,160,0.95);
+}
 
-/* make Dream digits clearer too */
-#dreamDigits .digit{
-  background: var(--digit-bg);
-  border: 1px solid var(--digit-border);
-  color: var(--digit-text);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 -8px 20px rgba(0,0,0,0.65);
+/* map window preview (inside computer) */
+.mapPreview{
+  display:flex; flex-direction:column; gap:10px;
+}
+.mapPreview .row{
+  display:flex; gap:10px; align-items:center;
+}
+.mapPreview input{
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(0,0,0,0.30);
+  color:#fff;
+  font-weight: 800;
+  outline:none;
+}
+.mapPreview input::placeholder{ color: rgba(255,255,255,0.55); }
+.mapPreview .mini{
+  flex: 1 1 auto;
+  height: 110px;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 30% 40%, rgba(59,130,246,0.18), rgba(0,0,0,0) 55%),
+    radial-gradient(circle at 70% 70%, rgba(253,230,138,0.12), rgba(0,0,0,0) 55%),
+    rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.mapPreview .note{
+  font-family: var(--serif-font);
+  font-size: 13px;
+  opacity: .92;
+  line-height: 1.55;
 }
 
 /* =========================
-   ROOM 4: Map (real map)
+   ROOM 4: MAP (full screen, desktop window style)
    ========================= */
 #roomMap{
   position:fixed; inset:0; display:none; overflow:hidden;
@@ -587,35 +653,64 @@ button,input{ font-family:inherit; }
   filter: blur(14px);
   opacity: 0.0;
 }
-#roomMap .hud{
-  position:absolute; left:50%; top: 18px;
-  transform: translateX(-50%);
-  width: min(980px, 94vw);
-  z-index:30;
-  display:flex; gap:10px;
-  align-items:center; justify-content:center;
-  padding: 12px;
-  border-radius: 20px;
-  background: rgba(255,255,255,0.10);
+
+/* desktop frame for map */
+#mapDesktop{
+  position:absolute; inset:0;
+  background:
+    radial-gradient(circle at 30% 25%, rgba(253,230,138,0.10), rgba(0,0,0,0) 45%),
+    radial-gradient(circle at 80% 70%, rgba(59,130,246,0.10), rgba(0,0,0,0) 55%),
+    radial-gradient(circle at 50% 40%, rgba(255,255,255,0.08), rgba(0,0,0,0.52) 70%),
+    #0b1020;
+}
+#mapWindow{
+  position:absolute; left:50%; top:50%;
+  transform: translate(-50%, -48%);
+  width: min(1280px, 96vw);
+  height: min(780px, 76vh);
+  border-radius: 28px;
+  overflow:hidden;
   border: 1px solid rgba(255,255,255,0.14);
+  box-shadow: 0 30px 160px rgba(0,0,0,0.55);
+  background: rgba(0,0,0,0.30);
+}
+#mapWinBar{
+  height: 46px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 0 12px;
+  background: rgba(0,0,0,0.40);
+  border-bottom: 1px solid rgba(255,255,255,0.12);
   backdrop-filter: blur(10px);
-  box-shadow: 0 26px 120px rgba(0,0,0,0.45);
 }
-#roomMap .hud .label{
-  font-weight:900; letter-spacing: .10em;
-  font-size: 12px; opacity:.9;
+#mapWinBar .t{
+  font-weight: 900;
+  letter-spacing: .12em;
+  font-size: 11px;
+  color: rgba(255,255,255,0.92);
 }
-#roomMap .hud input{
-  width: min(220px, 30vw);
+#mapWinBar .btns{ display:flex; gap:8px; }
+#mapWinBar .btns span{
+  width:10px; height:10px; border-radius:999px;
+  background: rgba(255,255,255,0.16);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+#mapControls{
+  position:absolute; left:12px; right:12px; top: 58px;
+  display:flex; gap:10px; align-items:center;
+  z-index:30;
+}
+#mapControls input{
+  width: min(240px, 28vw);
   padding: 12px 14px;
   border-radius: 14px;
   border: 1px solid rgba(255,255,255,0.18);
   background: rgba(0,0,0,0.35);
-  color:#fff; outline:none;
+  color:#fff;
   font-weight:800;
+  outline:none;
 }
-#roomMap .hud input::placeholder{ color: rgba(255,255,255,0.55); font-weight:700; }
-#roomMap .hud button{
+#mapControls input::placeholder{ color: rgba(255,255,255,0.55); }
+#mapControls button{
   padding: 12px 14px;
   border-radius: 999px;
   border: none;
@@ -624,45 +719,26 @@ button,input{ font-family:inherit; }
   background: linear-gradient(135deg, rgba(253,230,138,1), rgba(251,146,60,1));
   color:#111;
 }
-#roomMap .hud .err{
+#mapErr{
   font-size: 12px;
   font-weight: 900;
   color: rgba(255,140,140,0.95);
   min-width: 190px;
   text-align:left;
-  opacity:.95;
 }
-#roomMap .hint{
-  position:absolute; left:50%; top: 76px;
-  transform: translateX(-50%);
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: rgba(0,0,0,0.40);
-  border: 1px solid rgba(255,255,255,0.12);
-  backdrop-filter: blur(10px);
-  font-size: 13px;
-  opacity:.92;
-  z-index:25;
+#mapWrap{
+  position:absolute; left:0; right:0; bottom:0; top:46px;
+  padding: 46px 12px 12px;
 }
-#roomMap .mapWrap{
-  position:absolute;
-  left:50%; top: 50%;
-  transform: translate(-50%, -46%);
-  width: min(1200px, 96vw);
-  height: min(720px, 72vh);
-  border-radius: 28px;
+#map{
+  width:100%;
+  height:100%;
+  border-radius: 22px;
   overflow:hidden;
-  border: 1px solid rgba(255,255,255,0.14);
-  box-shadow: 0 30px 160px rgba(0,0,0,0.55);
-  opacity: 0.92;
+  border: 1px solid rgba(255,255,255,0.12);
 }
-#map{ width:100%; height:100%; }
-#roomMap .mapVignette{
-  position:absolute; inset:0;
-  pointer-events:none;
-  box-shadow: inset 0 0 240px rgba(0,0,0,0.55);
-  border-radius: 28px;
-}
+
+/* win card */
 #roomMap .winCard{
   position:absolute;
   left:50%;
@@ -726,7 +802,6 @@ button,input{ font-family:inherit; }
 
 <!-- OPENING -->
 <div id="opening" aria-hidden="false">
-  <div class="bg"></div>
   <img id="openingImg" src="door-bg.jpg" alt="blurry door"/>
   <div class="vignette"></div>
   <div class="blackout" id="blackout"></div>
@@ -807,60 +882,104 @@ button,input{ font-family:inherit; }
 <!-- ROOM 3: CLASSROOM -->
 <div id="roomClass" aria-hidden="true">
   <div class="inner" id="classInner">
-    <div id="classStage">
-      <div class="panel" id="classSeats" role="button" aria-label="Seats row">
-        <div id="seatStrip"></div>
-        <div id="classTapHint">TAP THE SEATS</div>
-      </div>
+    <div id="classCamera">
+      <div id="classStage">
+        <div class="panel" id="classSeats" role="button" aria-label="Seats row">
+          <div id="seatStrip"></div>
+          <div id="classTapHint">TAP THE SEATS</div>
+        </div>
 
-      <div class="panel" id="computer">
-        <div class="screenFrame">
-          <div class="screenGlass flicker" id="screenGlass">
-            <div class="scanlines"></div>
-            <div class="screenTop">
-              <div class="screenTitle" id="screenTitle">STANDBY</div>
-              <div class="screenDot" aria-hidden="true"></div>
+        <div class="panel" id="computer">
+          <div id="guiFrame">
+            <div id="guiScreen">
+              <div id="guiWallpaper"></div>
+
+              <div id="guiTopBar">
+                <div class="left">
+                  <span style="opacity:.88;">DESKTOP</span>
+                  <span style="opacity:.55;">·</span>
+                  <span id="guiStatus" style="opacity:.70;">standby</span>
+                </div>
+                <div class="dot3" aria-hidden="true"><span></span><span></span><span></span></div>
+              </div>
+
+              <div id="guiIcons" aria-hidden="true">
+                <div class="icon"><div class="b"></div>Notes</div>
+                <div class="icon"><div class="b"></div>Photos</div>
+                <div class="icon"><div class="b"></div>Map</div>
+              </div>
+
+              <!-- LOGIN WINDOW -->
+              <div class="window" id="loginWin">
+                <div class="winbar">
+                  <div class="t">LOGIN</div>
+                  <div class="btns" aria-hidden="true"><span></span><span></span><span></span></div>
+                </div>
+                <div class="winbody">
+                  <div class="loginRow">
+                    <div class="loginLabel">Boot requires a number.</div>
+                    <div class="smallHint">eight seats · two states</div>
+                  </div>
+
+                  <div class="loginDigits" id="bootDigits"></div>
+                  <button class="guiBtn" id="bootBtn">Boot</button>
+                  <div class="guiMsg" id="bootMsg"></div>
+                </div>
+              </div>
+
+              <!-- MAP WINDOW PREVIEW -->
+              <div class="window hidden" id="mapWin">
+                <div class="winbar">
+                  <div class="t">MAP SEARCH</div>
+                  <div class="btns" aria-hidden="true"><span></span><span></span><span></span></div>
+                </div>
+                <div class="winbody">
+                  <div class="mapPreview">
+                    <div class="note">
+                      The route is missing.<br/>
+                      Enter the coordinate you recovered.
+                    </div>
+                    <div class="row">
+                      <input id="deskLat" placeholder="Latitude" inputmode="decimal" autocomplete="off">
+                      <input id="deskLng" placeholder="Longitude" inputmode="decimal" autocomplete="off">
+                    </div>
+                    <button class="guiBtn" id="deskGo">Open Map</button>
+                    <div class="mini" aria-hidden="true"></div>
+                    <div class="guiMsg" id="deskMsg"></div>
+                  </div>
+                </div>
+              </div>
+
             </div>
-            <div class="screenText" id="screenText">
-              The system can’t load the missing memory.<br/>
-              It only retained a single row of presence.<br/><br/>
-              Tap the seats.
-            </div>
-            <div class="screenHint" id="screenHint">two states · eight seats</div>
           </div>
         </div>
+
       </div>
     </div>
-  </div>
-
-  <div id="bootLock" aria-hidden="true">
-    <div class="top">
-      <div class="t">BOOT</div>
-      <button class="x" id="bootClose" aria-label="Close">✕</button>
-    </div>
-    <div class="sub">ENTER NUMBER</div>
-    <div class="digits" id="bootDigits"></div>
-    <button class="btn" id="bootBtn">Start</button>
-    <div class="msg" id="bootMsg"></div>
   </div>
 </div>
 
-<!-- ROOM 4: MAP -->
+<!-- ROOM 4: MAP (full) -->
 <div id="roomMap" aria-hidden="true">
   <div class="inner" id="mapInner">
-    <div class="hud">
-      <div class="label">COORDINATE</div>
-      <input id="latInput" placeholder="Latitude" inputmode="decimal" autocomplete="off" />
-      <input id="lngInput" placeholder="Longitude" inputmode="decimal" autocomplete="off" />
-      <button id="mapGo">Search</button>
-      <div class="err" id="mapErr"></div>
-    </div>
+    <div id="mapDesktop"></div>
 
-    <div class="hint">Use the two numbers you recovered.</div>
+    <div id="mapWindow">
+      <div id="mapWinBar">
+        <div class="t">MAP SEARCH</div>
+        <div class="btns" aria-hidden="true"><span></span><span></span><span></span></div>
+      </div>
 
-    <div class="mapWrap">
-      <div id="map"></div>
-      <div class="mapVignette"></div>
+      <div id="mapControls">
+        <input id="latInput" placeholder="Latitude" inputmode="decimal" autocomplete="off" />
+        <input id="lngInput" placeholder="Longitude" inputmode="decimal" autocomplete="off" />
+        <button id="mapGo">Search</button>
+        <div id="mapErr"></div>
+      </div>
+
+      <div id="mapWrap">
+        <div id="map"></div>
+      </div>
     </div>
 
     <div class="winCard" id="winCard">
@@ -878,36 +997,30 @@ button,input{ font-family:inherit; }
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 /* =========================================================
-   NPC: short, auto fade
+   NPC
    ========================================================= */
 const NPC = (() => {
   const box = document.getElementById("npc");
   const line = document.getElementById("npcLine");
   const close = document.getElementById("npcClose");
   let t = null;
-  let pinned = false;
 
   function hide(){
     box.classList.remove("show");
     box.setAttribute("aria-hidden","true");
-    pinned = false;
     if (t) clearTimeout(t);
     t = null;
   }
-  function show(msg, {duration=2500, pin=false}={}){
-    pinned = !!pin;
+  function show(msg, {duration=2500}={}){
     line.textContent = msg;
     box.classList.add("show");
     box.setAttribute("aria-hidden","false");
     if (t) clearTimeout(t);
-    if (!pinned){
-      t = setTimeout(hide, duration);
-    }
+    t = setTimeout(hide, duration);
   }
   close.addEventListener("click", hide);
   document.addEventListener("pointerdown", (e) => {
     if (!box.classList.contains("show")) return;
-    if (pinned) return;
     if (!box.contains(e.target)) hide();
   });
   return { show, hide };
@@ -934,7 +1047,7 @@ function fadeInInner(innerId){
 }
 
 /* =========================================================
-   OPENING: scroll = blackout then enter dream (no zoom)
+   OPENING: scroll -> dream
    ========================================================= */
 (() => {
   const blackout = document.getElementById("blackout");
@@ -944,12 +1057,8 @@ function fadeInInner(innerId){
   let entered = false;
 
   function apply(){
-    const titleAlpha = Math.max(0, 1 - p*1.35);
-    titleWrap.style.opacity = titleAlpha.toFixed(3);
-
-    const blur = 14 + p*10;
-    openingImg.style.filter = `blur(${blur}px) saturate(1.05) contrast(1.03)`;
-
+    titleWrap.style.opacity = Math.max(0, 1 - p*1.35).toFixed(3);
+    openingImg.style.filter = `blur(${14 + p*10}px) saturate(1.05) contrast(1.03)`;
     const blk = Math.max(0, (p - 0.30) / 0.70);
     blackout.style.opacity = Math.min(1, blk*1.1).toFixed(3);
   }
@@ -966,7 +1075,6 @@ function fadeInInner(innerId){
     if (ACTIVE !== "opening") return;
     e.preventDefault();
     if (e.deltaY <= 0) return;
-
     p = Math.min(1, p + Math.min(0.10, e.deltaY * 0.00065));
     apply();
     if (!entered && p >= 1){
@@ -1164,7 +1272,6 @@ function initDream(){
     placed[best.i] = t.id;
     updateSlots();
 
-    // disappear immediately
     t.removed = true;
     t.el.style.opacity = "0";
     t.el.style.transform = "scale(0.92)";
@@ -1270,7 +1377,7 @@ function enterDoorRoom(){
 
 function initDoor(){
   const CFG = {
-    code: "REALITY", // internal only; not shown in UI
+    code: "REALITY", // internal only
 
     focus: { x: 0.44, y: 0.52 },
     zoomMin: 1.18,
@@ -1416,7 +1523,7 @@ function initDoor(){
     if (entered() === CODE){
       showToast("Unlocked.");
       closeLock();
-      NPC.show("The door gives way… into the boot screen.", {duration:2200});
+      NPC.show("A screen wakes behind your eyes.", {duration:2200});
       enterClassRoom();
     } else {
       hintMsg.textContent="Not quite…";
@@ -1426,27 +1533,34 @@ function initDoor(){
 }
 
 /* =========================================================
-   ROOM 3: CLASSROOM + Computer boot screen
+   ROOM 3: CLASSROOM + GUI boot -> desktop -> map window
    ========================================================= */
 function enterClassRoom(){
   showOnly("roomClass");
   fadeInInner("classInner");
   if (!initClass._inited){ initClass(); initClass._inited=true; }
-  NPC.show("Tap the row. Then boot.", {duration:2200});
+  NPC.show("Tap the seats. Read the row.", {duration:2200});
 }
 
 function initClass(){
   const strip = document.getElementById("seatStrip");
   const seatsPanel = document.getElementById("classSeats");
-  const lock = document.getElementById("bootLock");
-  const close = document.getElementById("bootClose");
-  const digitsEl = document.getElementById("bootDigits");
-  const btn = document.getElementById("bootBtn");
-  const msg = document.getElementById("bootMsg");
 
-  const screenTitle = document.getElementById("screenTitle");
-  const screenText = document.getElementById("screenText");
-  const screenHint = document.getElementById("screenHint");
+  const guiStatus = document.getElementById("guiStatus");
+  const loginWin = document.getElementById("loginWin");
+  const mapWin = document.getElementById("mapWin");
+
+  const digitsEl = document.getElementById("bootDigits");
+  const bootBtn = document.getElementById("bootBtn");
+  const bootMsg = document.getElementById("bootMsg");
+
+  const deskLat = document.getElementById("deskLat");
+  const deskLng = document.getElementById("deskLng");
+  const deskGo  = document.getElementById("deskGo");
+  const deskMsg = document.getElementById("deskMsg");
+
+  const camera = document.getElementById("classCamera");
+  const computerPanel = document.getElementById("computer");
 
   // 10001011 (seat 1,5,7,8 occupied)
   const bits = [1,0,0,0,1,0,1,1];
@@ -1463,48 +1577,12 @@ function initClass(){
     strip.appendChild(cell);
   }
 
-  let open=false;
-
-  function openLock(){
-    open=true;
-    msg.textContent="";
-    lock.classList.add("show");
-    lock.setAttribute("aria-hidden","false");
-    setTimeout(()=>digitsEl.children[0]?.focus(),0);
-  }
-  function closeLock(){
-    open=false;
-    lock.classList.remove("show");
-    lock.setAttribute("aria-hidden","true");
-    msg.textContent="";
-  }
-
-  // Clicking seats triggers "boot sequence" screen first, then password lock
-  seatsPanel.addEventListener("click", ()=>{
-    if (ACTIVE!=="roomClass") return;
-
-    screenTitle.textContent = "BOOT SEQUENCE";
-    screenText.innerHTML = `
-      Presence row detected.<br/>
-      Decode the eight seats.<br/><br/>
-      <b>Password required.</b>
-    `;
-    screenHint.textContent = "two states · eight seats";
-    NPC.show("Seats. Presence. Absence.", {duration:2200});
-
-    setTimeout(openLock, 260);
-  });
-
-  close.addEventListener("click", closeLock);
-  window.addEventListener("keydown",(e)=>{
-    if (ACTIVE!=="roomClass") return;
-    if (e.key==="Escape" && open) closeLock();
-  });
-  document.addEventListener("pointerdown",(e)=>{
-    if (ACTIVE!=="roomClass") return;
-    if (!open) return;
-    if (!lock.contains(e.target) && !seatsPanel.contains(e.target)) closeLock();
-  });
+  // initial GUI state
+  guiStatus.textContent = "standby";
+  loginWin.classList.remove("hidden");
+  mapWin.classList.add("hidden");
+  deskMsg.textContent = "";
+  bootMsg.textContent = "";
 
   let st=[0,0,0];
   digitsEl.innerHTML="";
@@ -1528,37 +1606,100 @@ function initClass(){
     digitsEl.appendChild(d);
   }
 
-  btn.addEventListener("click", ()=>{
+  // Clicking seats "wakes" the login window (but still no explicit "binary")
+  seatsPanel.addEventListener("click", ()=>{
+    if (ACTIVE!=="roomClass") return;
+    guiStatus.textContent = "boot required";
+    NPC.show("Presence. Absence. Eight places.", {duration:2200});
+    setTimeout(()=>digitsEl.children[0]?.focus(), 0);
+  });
+
+  function zoomIntoComputerThen(fn){
+    const compRect = computerPanel.getBoundingClientRect();
+    const cx = compRect.left + compRect.width/2;
+    const cy = compRect.top + compRect.height/2;
+
+    const vx = innerWidth/2;
+    const vy = innerHeight/2;
+
+    // scale enough to make the screen feel like it becomes the world
+    const scale = 2.35;
+
+    const tx = (vx - cx) * (scale);
+    const ty = (vy - cy) * (scale);
+
+    camera.classList.add("zooming");
+    camera.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+
+    setTimeout(()=>fn(), 820);
+  }
+
+  bootBtn.addEventListener("click", ()=>{
     const attempt = st.join("");
-    if (attempt === CODE){
-      closeLock();
+    if (attempt !== CODE){
+      bootMsg.textContent = "…";
+      loginWin.classList.remove("pulse-red"); void loginWin.offsetWidth; loginWin.classList.add("pulse-red");
+      return;
+    }
 
-      screenTitle.textContent = "BOOT COMPLETE";
-      screenText.innerHTML = `
-        System online.<br/>
-        Route input unlocked.<br/><br/>
-        <b>Enter the coordinate.</b>
-      `;
-      screenHint.textContent = "use the two numbers";
+    bootMsg.textContent = "";
+    guiStatus.textContent = "desktop";
 
-      NPC.show("Now place the two numbers on a map.", {duration:2400});
-      setTimeout(enterMapRoom, 520);
+    // show desktop map window on the computer
+    loginWin.classList.add("hidden");
+    mapWin.classList.remove("hidden");
 
+    NPC.show("The route app opens.", {duration:1800});
+  });
+
+  function parseIntLike(v){
+    const s=String(v).trim();
+    if (!s) return null;
+    const n=Number(s);
+    if (!Number.isFinite(n)) return null;
+    return Math.round(n);
+  }
+
+  deskGo.addEventListener("click", ()=>{
+    const a = parseIntLike(deskLat.value);
+    const b = parseIntLike(deskLng.value);
+    if (a===null || b===null){ deskMsg.textContent="Enter two numbers."; return; }
+    deskMsg.textContent="";
+
+    // We don't reveal answer; only when correct do we "open map"
+    // correct integers must be 35 and 139
+    if (a===35 && b===139){
+      NPC.show("Zoom in.", {duration:1400});
+      zoomIntoComputerThen(()=>enterMapRoom({prefill:true, lat:a, lng:b}));
     } else {
-      msg.textContent="…";
-      lock.classList.remove("pulse-red"); void lock.offsetWidth; lock.classList.add("pulse-red");
+      deskMsg.textContent="No result.";
     }
   });
+
+  // allow enter key
+  deskLat.addEventListener("keydown", (e)=>{ if (e.key==="Enter") deskGo.click(); });
+  deskLng.addEventListener("keydown", (e)=>{ if (e.key==="Enter") deskGo.click(); });
 }
 
 /* =========================================================
-   ROOM 4: MAP
+   ROOM 4: MAP (full screen)
    ========================================================= */
-function enterMapRoom(){
+let _mapInit = false;
+let _mapObj = null;
+let _mapMarker = null;
+
+function enterMapRoom(opts={prefill:false, lat:null, lng:null}){
   showOnly("roomMap");
   fadeInInner("mapInner");
-  if (!initMap._inited){ initMap(); initMap._inited=true; }
-  NPC.show("Two numbers. One place.", {duration:2200});
+  if (!_mapInit){ initMap(); _mapInit = true; }
+  NPC.show("Place the coordinate.", {duration:2000});
+
+  if (opts.prefill){
+    document.getElementById("latInput").value = String(opts.lat ?? "");
+    document.getElementById("lngInput").value = String(opts.lng ?? "");
+    // auto-run for a smooth “desktop -> map” feeling
+    setTimeout(()=>document.getElementById("mapGo").click(), 220);
+  }
 }
 
 function initMap(){
@@ -1568,6 +1709,7 @@ function initMap(){
   const go  = document.getElementById("mapGo");
   const err = document.getElementById("mapErr");
 
+  // noodle place (fixed)
   const SHOP = { lat: 35.442006, lng: 139.630649 };
 
   const parseIntLike = (v)=>{
@@ -1578,26 +1720,24 @@ function initMap(){
     return Math.round(n);
   };
 
-  const map = L.map("map", {
+  _mapObj = L.map("map", {
     zoomControl:false,
     attributionControl:false,
     dragging:true,
     scrollWheelZoom:true
   }).setView([20,0], 2);
 
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
-
-  let marker=null;
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(_mapObj);
 
   function win(){
-    NPC.show("There.", {duration:2000});
-    map.flyTo([SHOP.lat, SHOP.lng], 16, { animate:true, duration: 2.2 });
+    NPC.show("There.", {duration:1800});
+    _mapObj.flyTo([SHOP.lat, SHOP.lng], 16, { animate:true, duration: 2.2 });
 
     setTimeout(()=>{
-      if (marker) map.removeLayer(marker);
-      marker = L.marker([SHOP.lat, SHOP.lng]).addTo(map);
+      if (_mapMarker) _mapObj.removeLayer(_mapMarker);
+      _mapMarker = L.marker([SHOP.lat, SHOP.lng]).addTo(_mapObj);
 
-      marker.bindPopup(`
+      _mapMarker.bindPopup(`
         <div style="font-family: Inter, system-ui; font-weight:900; padding:2px 4px;">
           ARRIVAL<br/>
           <span style="font-weight:800; opacity:.85; font-size:12px;">
