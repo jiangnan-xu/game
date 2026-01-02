@@ -8,17 +8,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Shippori+Mincho:wght@500;700&family=Cinzel:wght@500;600;700&display=swap" rel="stylesheet">
-
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
 :root{
   --title-font: "Shippori Mincho", serif;
-  --ui-font: "Inter", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans";
+  --ui-font: "Inter", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
   --serif-font: "Shippori Mincho", serif;
   --roman-font: "Cinzel", serif;
 }
-html,body{ margin:0; padding:0; height:100%; overflow:hidden; font-family:var(--ui-font); background:#000; }
+
+html,body{ margin:0; padding:0; height:100%; overflow:hidden; background:#000; font-family:var(--ui-font); }
 button,input{ font-family:inherit; }
 *{ box-sizing:border-box; }
 
@@ -31,10 +31,10 @@ button,input{ font-family:inherit; }
 .pulse-red{ animation: pulseRed 520ms ease-out; }
 
 /* =========================
-   NPC bubble (persistent + close button)
+   NPC bubble (persistent + close)
    ========================= */
 .npc-bubble{
-  position:fixed; left:50%; bottom:24px;
+  position:fixed; left:50%; bottom:22px;
   transform:translateX(-50%) translateY(10px);
   z-index:3000;
   width:min(920px,92vw);
@@ -46,7 +46,7 @@ button,input{ font-family:inherit; }
   backdrop-filter:blur(12px);
   box-shadow:0 26px 90px rgba(0,0,0,.55);
   opacity:0; pointer-events:none;
-  transition: opacity .22s ease, transform .22s ease;
+  transition: opacity .20s ease, transform .20s ease;
 }
 .npc-bubble.show{ opacity:1; transform:translateX(-50%) translateY(0); pointer-events:auto; }
 .npc-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; }
@@ -58,8 +58,7 @@ button,input{ font-family:inherit; }
   width:34px; height:34px; border-radius:999px;
   border:1px solid rgba(255,255,255,0.16);
   background: rgba(255,255,255,0.06);
-  color:#fff; cursor:pointer;
-  font-weight:900;
+  color:#fff; cursor:pointer; font-weight:900;
 }
 .npc-line{
   font-size:14px; line-height:1.68;
@@ -86,205 +85,93 @@ button,input{ font-family:inherit; }
 }
 
 /* =========================
-   Anime blink overlay (two spindle eyes)
-   - Happens AFTER Room2
+   Title / intro
    ========================= */
-#blink{
-  position:fixed; inset:0;
-  z-index:9999;
-  pointer-events:none;
-  display:none;
-}
-#blink .bg{
-  position:absolute; inset:0;
-  background:#000;
-}
-#blink .eyes{
-  position:absolute; inset:0;
+#intro{
+  position:fixed; inset:0; background:#000;
   display:flex; align-items:center; justify-content:center;
-  gap: min(10vw, 140px);
-  transform: translateY(-2vh);
 }
-#blink .eye{
-  width: min(34vw, 420px);
-  height: min(18vw, 220px);
-  border-radius: 999px;
-  background: rgba(255,255,255,0.98);
-  filter: blur(0.2px);
-  transform: scaleY(var(--open, 0));  /* 0 = closed, 1 = open */
-  transform-origin: 50% 50%;
-  box-shadow:
-    0 30px 120px rgba(255,255,255,0.12),
-    0 10px 40px rgba(255,255,255,0.08);
-  opacity: var(--opa, 1);
-}
-#blink .eye::after{
-  /* spindle highlight inside eye */
-  content:"";
-  position:absolute; inset: 18% 10%;
-  border-radius: 999px;
-  background: radial-gradient(closest-side at 50% 50%, rgba(255,255,255,1), rgba(255,255,255,0.0) 72%);
-  opacity: .65;
-}
-@keyframes eyesOpen {
-  0%   { --open: 0.00; }
-  45%  { --open: 1.00; }
-  100% { --open: 1.00; }
-}
-@keyframes eyesClose {
-  0%   { --open: 1.00; }
-  100% { --open: 0.00; }
-}
-@keyframes blinkOnce {
-  0%   { --open: 1.00; }
-  35%  { --open: 0.00; }
-  70%  { --open: 1.00; }
-  100% { --open: 1.00; }
-}
-
-/* =========================
-   ROOM 1 (Door)
-   ========================= */
-#intro{ position:fixed; inset:0; background:#000; }
-#title-layer{
-  position:absolute; inset:0;
-  display:flex; align-items:center; justify-content:center;
+#intro .wrap{
   text-align:center; color:#fff;
-  z-index:10; pointer-events:none;
-  transition:opacity .6s ease;
+  max-width:900px; padding:26px;
   background: radial-gradient(circle at 50% 35%, rgba(255,255,255,.10), rgba(0,0,0,.93) 65%);
+  border-radius: 26px;
 }
-.title-wrap{ max-width:820px; padding:24px; }
-.kicker{ letter-spacing:.35em; font-size:12px; opacity:.70; margin-bottom:16px; }
-.title{
+#intro .kicker{ letter-spacing:.35em; font-size:12px; opacity:.72; margin-bottom:16px; }
+#intro .title{
   font-family:var(--title-font);
   font-size:clamp(44px,6vw,72px);
   font-weight:700;
   line-height:1.05;
   text-shadow:0 20px 90px rgba(0,0,0,.85);
 }
-.subtitle{ margin-top:14px; font-size:14px; opacity:.82; }
-.subhint{ margin-top:18px; font-size:12px; opacity:.6; }
-
-#scene{ position:absolute; inset:0; opacity:0; transition:opacity .6s ease; }
-#camera{ position:absolute; inset:0; transform-origin:50% 50%; will-change:transform; }
-#scene-img{ width:100%; height:100%; object-fit:cover; display:block; }
-
-.hotspot{
-  position:absolute; border:none; cursor:pointer; z-index:4;
-  background: rgba(255,255,255,0.06);
-  outline: 2px solid rgba(255,255,255,0.22);
-  border-radius: 14px;
-  opacity:0; pointer-events:none;
-  transition: opacity .18s ease, background .18s ease, outline-color .18s ease;
-}
-.hotspot.enabled{ opacity:1; pointer-events:auto; }
-.hotspot:hover{ outline-color: rgba(255,255,255,0.36); background: rgba(255,255,255,0.10); }
-
-.anchor{ position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
-
-#door-lock{
-  position:absolute; z-index:30; display:none;
-  width: min(340px, 80vw);
-  padding: 12px 12px 10px;
-  border-radius: 16px;
-  background: rgba(255,255,255,.92);
-  border: 1px solid rgba(255,255,255,.45);
-  box-shadow: 0 26px 80px rgba(0,0,0,.46);
-  backdrop-filter: blur(10px);
-  transform: translate(-50%, -50%);
-}
-#door-lock.show{ display:block; }
-.lock-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px; }
-.lock-title{ font-weight:900; font-size:14px; color:#111827; }
-.lock-close{
-  width:32px; height:32px; border-radius:999px;
-  border: 0.6px solid rgba(17,24,39,.10);
-  background: rgba(17,24,39,.05);
-  cursor:pointer; font-weight:900;
-}
-.lock-sub{ font-size:12px; color:#374151; margin-bottom:8px; }
-
-.lock-wheels{ display:flex; justify-content:center; gap:10px; margin: 10px 0; }
-.wheel{
-  width:44px; height:66px; border-radius:14px;
-  background:linear-gradient(#f5f7ff,#dbeafe);
-  border:0.6px solid #bfdbfe;
-  display:flex; align-items:center; justify-content:center;
-  font-size:22px; font-weight:700;
-  font-family: var(--roman-font);
-  cursor:grab; user-select:none;
-  outline:none;
-}
-.wheel:focus{ outline: 2px solid rgba(0,0,0,0.25); box-shadow: 0 0 0 4px rgba(59,130,246,0.18); }
-
-.unlock-btn{
-  width:100%; padding:10px 12px;
-  border-radius:999px; border:none;
-  font-weight:900; cursor:pointer;
-  background:linear-gradient(135deg,#fde68a,#fb923c);
-}
-.hint-message{ margin-top:8px; color:#b91c1c; font-weight:900; min-height:16px; font-size:12px; }
-
-#toast{
-  position:absolute; left:50%; top:18px;
-  transform:translateX(-50%);
-  padding:10px 14px;
-  background:rgba(0,0,0,.6);
-  color:#fff; border-radius:999px;
-  font-size:14px; opacity:0;
-  transition:.2s; z-index:40;
-  pointer-events:none;
-}
-#toast.show{ opacity:1; transform:translate(-50%,-6px); }
+#intro .subtitle{ margin-top:14px; font-size:14px; opacity:.86; }
+#intro .subhint{ margin-top:18px; font-size:12px; opacity:.62; }
 
 /* =========================
-   ROOM 2 (Dream letters)
+   Dream entry overlay (soft "enter sweet dream")
    ========================= */
-#room2{
+#dreamEnter{
+  position:fixed; inset:0; z-index:9999;
+  pointer-events:none;
+  opacity:0;
+  display:none;
+  background:
+    radial-gradient(circle at 50% 32%, rgba(255,255,255,0.65), rgba(255,255,255,0.05) 45%, rgba(0,0,0,0.95) 78%),
+    radial-gradient(circle at 70% 70%, rgba(147,197,253,0.14), rgba(0,0,0,0) 60%),
+    #000;
+  filter: blur(0px);
+}
+@keyframes dreamIn {
+  0%   { opacity:0; filter: blur(0px); transform: scale(1.02); }
+  35%  { opacity:1; filter: blur(12px); transform: scale(1.05); }
+  100% { opacity:1; filter: blur(0px); transform: scale(1.00); }
+}
+@keyframes dreamOut {
+  0%   { opacity:1; filter: blur(0px); }
+  100% { opacity:0; filter: blur(10px); }
+}
+
+/* =========================
+   ROOM 1: Dream letters
+   ========================= */
+#roomDream{
   position:fixed; inset:0; display:none; overflow:hidden;
   background:
-    radial-gradient(circle at 50% 18%, rgba(255,255,255,0.22), rgba(255,255,255,0.06) 40%, rgba(0,0,0,0.94) 78%),
+    radial-gradient(circle at 50% 18%, rgba(255,255,255,0.20), rgba(255,255,255,0.06) 40%, rgba(0,0,0,0.94) 78%),
     radial-gradient(circle at 70% 70%, rgba(147,197,253,0.10), rgba(0,0,0,0) 60%),
     #000;
-  color:#fff;
 }
-#room2 .room2-inner{
+#roomDream .inner{
   position:absolute; inset:0;
-  transition: filter 0.7s ease, opacity 0.7s ease;
-  filter: blur(14px); opacity: 0.0;
+  transition: filter .65s ease, opacity .65s ease;
+  filter: blur(14px); opacity:0;
 }
-#room2 .tile{
+#dreamTiles{ position:absolute; inset:0; }
+
+.dreamTile{
   position:absolute;
   width: 250px; height: 250px;
   display:flex; align-items:center; justify-content:center;
+  font-family: var(--serif-font);
   font-weight: 700;
   font-size: 190px;
   letter-spacing: -0.02em;
-  font-family: var(--serif-font);
   color: rgba(255,255,255,0.96);
   user-select:none;
   cursor: grab;
   touch-action:none;
-
   transform: translateY(var(--lift, 0px)) scale(var(--scale, 1));
   opacity: var(--opa, 1);
-
   text-shadow:
     0 calc(18px * var(--shadow, 1)) calc(46px * var(--shadow, 1)) rgba(0,0,0,0.62),
     0 calc(8px * var(--shadow, 1)) calc(16px * var(--shadow, 1)) rgba(0,0,0,0.40);
-
   transition: transform .10s ease;
 }
-#room2 .tile:hover{ --lift: -6px; }
-#room2 .tile:active{ cursor: grabbing; --lift: -2px; }
-#room2 .tile.locked{
-  opacity: 0.92;
-  cursor: default;
-  filter: saturate(0.85);
-}
+.dreamTile:hover{ --lift: -6px; }
+.dreamTile:active{ cursor: grabbing; --lift: -2px; }
 
-#room2 .assembly{
+#dreamAssembly{
   position:absolute; left:50%; bottom: 42px;
   transform: translateX(-50%);
   width: min(1040px, 94vw);
@@ -298,8 +185,8 @@ button,input{ font-family:inherit; }
   display:flex; align-items:center; justify-content:center;
   padding: 12px 12px;
 }
-#room2 .slots{ display:flex; align-items:center; justify-content:center; gap: 10px; flex-wrap: wrap; }
-#room2 .slot{
+#dreamSlots{ display:flex; align-items:center; justify-content:center; gap: 10px; flex-wrap: wrap; }
+.dreamSlot{
   width: 54px; height: 84px;
   border-radius: 18px;
   border: 1px dashed rgba(255,255,255,0.22);
@@ -309,43 +196,45 @@ button,input{ font-family:inherit; }
   color: rgba(255,255,255,0.20);
   font-family: var(--serif-font);
 }
-#room2 .slot.space{ width: 18px; border:none; background:transparent; }
-#room2 .slot.filled{
+.dreamSlot.space{ width: 18px; border:none; background:transparent; }
+.dreamSlot.filled{
   border-style: solid;
   border-color: rgba(255,255,255,0.18);
   background: rgba(255,255,255,0.06);
   color: rgba(255,255,255,0.92);
 }
 
-#room2 .postHint, #room2 .escapeLock{
-  position:absolute; left:50%;
+#dreamHint{
+  position:absolute; left:50%; top:18px;
   transform: translateX(-50%);
-  z-index:60;
   opacity:0; pointer-events:none;
-  transition: opacity .28s ease, transform .28s ease;
+  transition: opacity .25s ease, transform .25s ease;
+  z-index:60;
 }
-#room2 .postHint{ top: 18px; }
-#room2 .escapeLock{ top: 72px; }
-#room2 .postHint.show, #room2 .escapeLock.show{
-  opacity:1; pointer-events:auto;
-  transform: translateX(-50%) translateY(2px);
-}
-#room2 .postHint .card{
-  background: rgba(0,0,0,0.40);
+#dreamHint.show{ opacity:1; pointer-events:auto; transform: translateX(-50%) translateY(2px); }
+#dreamHint .card{
+  background: rgba(0,0,0,0.42);
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 18px;
   padding: 10px 12px;
   backdrop-filter: blur(10px);
   box-shadow: 0 18px 70px rgba(0,0,0,0.60);
-  display:flex; align-items:center; gap: 12px;
+  display:flex; align-items:center; gap:12px;
+  color:#fff;
 }
-#room2 .postHint .hintTitle{
-  font-weight: 900; font-size: 12px; letter-spacing: .12em;
-  opacity: .92; color:#fff;
-}
-#room2 .postHint .hintText{ font-size: 13px; opacity: .92; color:#fff; white-space: nowrap; }
+#dreamHint .t{ font-weight:900; font-size:12px; letter-spacing:.12em; opacity:.92; }
+#dreamHint .p{ font-size:13px; opacity:.92; white-space: nowrap; }
 
-#room2 .lockCard{
+#dreamWakeLock{
+  position:absolute; left:50%; top:72px;
+  transform: translateX(-50%);
+  opacity:0; pointer-events:none;
+  transition: opacity .25s ease, transform .25s ease;
+  z-index:60;
+}
+#dreamWakeLock.show{ opacity:1; pointer-events:auto; transform: translateX(-50%) translateY(2px); }
+
+.lockCard{
   width: min(360px, 92vw);
   background: rgba(0,0,0,0.40);
   border: 1px solid rgba(255,255,255,0.12);
@@ -355,11 +244,10 @@ button,input{ font-family:inherit; }
   box-shadow: 0 20px 80px rgba(0,0,0,0.60);
   color:#fff;
 }
-#room2 .lockRow{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom: 8px; }
-#room2 .lockTitle{ font-weight: 900; font-size: 13px; letter-spacing: .10em; opacity: .92; }
-#room2 .digits{ display:flex; gap:10px; justify-content:center; margin: 8px 0 8px; }
-
-#room2 .digit{
+.lockRow{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom: 8px; }
+.lockTitle{ font-weight: 900; font-size: 13px; letter-spacing: .10em; opacity: .92; }
+.digits{ display:flex; gap:10px; justify-content:center; margin: 8px 0 8px; }
+.digit{
   width: 56px; height: 72px;
   border-radius: 18px;
   background: linear-gradient(rgba(255,255,255,0.16), rgba(255,255,255,0.06));
@@ -370,8 +258,8 @@ button,input{ font-family:inherit; }
   user-select:none; cursor: grab; outline:none;
   color:#fff;
 }
-#room2 .digit:focus{ outline: 2px solid rgba(255,255,255,0.30); box-shadow: 0 0 0 5px rgba(255,255,255,0.10); }
-#room2 .lockBtn{
+.digit:focus{ outline: 2px solid rgba(255,255,255,0.30); box-shadow: 0 0 0 5px rgba(255,255,255,0.10); }
+.lockBtn{
   width:100%;
   border:none;
   border-radius: 999px;
@@ -381,8 +269,9 @@ button,input{ font-family:inherit; }
   background: linear-gradient(135deg, #fde68a, #fb923c);
   color:#111;
 }
-#room2 .lockMsg{ margin-top: 8px; font-size: 12px; font-weight: 800; min-height: 16px; color: #ffb4b4; }
-#room2 .toast{
+.lockMsg{ margin-top: 8px; font-size: 12px; font-weight: 800; min-height: 16px; color: #ffb4b4; }
+
+.toast{
   position:absolute; left:50%; bottom: 18px;
   transform: translateX(-50%);
   padding:10px 14px;
@@ -392,61 +281,140 @@ button,input{ font-family:inherit; }
   opacity:0; transition: opacity .16s ease, transform .16s ease;
   z-index:80; pointer-events:none;
 }
-#room2 .toast.show{ opacity:1; transform: translateX(-50%) translateY(-6px); }
+.toast.show{ opacity:1; transform: translateX(-50%) translateY(-6px); }
 
 /* =========================
-   ROOM 3 (Bigger fragment)
+   ROOM 2: Hallway door
    ========================= */
-#room3{
+#roomDoor{
   position:fixed; inset:0;
   display:none; overflow:hidden;
+  background:#000;
+}
+#roomDoor .scene{ position:absolute; inset:0; opacity:0; transition:opacity .55s ease; }
+#doorCamera{ position:absolute; inset:0; transform-origin:50% 50%; will-change:transform; }
+#doorImg{ width:100%; height:100%; object-fit:cover; display:block; }
+
+.hotspot{
+  position:absolute; border:none; cursor:pointer; z-index:4;
+  background: rgba(255,255,255,0.06);
+  outline: 2px solid rgba(255,255,255,0.22);
+  border-radius: 14px;
+  opacity:0; pointer-events:none;
+  transition: opacity .18s ease, background .18s ease, outline-color .18s ease;
+}
+.hotspot.enabled{ opacity:1; pointer-events:auto; }
+.hotspot:hover{ outline-color: rgba(255,255,255,0.36); background: rgba(255,255,255,0.10); }
+
+#doorToast{
+  position:absolute; left:50%; top:18px;
+  transform:translateX(-50%);
+  padding:10px 14px;
+  background:rgba(0,0,0,.6);
+  color:#fff; border-radius:999px;
+  font-size:14px; opacity:0;
+  transition:.2s; z-index:40;
+  pointer-events:none;
+}
+#doorToast.show{ opacity:1; transform:translate(-50%,-6px); }
+
+.anchor{ position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
+
+#doorLock{
+  position:absolute; z-index:30; display:none;
+  width: min(340px, 80vw);
+  padding: 12px 12px 10px;
+  border-radius: 16px;
+  background: rgba(255,255,255,.92);
+  border: 1px solid rgba(255,255,255,.45);
+  box-shadow: 0 26px 80px rgba(0,0,0,.46);
+  backdrop-filter: blur(10px);
+  transform: translate(-50%, -50%);
+}
+#doorLock.show{ display:block; }
+.lock-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px; }
+.lock-title{ font-weight:900; font-size:14px; color:#111827; }
+.lock-close{
+  width:32px; height:32px; border-radius:999px;
+  border: 0.6px solid rgba(17,24,39,.10);
+  background: rgba(17,24,39,.05);
+  cursor:pointer; font-weight:900;
+}
+.lock-sub{ font-size:12px; color:#374151; margin-bottom:8px; }
+.lock-wheels{ display:flex; justify-content:center; gap:10px; margin: 10px 0; }
+.wheel{
+  width:44px; height:66px; border-radius:14px;
+  background:linear-gradient(#f5f7ff,#dbeafe);
+  border:0.6px solid #bfdbfe;
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; font-weight:700;
+  font-family: var(--roman-font);
+  cursor:grab; user-select:none;
+  outline:none;
+}
+.wheel:focus{ outline: 2px solid rgba(0,0,0,0.25); box-shadow: 0 0 0 4px rgba(59,130,246,0.18); }
+.unlock-btn{
+  width:100%; padding:10px 12px;
+  border-radius:999px; border:none;
+  font-weight:900; cursor:pointer;
+  background:linear-gradient(135deg,#fde68a,#fb923c);
+}
+.hint-message{ margin-top:8px; color:#b91c1c; font-weight:900; min-height:16px; font-size:12px; }
+
+/* =========================
+   ROOM 3: Classroom + computer screen
+   ========================= */
+#roomClass{
+  position:fixed; inset:0; display:none; overflow:hidden;
   background:
-    radial-gradient(circle at 50% 20%, rgba(255,255,255,0.20), rgba(0,0,0,0.92) 72%),
+    radial-gradient(circle at 50% 20%, rgba(255,255,255,0.18), rgba(0,0,0,0.92) 72%),
     #000;
   color:#fff;
 }
-#room3 .room3-inner{
+#roomClass .inner{
   position:absolute; inset:0;
-  transition: filter 0.7s ease, opacity 0.7s ease;
-  filter: blur(14px); opacity: 0.0;
+  transition: filter .65s ease, opacity .65s ease;
+  filter: blur(14px); opacity:0;
 }
-#room3 .stage{
+
+#classStage{
   position:absolute; inset:0;
-  display:flex; align-items:center; justify-content:center;
-  padding: 24px 16px 84px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap: 18px;
+  padding: 20px 16px 86px;
 }
-#room3 .frameWrap{
-  width: min(1520px, 96vw);
-  border-radius: 28px;
+
+.panel{
+  border-radius: 26px;
   background: rgba(255,255,255,0.10);
   border: 1px solid rgba(255,255,255,0.12);
   backdrop-filter: blur(12px);
   box-shadow: 0 30px 160px rgba(0,0,0,0.70);
-  position: relative;
   overflow:hidden;
+}
+
+#classFragment{
+  width: min(1320px, 66vw);
   padding: 18px;
 }
-#room3 .strip{
+#classStrip{
   width:100%;
   display:grid;
   grid-template-columns: repeat(8, 1fr);
   gap: 12px;
-  align-items:stretch;
 }
-#room3 .seat{
+.seat{
   border-radius: 20px;
   overflow:hidden;
   border: 1px solid rgba(255,255,255,0.14);
   background: rgba(0,0,0,0.20);
   aspect-ratio: 16 / 10;
 }
-#room3 .seat img{
-  width:100%; height:100%;
-  object-fit: cover;
-  display:block;
-  transform: scale(1.01);
-}
-#room3 .tapHint{
+.seat img{ width:100%; height:100%; object-fit:cover; display:block; transform: scale(1.01); }
+
+#classTapHint{
   position:absolute; left:50%; bottom: 14px;
   transform: translateX(-50%);
   font-size: 12px; font-weight: 900; letter-spacing: .14em;
@@ -459,11 +427,52 @@ button,input{ font-family:inherit; }
   opacity:.92;
 }
 
-/* Room3 lock */
-#r3-lock{
+#computer{
+  width: min(560px, 30vw);
+  padding: 16px;
+  position:relative;
+}
+.screenTop{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:10px;
+  margin-bottom: 10px;
+}
+.screenTitle{
+  font-weight:900;
+  letter-spacing:.10em;
+  font-size:12px;
+  opacity:.92;
+}
+.screenDot{
+  width:10px; height:10px; border-radius:999px;
+  background: rgba(255,255,255,0.28);
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.08);
+}
+.screenBody{
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.28);
+  padding: 12px;
+}
+.screenText{
+  font-family: var(--serif-font);
+  font-size: 14px;
+  line-height: 1.65;
+  opacity:.95;
+}
+.monoHint{
+  margin-top:10px;
+  font-family: var(--roman-font);
+  font-weight:700;
+  letter-spacing:.14em;
+  opacity:.85;
+  font-size: 12px;
+}
+
+#classLock{
   position:fixed; left:50%; top:50%;
   transform: translate(-50%, -50%);
-  z-index:220; width: min(380px, 92vw);
+  z-index:220; width: min(390px, 92vw);
   display:none;
   background: rgba(255,255,255,0.92);
   border: 1px solid rgba(17,24,39,0.10);
@@ -473,21 +482,21 @@ button,input{ font-family:inherit; }
   box-shadow: 0 20px 90px rgba(0,0,0,0.22);
   color:#111;
 }
-#r3-lock.show{ display:block; }
-#r3-lock .top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom: 8px; }
-#r3-lock .t{ font-weight: 900; letter-spacing: .12em; font-size: 12px; opacity: .9; }
-#r3-lock .x{
+#classLock.show{ display:block; }
+#classLock .top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom: 8px; }
+#classLock .t{ font-weight: 900; letter-spacing: .12em; font-size: 12px; opacity: .9; }
+#classLock .x{
   width:32px; height:32px; border-radius:999px;
   border: 0.6px solid rgba(17,24,39,.10);
   background: rgba(17,24,39,.05);
   cursor:pointer; font-weight:900;
 }
-#r3-lock .sub{
+#classLock .sub{
   font-size: 12px; color: rgba(17,24,39,0.72);
   margin-bottom: 8px; letter-spacing: .12em; font-weight: 900;
 }
-#r3-lock .digits{ display:flex; justify-content:center; gap:10px; margin: 10px 0; }
-#r3-lock .digit{
+#classLock .digits{ display:flex; justify-content:center; gap:10px; margin: 10px 0; }
+#classLock .digit{
   width: 56px; height: 72px; border-radius: 18px;
   background: linear-gradient(#f8fafc,#eef2ff);
   border: 1px solid rgba(59,130,246,0.22);
@@ -496,8 +505,8 @@ button,input{ font-family:inherit; }
   font-family: var(--roman-font);
   user-select:none; cursor: grab; outline:none;
 }
-#r3-lock .digit:focus{ outline: 2px solid rgba(59,130,246,0.35); box-shadow: 0 0 0 5px rgba(59,130,246,0.12); }
-#r3-lock .btn{
+#classLock .digit:focus{ outline: 2px solid rgba(59,130,246,0.35); box-shadow: 0 0 0 5px rgba(59,130,246,0.12); }
+#classLock .btn{
   width:100%;
   border:none; border-radius: 999px;
   padding: 10px 12px;
@@ -505,23 +514,23 @@ button,input{ font-family:inherit; }
   cursor:pointer;
   background: linear-gradient(135deg, #fde68a, #fb923c);
 }
-#r3-lock .msg{ margin-top: 8px; font-size: 12px; font-weight: 900; min-height: 16px; color: #b91c1c; }
+#classLock .msg{ margin-top: 8px; font-size: 12px; font-weight: 900; min-height: 16px; color: #b91c1c; }
 
 /* =========================
-   ROOM 4 (Map)
+   ROOM 4: Map
    ========================= */
-#room4{
+#roomMap{
   position:fixed; inset:0; display:none; overflow:hidden;
   background: radial-gradient(circle at 50% 20%, rgba(255,255,255,0.12), rgba(0,0,0,0.92) 70%), #000;
   color:#fff;
 }
-#room4 .inner{
+#roomMap .inner{
   position:absolute; inset:0;
-  transition: filter 0.7s ease, opacity 0.7s ease;
+  transition: filter .65s ease, opacity .65s ease;
   filter: blur(14px);
   opacity: 0.0;
 }
-#room4 .hud{
+#roomMap .hud{
   position:absolute; left:50%; top: 18px;
   transform: translateX(-50%);
   width: min(980px, 94vw);
@@ -535,11 +544,11 @@ button,input{ font-family:inherit; }
   backdrop-filter: blur(10px);
   box-shadow: 0 26px 120px rgba(0,0,0,0.45);
 }
-#room4 .hud .label{
+#roomMap .hud .label{
   font-weight:900; letter-spacing: .10em;
   font-size: 12px; opacity:.9;
 }
-#room4 .hud input{
+#roomMap .hud input{
   width: min(220px, 30vw);
   padding: 12px 14px;
   border-radius: 14px;
@@ -548,8 +557,8 @@ button,input{ font-family:inherit; }
   color:#fff; outline:none;
   font-weight:800;
 }
-#room4 .hud input::placeholder{ color: rgba(255,255,255,0.55); font-weight:700; }
-#room4 .hud button{
+#roomMap .hud input::placeholder{ color: rgba(255,255,255,0.55); font-weight:700; }
+#roomMap .hud button{
   padding: 12px 14px;
   border-radius: 999px;
   border: none;
@@ -558,7 +567,7 @@ button,input{ font-family:inherit; }
   background: linear-gradient(135deg, rgba(253,230,138,1), rgba(251,146,60,1));
   color:#111;
 }
-#room4 .hud .err{
+#roomMap .hud .err{
   font-size: 12px;
   font-weight: 900;
   color: rgba(255,140,140,0.95);
@@ -566,7 +575,7 @@ button,input{ font-family:inherit; }
   text-align:left;
   opacity:.95;
 }
-#room4 .hint{
+#roomMap .hint{
   position:absolute; left:50%; top: 76px;
   transform: translateX(-50%);
   padding: 10px 14px;
@@ -578,7 +587,7 @@ button,input{ font-family:inherit; }
   opacity:.92;
   z-index:25;
 }
-#room4 .mapWrap{
+#roomMap .mapWrap{
   position:absolute;
   left:50%; top: 50%;
   transform: translate(-50%, -46%);
@@ -591,14 +600,13 @@ button,input{ font-family:inherit; }
   opacity: 0.92;
 }
 #map{ width:100%; height:100%; }
-#room4 .mapVignette{
+#roomMap .mapVignette{
   position:absolute; inset:0;
   pointer-events:none;
   box-shadow: inset 0 0 240px rgba(0,0,0,0.55);
   border-radius: 28px;
 }
-
-#room4 .winCard{
+#roomMap .winCard{
   position:absolute;
   left:50%;
   bottom: 22px;
@@ -618,14 +626,14 @@ button,input{ font-family:inherit; }
   align-items:center;
   z-index:40;
 }
-#room4.ready .winCard{
+#roomMap.ready .winCard{
   opacity:1;
   transform: translateX(-50%) translateY(0);
   pointer-events:auto;
 }
-#room4 .ramenArt{
-  width: 460px;
-  height: 280px;
+#roomMap .ramenArt{
+  width: 520px;
+  height: 320px;
   border-radius: 18px;
   background: rgba(255,255,255,0.08);
   border: 1px solid rgba(255,255,255,0.12);
@@ -633,15 +641,15 @@ button,input{ font-family:inherit; }
   overflow:hidden;
   flex: 0 0 auto;
 }
-#room4 .winImg{ width:100%; height:100%; object-fit:cover; display:block; }
-#room4 .winText .h{
+#roomMap .winImg{ width:100%; height:100%; object-fit:cover; display:block; }
+#roomMap .winText .h{
   font-family: var(--title-font);
   font-weight:700;
   font-size: 22px;
   letter-spacing: .02em;
   margin-bottom: 6px;
 }
-#room4 .winText .p{ font-size: 14px; line-height: 1.55; opacity: .92; }
+#roomMap .winText .p{ font-size: 14px; line-height: 1.55; opacity: .92; }
 
 .leaflet-control-container{ display:none; }
 .leaflet-tile{ filter: saturate(1.08) contrast(1.02); }
@@ -650,19 +658,12 @@ button,input{ font-family:inherit; }
 
 <body>
 
-<!-- Blink overlay -->
-<div id="blink" aria-hidden="true">
-  <div class="bg"></div>
-  <div class="eyes">
-    <div class="eye" id="eyeL"></div>
-    <div class="eye" id="eyeR"></div>
-  </div>
-</div>
+<div id="dreamEnter"></div>
 
 <!-- NPC -->
 <div id="npc" class="npc-bubble" aria-hidden="true">
   <div class="npc-top">
-    <div class="npc-name" id="npc-name">cyberpumpkin</div>
+    <div class="npc-name">cyberpumpkin</div>
     <button class="npc-close" id="npc-close" aria-label="Close dialog">✕</button>
   </div>
   <div class="npc-line" id="npc-line"></div>
@@ -672,108 +673,123 @@ button,input{ font-family:inherit; }
   </div>
 </div>
 
-<!-- ========================= ROOM 1 ========================= -->
+<!-- Intro -->
 <div id="intro">
-  <div id="title-layer">
-    <div class="title-wrap">
-      <div class="kicker">LEVEL 33</div>
-      <div class="title">memory</div>
-      <div class="subtitle">Scroll to begin.</div>
-      <div class="subhint">↓</div>
-    </div>
+  <div class="wrap">
+    <div class="kicker">LEVEL 33</div>
+    <div class="title">memory</div>
+    <div class="subtitle">Scroll to begin.</div>
+    <div class="subhint">↓</div>
   </div>
+</div>
 
-  <div id="scene">
-    <div id="camera">
-      <img id="scene-img" src="door-bg.jpg" alt="Door hallway"/>
+<!-- ROOM 1: DREAM -->
+<div id="roomDream" aria-hidden="true">
+  <div class="inner" id="dreamInner">
+    <div id="dreamTiles"></div>
 
-      <button id="door-hotspot" class="hotspot" aria-label="Door"></button>
-      <button id="bell-hotspot" class="hotspot" aria-label="Door bell"></button>
-
-      <div id="lock-anchor" class="anchor"></div>
+    <div id="dreamAssembly">
+      <div id="dreamSlots"></div>
     </div>
 
-    <div id="door-lock" aria-hidden="true">
+    <div id="dreamHint">
+      <div class="card">
+        <div class="t">HINT</div>
+        <div class="p">the number before “essentially”</div>
+      </div>
+    </div>
+
+    <div id="dreamWakeLock">
+      <div class="lockCard" id="dreamLockCard">
+        <div class="lockRow">
+          <div class="lockTitle">WAKE LOCK</div>
+          <div style="font-size:12px; opacity:.85;">2 digits</div>
+        </div>
+        <div class="digits" id="dreamDigits"></div>
+        <button class="lockBtn" id="dreamWakeBtn">Wake up</button>
+        <div class="lockMsg" id="dreamLockMsg"></div>
+      </div>
+    </div>
+
+    <div class="toast" id="dreamToast"></div>
+  </div>
+</div>
+
+<!-- ROOM 2: DOOR -->
+<div id="roomDoor" aria-hidden="true">
+  <div class="scene" id="doorScene">
+    <div id="doorCamera">
+      <img id="doorImg" src="door-bg.jpg" alt="Door hallway"/>
+      <button id="doorHotspot" class="hotspot" aria-label="Door"></button>
+      <button id="bellHotspot" class="hotspot" aria-label="Door bell"></button>
+      <div id="doorLockAnchor" class="anchor"></div>
+    </div>
+
+    <div id="doorLock" aria-hidden="true">
       <div class="lock-top">
         <div class="lock-title">Locked.</div>
-        <button id="lock-close" class="lock-close" aria-label="Close">✕</button>
+        <button id="doorLockClose" class="lock-close" aria-label="Close">✕</button>
       </div>
       <div class="lock-sub">Enter the code.</div>
-      <div class="lock-wheels" id="lock-wheels"></div>
-      <button class="unlock-btn" id="unlock-btn">Unlock</button>
-      <div class="hint-message" id="hint-message"></div>
+      <div class="lock-wheels" id="doorWheels"></div>
+      <button class="unlock-btn" id="doorUnlockBtn">Unlock</button>
+      <div class="hint-message" id="doorHintMsg"></div>
     </div>
 
-    <div id="toast" role="status" aria-live="polite"></div>
+    <div id="doorToast"></div>
   </div>
 </div>
 
 <audio id="song" src="song.m4a" preload="auto"></audio>
 
-<!-- ========================= ROOM 2 ========================= -->
-<div id="room2" aria-hidden="true">
-  <div class="room2-inner" id="r2-inner">
-    <div id="r2-tiles"></div>
-
-    <div class="assembly" id="r2-assembly">
-      <div class="slots" id="r2-slots"></div>
-    </div>
-  </div>
-
-  <div class="postHint" id="r2-postHint">
-    <div class="card">
-      <div class="hintTitle">HINT</div>
-      <div class="hintText">the number before “essentially”</div>
-    </div>
-  </div>
-
-  <div class="escapeLock" id="r2-escapeLock">
-    <div class="lockCard" id="r2-lockCard">
-      <div class="lockRow">
-        <div class="lockTitle">WAKE LOCK</div>
-        <div style="font-size:12px; opacity:.85;">2 digits</div>
+<!-- ROOM 3: CLASSROOM -->
+<div id="roomClass" aria-hidden="true">
+  <div class="inner" id="classInner">
+    <div id="classStage">
+      <div class="panel" id="classFragment" role="button" aria-label="Memory fragment">
+        <div id="classStrip"></div>
       </div>
-      <div class="digits" id="r2-digits"></div>
-      <button class="lockBtn" id="r2-escapeBtn">Wake up</button>
-      <div class="lockMsg" id="r2-lockMsg"></div>
-    </div>
-  </div>
 
-  <div class="toast" id="r2-toast"></div>
-</div>
-
-<!-- ========================= ROOM 3 ========================= -->
-<div id="room3" aria-hidden="true">
-  <div class="room3-inner" id="r3-inner">
-    <div class="stage">
-      <div class="frameWrap" id="r3-frame" role="button" aria-label="Memory fragment">
-        <div class="strip" id="r3-strip"></div>
-        <div class="tapHint">TAP THE FRAGMENT</div>
+      <div class="panel" id="computer">
+        <div class="screenTop">
+          <div class="screenTitle">SEARCH MEMORY</div>
+          <div class="screenDot" aria-hidden="true"></div>
+        </div>
+        <div class="screenBody">
+          <div class="screenText" id="screenText">
+            This year you finally became a professor.<br/>
+            It should feel like a finish line—yet one memory refuses to settle.<br/><br/>
+            The system only preserved a seating trace. If you can read it, you can retrieve the last number.
+          </div>
+          <div class="monoHint">HINT: binary</div>
+        </div>
       </div>
     </div>
+
+    <div id="classTapHint">TAP THE SEATS</div>
   </div>
 
-  <div id="r3-lock" aria-hidden="true">
+  <div id="classLock" aria-hidden="true">
     <div class="top">
       <div class="t">FRAGMENT LOCK</div>
-      <button class="x" id="r3-close" aria-label="Close">✕</button>
+      <button class="x" id="classLockClose" aria-label="Close">✕</button>
     </div>
-    <div class="sub">BINARY</div>
-    <div class="digits" id="r3-digits"></div>
-    <button class="btn" id="r3-btn">Unlock</button>
-    <div class="msg" id="r3-msg"></div>
+    <div class="sub">ENTER NUMBER</div>
+    <div class="digits" id="classDigits"></div>
+    <button class="btn" id="classUnlockBtn">Unlock</button>
+    <div class="msg" id="classMsg"></div>
   </div>
 </div>
 
-<!-- ========================= ROOM 4 ========================= -->
-<div id="room4" aria-hidden="true">
-  <div class="inner" id="r4-inner">
+<!-- ROOM 4: MAP -->
+<div id="roomMap" aria-hidden="true">
+  <div class="inner" id="mapInner">
     <div class="hud">
       <div class="label">COORDINATE</div>
-      <input id="r4-lat" placeholder="Latitude" inputmode="decimal" autocomplete="off" />
-      <input id="r4-lng" placeholder="Longitude" inputmode="decimal" autocomplete="off" />
-      <button id="r4-go">Search</button>
-      <div class="err" id="r4-err"></div>
+      <input id="latInput" placeholder="Latitude" inputmode="decimal" autocomplete="off" />
+      <input id="lngInput" placeholder="Longitude" inputmode="decimal" autocomplete="off" />
+      <button id="mapGo">Search</button>
+      <div class="err" id="mapErr"></div>
     </div>
 
     <div class="hint">Two numbers. Nothing else.</div>
@@ -783,28 +799,24 @@ button,input{ font-family:inherit; }
       <div class="mapVignette"></div>
     </div>
 
-    <div class="winCard" id="r4-win">
+    <div class="winCard" id="winCard">
       <div class="ramenArt" aria-hidden="true">
         <img src="hint.png" alt="Win hint" class="winImg">
       </div>
       <div class="winText">
         <div class="h">Thanks for playing.</div>
-        <div class="p">
-          You found it.<br/>
-          Gifts will be given in person.
-        </div>
+        <div class="p">You found it. Gifts will be given in person.</div>
       </div>
     </div>
   </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 <script>
-let ACTIVE_ROOM = 1;
+let ACTIVE = "intro";
 
 /* =========================
-   NPC (English only, persistent, closable)
+   NPC
    ========================= */
 const NPC = (() => {
   const wrap = document.getElementById("npc");
@@ -823,13 +835,9 @@ const NPC = (() => {
     wrap.classList.remove("show");
     wrap.setAttribute("aria-hidden","true");
     actions.style.display = "none";
-    onFinish = null;
-    lines = [];
-    idx = 0;
+    onFinish = null; lines = []; idx = 0;
   }
-  function render(){
-    lineEl.textContent = lines[idx] || "";
-  }
+  function render(){ lineEl.textContent = lines[idx] || ""; }
   function next(){
     idx++;
     if (idx >= lines.length){
@@ -856,13 +864,9 @@ const NPC = (() => {
     render();
     show();
 
-    if (step && lines.length > 1){
+    if (step){
       actions.style.display = "flex";
-      btnNext.style.display = "inline-flex";
-      btnDone.textContent = "Okay";
-    } else if (step && lines.length === 1){
-      actions.style.display = "flex";
-      btnNext.style.display = "none";
+      btnNext.style.display = lines.length > 1 ? "inline-flex" : "none";
       btnDone.textContent = "Okay";
     } else {
       actions.style.display = "none";
@@ -873,380 +877,94 @@ const NPC = (() => {
 })();
 
 /* =========================
-   Blink transition (two spindle eyes)
-   - close -> swap -> open -> blink once
+   Dream entry effect
    ========================= */
-function animeBlinkTransition(swapRoomFn){
-  const blink = document.getElementById("blink");
-  const eyeL = document.getElementById("eyeL");
-  const eyeR = document.getElementById("eyeR");
-
-  blink.style.display = "block";
-
-  // reset
-  eyeL.style.animation = "none";
-  eyeR.style.animation = "none";
-  void blink.offsetWidth;
-
-  // start from OPEN, then CLOSE quickly
-  eyeL.style.setProperty("--open", "1");
-  eyeR.style.setProperty("--open", "1");
-  eyeL.style.animation = "eyesClose 260ms ease-in forwards";
-  eyeR.style.animation = "eyesClose 260ms ease-in forwards";
-
-  // swap at fully closed
-  setTimeout(() => {
-    swapRoomFn();
-
-    // open
-    eyeL.style.animation = "eyesOpen 420ms ease-out forwards";
-    eyeR.style.animation = "eyesOpen 420ms ease-out forwards";
-
-    // blink once after open (cartoon feel)
-    setTimeout(() => {
-      eyeL.style.animation = "blinkOnce 380ms ease-in-out forwards";
-      eyeR.style.animation = "blinkOnce 380ms ease-in-out forwards";
-    }, 420);
-
-    // clear overlay
-    setTimeout(() => {
-      blink.style.display = "none";
-    }, 1100);
-
-  }, 260);
+function playDreamEnter(cb){
+  const o = document.getElementById("dreamEnter");
+  o.style.display = "block";
+  o.style.opacity = "0";
+  o.style.animation = "none";
+  void o.offsetWidth;
+  o.style.animation = "dreamIn 900ms ease-out forwards";
+  setTimeout(() => { cb(); }, 520);
+  setTimeout(() => { /* keep overlay subtly present then fade out */ 
+    o.style.animation = "dreamOut 700ms ease-in forwards";
+    setTimeout(()=>{ o.style.display = "none"; o.style.opacity="0"; }, 720);
+  }, 980);
 }
 
 /* =========================
-   Enter rooms
+   Room switching helpers
    ========================= */
-function enterRoom2(){
-  ACTIVE_ROOM = 2;
-  document.getElementById("intro").style.display = "none";
-  const room2 = document.getElementById("room2");
-  room2.style.display = "block";
-  room2.setAttribute("aria-hidden","false");
-
-  if (!enterRoom2._inited){
-    initRoom2();
-    enterRoom2._inited = true;
+function showOnly(id){
+  const all = ["intro","roomDream","roomDoor","roomClass","roomMap"];
+  for (const a of all){
+    document.getElementById(a).style.display = (a===id) ? "block" : "none";
+    document.getElementById(a).setAttribute("aria-hidden", (a===id) ? "false" : "true");
   }
-
-  const inner = document.getElementById("r2-inner");
-  inner.style.filter = "blur(14px)";
-  inner.style.opacity = "0.0";
-  requestAnimationFrame(() => { inner.style.filter = "blur(0px)"; inner.style.opacity = "1"; });
-
-  NPC.speak({
-    step: true,
-    queue: [
-      "You got up to leave—just a normal morning.",
-      "But the moment you reached for the handle, the hallway tilted.",
-      "You didn’t walk through the door. You fell into a dream made of letters."
-    ]
-  });
+  ACTIVE = id;
 }
 
-function enterRoom3(){
-  ACTIVE_ROOM = 3;
-  document.getElementById("room2").style.display = "none";
-  const room3 = document.getElementById("room3");
-  room3.style.display = "block";
-  room3.setAttribute("aria-hidden","false");
-
-  if (!enterRoom3._inited){
-    initRoom3();
-    enterRoom3._inited = true;
-  }
-
-  const inner = document.getElementById("r3-inner");
-  inner.style.filter = "blur(14px)";
-  inner.style.opacity = "0.0";
-  requestAnimationFrame(() => { inner.style.filter = "blur(0px)"; inner.style.opacity = "1"; });
-
-  NPC.speak({
-    step: true,
-    queue: [
-      "Your eyes open.",
-      "The dream releases you into something sharper: a classroom memory.",
-      "This year’s biggest milestone wasn’t a paper. It was the title you finally earned—professor.",
-      "But even milestones leave loose ends. One last fragment is still locked behind a pattern."
-    ]
-  });
-}
-
-function enterRoom4(){
-  ACTIVE_ROOM = 4;
-  document.getElementById("room3").style.display = "none";
-  const room4 = document.getElementById("room4");
-  room4.style.display = "block";
-  room4.setAttribute("aria-hidden","false");
-
-  if (!enterRoom4._inited){
-    initRoom4();
-    enterRoom4._inited = true;
-  }
-
-  const inner = document.getElementById("r4-inner");
-  inner.style.filter = "blur(14px)";
-  inner.style.opacity = "0.0";
-  requestAnimationFrame(() => { inner.style.filter = "blur(0px)"; inner.style.opacity = "1"; });
-
-  NPC.speak({
-    step: true,
-    queue: [
-      "Now the dream has numbers. The memory has numbers.",
-      "If you place them on a real map, they become a destination."
-    ]
-  });
+function fadeInInner(innerId){
+  const el = document.getElementById(innerId);
+  el.style.filter = "blur(14px)";
+  el.style.opacity = "0";
+  requestAnimationFrame(()=>{ el.style.filter="blur(0px)"; el.style.opacity="1"; });
 }
 
 /* =========================
-   ROOM 1 (hotspot numbers EXACT as you provided)
+   Start: scroll from intro -> Dream
    ========================= */
-(function room1(){
-  const CFG = {
-    code: "REALITY",
-    focus: { x: 0.44, y: 0.52 },
-    zoomMin: 1.0,
-    zoomMax: 1.55,
-    openingEnd: 1.0,
-
-    // EXACT values you provided (unchanged)
-    door: { x: 0.317, y: 0.135, w: 0.205, h: 0.715 },
-    bell: { x: 0.576, y: 0.429, w: 0.035, h: 0.110 },
-    lockAnchor: { x: 0.510, y: 0.535 },
-  };
-
-  const scene = document.getElementById("scene");
-  const titleLayer = document.getElementById("title-layer");
-  const camera = document.getElementById("camera");
-  const doorBtn = document.getElementById("door-hotspot");
-  const bellBtn = document.getElementById("bell-hotspot");
-  const lockAnchor = document.getElementById("lock-anchor");
-  const lockPanel = document.getElementById("door-lock");
-  const lockClose = document.getElementById("lock-close");
-  const wheelsEl = document.getElementById("lock-wheels");
-  const unlockBtn = document.getElementById("unlock-btn");
-  const hintMsg = document.getElementById("hint-message");
-  const toast = document.getElementById("toast");
-  const song = document.getElementById("song");
-
-  let progress = 0;
-  let openingDone = false;
-  let lockOpen = false;
-
-  const clamp01 = v => Math.max(0, Math.min(1, v));
-  function showToast(t){
-    toast.textContent = t;
-    toast.classList.add("show");
-    clearTimeout(showToast._t);
-    showToast._t = setTimeout(()=>toast.classList.remove("show"), 900);
-  }
-  function setRect(el,r){
-    el.style.left=(r.x*100)+"%";
-    el.style.top=(r.y*100)+"%";
-    el.style.width=(r.w*100)+"%";
-    el.style.height=(r.h*100)+"%";
-  }
-  function setPoint(el,p){
-    el.style.left=(p.x*100)+"%";
-    el.style.top=(p.y*100)+"%";
-  }
-  function positionLockOverlay(){
-    const r = lockAnchor.getBoundingClientRect();
-    lockPanel.style.left = (r.left + r.width/2) + "px";
-    lockPanel.style.top  = (r.top  + r.height/2) + "px";
-  }
-
-  setRect(doorBtn, CFG.door);
-  setRect(bellBtn, CFG.bell);
-  setPoint(lockAnchor, CFG.lockAnchor);
-
-  function applyCamera(){
-    const show = clamp01((progress - 0.10) / 0.30);
-    scene.style.opacity = show.toFixed(3);
-    titleLayer.style.opacity = (1 - show).toFixed(3);
-
-    const z = CFG.zoomMin + (CFG.zoomMax - CFG.zoomMin) * (progress * progress);
-    const dx = (0.5 - CFG.focus.x) * innerWidth  * (z - 1);
-    const dy = (0.5 - CFG.focus.y) * innerHeight * (z - 1);
-    camera.style.transform = `translate(${dx}px, ${dy}px) scale(${z})`;
-
-    if (lockOpen) positionLockOverlay();
-  }
-  applyCamera();
-
-  window.addEventListener("resize", () => {
-    if (ACTIVE_ROOM === 1) applyCamera();
-  });
-
-  window.addEventListener("wheel", (e) => {
-    if (ACTIVE_ROOM !== 1) return;
-    e.preventDefault();
-    if (lockOpen) return;
-
-    const delta = e.deltaY;
-
-    if (!openingDone){
-      if (delta > 0){
-        progress = clamp01(progress + Math.min(0.09, delta * 0.0007));
-        if (progress >= CFG.openingEnd){
-          progress = CFG.openingEnd;
-          openingDone = true;
-          doorBtn.classList.add("enabled");
-          bellBtn.classList.add("enabled");
-          showToast("…");
-          NPC.speak({
-            step: true,
-            queue: [
-              "You step into the quiet hallway, still half-asleep.",
-              "The door looks ordinary—until you realize it won’t open for you."
-            ]
-          });
-        }
-        applyCamera();
-      }
-      return;
-    }
-
-    progress = clamp01(progress + (-delta) * 0.0007);
-    applyCamera();
-  }, { passive:false });
-
-  bellBtn.addEventListener("click", () => {
-    if (ACTIVE_ROOM !== 1) return;
-    showToast("🔔");
-    try{ song.currentTime = 0; song.play().catch(()=>{}); }catch(_){}
-    NPC.speak({
-      step: true,
-      queue: [
-        "The bell answers with a sound that feels too clear.",
-        "Like it’s trying to keep you awake."
-      ]
-    });
-  });
-
-  function openLock(){
-    lockOpen = true;
-    hintMsg.textContent = "";
-    positionLockOverlay();
-    lockPanel.classList.add("show");
-    lockPanel.setAttribute("aria-hidden", "false");
-    setTimeout(()=> wheelsEl.children[0]?.focus(), 0);
-  }
-  function closeLock(){
-    lockOpen = false;
-    lockPanel.classList.remove("show");
-    lockPanel.setAttribute("aria-hidden", "true");
-    hintMsg.textContent = "";
-  }
-
-  doorBtn.addEventListener("click", () => {
-    if (ACTIVE_ROOM !== 1) return;
-    showToast("The door is closed.");
-    NPC.speak({
-      step: true,
-      queue: [
-        "You push once. Nothing.",
-        "The lock isn’t resisting—it’s waiting."
-      ]
-    });
-    openLock();
-  });
-
-  lockClose.addEventListener("click", closeLock);
-  window.addEventListener("keydown", (e) => {
-    if (ACTIVE_ROOM !== 1) return;
-    if (e.key === "Escape" && lockOpen) closeLock();
-  });
-  document.addEventListener("pointerdown", (e) => {
-    if (ACTIVE_ROOM !== 1) return;
-    if (!lockOpen) return;
-    if (!lockPanel.contains(e.target) && e.target !== doorBtn) closeLock();
-  });
-
-  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-  const CODE = CFG.code.toUpperCase();
-  const wheelState = new Array(CODE.length).fill(0);
-
-  function buildWheels(){
-    wheelsEl.innerHTML = "";
-    for (let i = 0; i < CODE.length; i++){
-      const w = document.createElement("div");
-      w.className = "wheel";
-      w.textContent = letters[wheelState[i]];
-      w.tabIndex = 0;
-
-      function setVal(next){
-        wheelState[i] = (next + 26) % 26;
-        w.textContent = letters[wheelState[i]];
-      }
-      function step(dir){ setVal(wheelState[i] + dir); }
-
-      w.addEventListener("wheel", (e) => {
-        e.preventDefault();
-        step(e.deltaY > 0 ? -1 : +1);
-      }, { passive:false });
-
-      w.addEventListener("keydown", (e) => {
-        if (e.key === "ArrowUp")    { e.preventDefault(); step(+1); }
-        if (e.key === "ArrowDown")  { e.preventDefault(); step(-1); }
-        if (e.key === "ArrowRight") { e.preventDefault(); wheelsEl.children[Math.min(CODE.length-1, i+1)].focus(); }
-        if (e.key === "ArrowLeft")  { e.preventDefault(); wheelsEl.children[Math.max(0, i-1)].focus(); }
-      });
-
-      w.addEventListener("pointerdown", () => w.focus());
-      wheelsEl.appendChild(w);
-    }
-  }
-  function enteredCode(){ return wheelState.map(i => letters[i]).join(""); }
-  buildWheels();
-
-  unlockBtn.addEventListener("click", () => {
-    if (ACTIVE_ROOM !== 1) return;
-    if (enteredCode() === CODE){
-      showToast("Unlocked.");
-      closeLock();
-
+let introProgress = 0;
+window.addEventListener("wheel", (e)=>{
+  if (ACTIVE !== "intro") return;
+  e.preventDefault();
+  if (e.deltaY <= 0) return;
+  introProgress += Math.min(0.22, e.deltaY * 0.0006);
+  if (introProgress >= 1){
+    introProgress = 1;
+    // Enter dream with effect
+    playDreamEnter(()=>{
+      showOnly("roomDream");
+      fadeInInner("dreamInner");
+      if (!initDream._inited){ initDream(); initDream._inited=true; }
       NPC.speak({
-        step: true,
-        queue: [
-          "The lock gives in.",
-          "You reach for the handle—",
-          "and the world tips forward."
-        ],
-        done: () => enterRoom2()
+        step:true,
+        queue:[
+          "You got up to leave—just a normal morning.",
+          "Your hand reached for the handle… and the hallway tilted.",
+          "You didn’t step outside. You fell into a sweet dream made of letters.",
+          "You’re not awake yet."
+        ]
       });
-
-    } else {
-      hintMsg.textContent = "Not quite…";
-      lockPanel.classList.remove("pulse-red");
-      void lockPanel.offsetWidth;
-      lockPanel.classList.add("pulse-red");
-    }
-  });
-})();
+    });
+  }
+}, { passive:false });
 
 /* =========================
-   ROOM 2 (Dream letters)
-   - easier drag
-   - serif letters
-   - no green slots/letters
+   ROOM 1: DREAM letters
+   - When placed: big letter disappears (removed from dream)
+   - Others keep floating
    ========================= */
-function initRoom2(){
+function initDream(){
   const TARGET = "FAVORITE PAPER";
-  const ESCAPE_CODE = "35";
+  const ESC = "35";
 
-  const tilesWrap = document.getElementById("r2-tiles");
-  const slotsWrap = document.getElementById("r2-slots");
-  const postHint = document.getElementById("r2-postHint");
-  const escapeLock = document.getElementById("r2-escapeLock");
-  const digitsEl = document.getElementById("r2-digits");
-  const lockMsg = document.getElementById("r2-lockMsg");
-  const escapeBtn = document.getElementById("r2-escapeBtn");
-  const toast = document.getElementById("r2-toast");
-  const assembly = document.getElementById("r2-assembly");
-  const lockCard = document.getElementById("r2-lockCard");
+  const tilesWrap = document.getElementById("dreamTiles");
+  const slotsWrap = document.getElementById("dreamSlots");
+  const hint = document.getElementById("dreamHint");
+  const wake = document.getElementById("dreamWakeLock");
+  const digitsEl = document.getElementById("dreamDigits");
+  const wakeBtn = document.getElementById("dreamWakeBtn");
+  const lockMsg = document.getElementById("dreamLockMsg");
+  const toast = document.getElementById("dreamToast");
+  const assembly = document.getElementById("dreamAssembly");
+  const lockCard = document.getElementById("dreamLockCard");
+
+  const targetChars = [...TARGET];
+  const isSpace = i => targetChars[i] === " ";
+  const slotEls = [];
+  const placed = new Array(targetChars.length).fill(null);
 
   function showToast(msg){
     toast.textContent = msg;
@@ -1255,26 +973,12 @@ function initRoom2(){
     showToast._t = setTimeout(()=>toast.classList.remove("show"), 800);
   }
 
-  const room2 = document.getElementById("room2");
-  room2.style.display = "block";
-  room2.setAttribute("aria-hidden","false");
-
-  const inner = document.getElementById("r2-inner");
-  inner.style.filter = "blur(14px)";
-  inner.style.opacity = "0.0";
-  requestAnimationFrame(() => { inner.style.filter = "blur(0px)"; inner.style.opacity = "1"; });
-
-  const targetChars = [...TARGET];
-  const slotEls = [];
-  const placed = new Array(targetChars.length).fill(null);
-  const isSpace = i => targetChars[i] === " ";
-
   function buildSlots(){
     slotsWrap.innerHTML = "";
     slotEls.length = 0;
     for (let i=0;i<targetChars.length;i++){
       const s = document.createElement("div");
-      s.className = "slot" + (isSpace(i) ? " space" : "");
+      s.className = "dreamSlot" + (isSpace(i) ? " space" : "");
       s.textContent = "";
       slotsWrap.appendChild(s);
       slotEls.push(s);
@@ -1295,12 +999,12 @@ function initRoom2(){
     return arr;
   }
 
-  const TILE_SIZE = 250;
-  const tiles = [];
-  let nextId = 1;
-
+  const TILE = 250;
   let dragging = null;
   let zTop = 10;
+
+  const tiles = [];
+  let nextId = 1;
 
   function setDepthStyle(el, z){
     const scale = z;
@@ -1311,7 +1015,7 @@ function initRoom2(){
     el.style.setProperty("--shadow", shadow.toFixed(3));
   }
 
-  function spawnTiles(){
+  function spawn(){
     tilesWrap.innerHTML = "";
     tiles.length = 0;
 
@@ -1323,7 +1027,7 @@ function initRoom2(){
 
     shuffled.forEach((ch)=>{
       const el = document.createElement("div");
-      el.className = "tile";
+      el.className = "dreamTile";
       el.textContent = ch;
       tilesWrap.appendChild(el);
 
@@ -1334,15 +1038,15 @@ function initRoom2(){
       const cx = w * (0.10 + Math.random() * 0.80);
       const cy = h * (0.10 + Math.random() * 0.42);
 
-      const speed = 0.10 + (1.55 - z) * 0.55; // calmer float
+      const speed = 0.10 + (1.55 - z) * 0.55;
 
       const t = {
         id, char: ch, el,
-        x: cx - TILE_SIZE/2,
-        y: cy - TILE_SIZE/2,
+        x: cx - TILE/2,
+        y: cy - TILE/2,
         vx:(Math.random()*0.34-0.17) * speed,
         vy:(Math.random()*0.34-0.17) * speed,
-        locked:false
+        removed:false
       };
       tiles.push(t);
 
@@ -1356,35 +1060,28 @@ function initRoom2(){
 
   function enableDrag(t){
     t.el.addEventListener("pointerdown", (e)=>{
-      if (ACTIVE_ROOM !== 2) return;
-      if (t.locked) return;
+      if (ACTIVE !== "roomDream") return;
+      if (t.removed) return;
       e.preventDefault();
-
       t.el.setPointerCapture(e.pointerId);
-      t.el.style.zIndex = String(1000 + (zTop++)); // always on top while dragging
-      dragging = {
-        id: t.id,
-        ox: e.clientX - t.x,
-        oy: e.clientY - t.y
-      };
+      t.el.style.zIndex = String(1000 + (zTop++));
+      dragging = { id:t.id, ox:e.clientX - t.x, oy:e.clientY - t.y };
     });
 
     t.el.addEventListener("pointermove", (e)=>{
-      if (ACTIVE_ROOM !== 2) return;
+      if (ACTIVE !== "roomDream") return;
       if (!dragging || dragging.id !== t.id) return;
-
       t.x = e.clientX - dragging.ox;
       t.y = e.clientY - dragging.oy;
-
       t.el.style.left = t.x + "px";
       t.el.style.top  = t.y + "px";
     });
 
     t.el.addEventListener("pointerup", ()=>{
-      if (ACTIVE_ROOM !== 2) return;
+      if (ACTIVE !== "roomDream") return;
       if (!dragging || dragging.id !== t.id) return;
       dragging = null;
-      trySnapToNearestMatchingSlot(t);
+      snap(t);
     });
   }
 
@@ -1393,94 +1090,82 @@ function initRoom2(){
       const s = slotEls[i];
       if (isSpace(i)) continue;
       s.classList.remove("filled");
-
-      if (placed[i] !== null){
-        const tile = tiles.find(x=>x.id===placed[i]);
-        s.textContent = tile ? tile.char : "";
+      const pid = placed[i];
+      if (pid){
+        const t = tiles.find(x=>x.id===pid);
+        s.textContent = t ? t.char : "";
         s.classList.add("filled");
-      } else {
+      }else{
         s.textContent = "";
       }
     }
   }
 
-  function checkComplete(){
+  function complete(){
     for (let i=0;i<targetChars.length;i++){
       if (isSpace(i)) continue;
-      if (placed[i] === null) return false;
+      if (!placed[i]) return false;
     }
     return true;
   }
 
-  function trySnapToNearestMatchingSlot(t){
+  function snap(t){
     const candidates = [];
     for (let i=0;i<targetChars.length;i++){
       if (isSpace(i)) continue;
-      if (placed[i] !== null) continue;
+      if (placed[i]) continue;
       if (targetChars[i] !== t.char) continue;
-
       const sc = slotCenter(i);
-      const dx = (t.x + TILE_SIZE/2) - sc.cx;
-      const dy = (t.y + TILE_SIZE/2) - sc.cy;
+      const dx = (t.x + TILE/2) - sc.cx;
+      const dy = (t.y + TILE/2) - sc.cy;
       const dist = Math.hypot(dx,dy);
       candidates.push({ i, sc, dist });
     }
-
     if (!candidates.length){ showToast("No place for this."); return; }
     candidates.sort((a,b)=>a.dist-b.dist);
     const best = candidates[0];
-
     if (best.dist > 170){ showToast("Not here."); return; }
 
     placed[best.i] = t.id;
-    t.locked = true;
-    t.el.classList.add("locked");
-
-    t.x = best.sc.cx - TILE_SIZE/2;
-    t.y = best.sc.cy - TILE_SIZE/2;
-    t.el.style.left = t.x + "px";
-    t.el.style.top  = t.y + "px";
-    t.el.style.zIndex = "2000";
-
     updateSlots();
 
-    if (checkComplete()){
+    // IMPORTANT: placed tile disappears completely (no leftover behind)
+    t.removed = true;
+    t.el.style.transition = "opacity 180ms ease, transform 180ms ease";
+    t.el.style.opacity = "0";
+    t.el.style.transform = "scale(0.92)";
+    setTimeout(()=>{ t.el.style.display = "none"; }, 190);
+
+    if (complete()){
       showToast("Complete.");
-      postHint.classList.add("show");
-      escapeLock.classList.add("show");
+      hint.classList.add("show");
+      wake.classList.add("show");
       buildDigits();
 
       NPC.speak({
-        step: true,
-        queue: [
+        step:true,
+        queue:[
           "The dream stops scattering.",
-          "The letters finally agree on a sentence.",
-          "Now the dream asks for a number."
+          "The sentence holds… but the dream still doesn’t release you.",
+          "It asks for a number."
         ]
       });
     }
   }
 
   function tick(){
-    if (ACTIVE_ROOM !== 2){ requestAnimationFrame(tick); return; }
-
+    if (ACTIVE !== "roomDream"){ requestAnimationFrame(tick); return; }
     const w = window.innerWidth;
-    const h = window.innerHeight;
-
     const ar = assembly.getBoundingClientRect();
-    const maxY = Math.max(14, ar.top - TILE_SIZE - 10);
+    const maxY = Math.max(14, ar.top - TILE - 10);
 
     for (const t of tiles){
-      if (t.locked) continue;
+      if (t.removed) continue;
       if (dragging && dragging.id === t.id) continue;
 
-      t.x += t.vx;
-      t.y += t.vy;
+      t.x += t.vx; t.y += t.vy;
 
-      const minX = 12;
-      const maxX = w - TILE_SIZE - 12;
-      const minY = 12;
-
+      const minX = 12, maxX = w - TILE - 12, minY = 12;
       if (t.x < minX || t.x > maxX) t.vx *= -1;
       if (t.y < minY || t.y > maxY) t.vy *= -1;
 
@@ -1493,99 +1178,300 @@ function initRoom2(){
     requestAnimationFrame(tick);
   }
 
-  let digitState = [0,0];
+  // 2-digit lock
+  let ds = [0,0];
   function buildDigits(){
     digitsEl.innerHTML = "";
     for (let i=0;i<2;i++){
       const d = document.createElement("div");
       d.className = "digit";
       d.tabIndex = 0;
-      d.textContent = String(digitState[i]);
+      d.textContent = String(ds[i]);
 
-      function setVal(v){ digitState[i] = (v + 10) % 10; d.textContent = String(digitState[i]); }
-      function step(dir){ setVal(digitState[i] + dir); }
+      const setVal = (v)=>{ ds[i]=(v+10)%10; d.textContent=String(ds[i]); };
+      const step = (dir)=> setVal(ds[i]+dir);
 
-      d.addEventListener("wheel", (e)=>{ e.preventDefault(); step(e.deltaY > 0 ? -1 : +1); }, { passive:false });
-      d.addEventListener("keydown", (e)=>{
-        if (e.key === "ArrowUp")   { e.preventDefault(); step(+1); }
-        if (e.key === "ArrowDown") { e.preventDefault(); step(-1); }
-        if (e.key === "ArrowRight"){ e.preventDefault(); digitsEl.children[Math.min(1,i+1)].focus(); }
-        if (e.key === "ArrowLeft") { e.preventDefault(); digitsEl.children[Math.max(0,i-1)].focus(); }
+      d.addEventListener("wheel",(e)=>{ e.preventDefault(); step(e.deltaY>0?-1:+1); },{passive:false});
+      d.addEventListener("keydown",(e)=>{
+        if (e.key==="ArrowUp"){ e.preventDefault(); step(+1); }
+        if (e.key==="ArrowDown"){ e.preventDefault(); step(-1); }
+        if (e.key==="ArrowRight"){ e.preventDefault(); digitsEl.children[Math.min(1,i+1)].focus(); }
+        if (e.key==="ArrowLeft"){ e.preventDefault(); digitsEl.children[Math.max(0,i-1)].focus(); }
       });
-      d.addEventListener("pointerdown", ()=> d.focus());
+      d.addEventListener("pointerdown",()=>d.focus());
       digitsEl.appendChild(d);
     }
     setTimeout(()=>digitsEl.children[0]?.focus(), 0);
   }
 
-  escapeBtn.addEventListener("click", ()=>{
-    const attempt = digitState.join("");
-    if (attempt === ESCAPE_CODE){
+  wakeBtn.addEventListener("click", ()=>{
+    const attempt = ds.join("");
+    if (attempt === ESC){
       lockMsg.textContent = "";
       showToast("…");
-
       NPC.speak({
-        step: true,
-        queue: [
-          "The dream releases its grip.",
-          "You feel your eyelids—heavy, then light.",
-          "Wake up."
+        step:true,
+        queue:[
+          "You force the number into the dream.",
+          "It loosens—just enough to let you stand again.",
+          "But you’re still not fully awake."
         ],
-        done: () => {
-          // Blink happens AFTER Room2 (as requested)
-          animeBlinkTransition(() => enterRoom3());
-        }
+        done: ()=> enterDoorRoom()
       });
-
     } else {
       lockMsg.textContent = "Not quite…";
-      lockCard.classList.remove("pulse-red");
-      void lockCard.offsetWidth;
-      lockCard.classList.add("pulse-red");
+      lockCard.classList.remove("pulse-red"); void lockCard.offsetWidth; lockCard.classList.add("pulse-red");
     }
   });
 
   window.addEventListener("resize", ()=>{
-    if (ACTIVE_ROOM !== 2) return;
-    for (let i=0;i<targetChars.length;i++){
-      if (isSpace(i)) continue;
-      const tid = placed[i];
-      if (!tid) continue;
-      const t = tiles.find(x=>x.id===tid);
-      if (!t) continue;
-      const sc = slotCenter(i);
-      t.x = sc.cx - TILE_SIZE/2;
-      t.y = sc.cy - TILE_SIZE/2;
-      t.el.style.left = t.x + "px";
-      t.el.style.top  = t.y + "px";
-    }
+    if (ACTIVE !== "roomDream") return;
+    updateSlots();
   });
 
-  spawnTiles();
+  spawn();
   updateSlots();
   requestAnimationFrame(tick);
 }
 
 /* =========================
-   ROOM 3 (Memory fragment = professor milestone + why solve)
+   ROOM 2: DOOR room
+   - hotspots kept EXACTLY as you gave
    ========================= */
-function initRoom3(){
-  const PHOTO_CODE = "139"; // still required; hint remains only "binary"
-  const frame = document.getElementById("r3-frame");
-  const strip = document.getElementById("r3-strip");
-  const lock = document.getElementById("r3-lock");
-  const closeBtn = document.getElementById("r3-close");
-  const digitsEl = document.getElementById("r3-digits");
-  const btn = document.getElementById("r3-btn");
-  const msg = document.getElementById("r3-msg");
+function enterDoorRoom(){
+  showOnly("roomDoor");
+  const scene = document.getElementById("doorScene");
+  scene.style.opacity = "1";
+  if (!initDoor._inited){ initDoor(); initDoor._inited=true; }
 
-  // 10001011 (seat 1,5,7,8 occupied)
-  const bits = [1,0,0,0,1,0,1,1];
+  NPC.speak({
+    step:true,
+    queue:[
+      "The hallway returns—quiet, warm, painfully real.",
+      "You try the door again. It’s still closed.",
+      "Maybe the bell can keep you from slipping back into the dream."
+    ]
+  });
+}
 
-  strip.innerHTML = "";
+function initDoor(){
+  const CFG = {
+    code: "REALITY", // keep internal; you can change later if you want, UI never says the word.
+    focus: { x: 0.44, y: 0.52 },
+    zoomMin: 1.15,
+    zoomMax: 1.55,
+    // EXACT hotspot numbers you provided:
+    door: { x: 0.317, y: 0.135, w: 0.205, h: 0.715 },
+    bell: { x: 0.576, y: 0.429, w: 0.035, h: 0.110 },
+    lockAnchor: { x: 0.510, y: 0.535 },
+  };
+
+  const cam = document.getElementById("doorCamera");
+  const doorBtn = document.getElementById("doorHotspot");
+  const bellBtn = document.getElementById("bellHotspot");
+  const anchor = document.getElementById("doorLockAnchor");
+  const toast = document.getElementById("doorToast");
+  const song = document.getElementById("song");
+
+  const lock = document.getElementById("doorLock");
+  const lockClose = document.getElementById("doorLockClose");
+  const wheelsEl = document.getElementById("doorWheels");
+  const unlockBtn = document.getElementById("doorUnlockBtn");
+  const hintMsg = document.getElementById("doorHintMsg");
+
+  let lockOpen = false;
+  let progress = 0.55; // start already zoomed (no “opening zoom back” confusion)
+
+  function showToast(t){
+    toast.textContent = t;
+    toast.classList.add("show");
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(()=>toast.classList.remove("show"), 900);
+  }
+  function setRect(el,r){
+    el.style.left=(r.x*100)+"%";
+    el.style.top=(r.y*100)+"%";
+    el.style.width=(r.w*100)+"%";
+    el.style.height=(r.h*100)+"%";
+  }
+  function setPoint(el,p){
+    el.style.left=(p.x*100)+"%";
+    el.style.top=(p.y*100)+"%";
+  }
+  function positionLock(){
+    const r = anchor.getBoundingClientRect();
+    lock.style.left = (r.left + r.width/2) + "px";
+    lock.style.top  = (r.top  + r.height/2) + "px";
+  }
+  function applyCam(){
+    const z = CFG.zoomMin + (CFG.zoomMax - CFG.zoomMin) * (progress * progress);
+    const dx = (0.5 - CFG.focus.x) * innerWidth  * (z - 1);
+    const dy = (0.5 - CFG.focus.y) * innerHeight * (z - 1);
+    cam.style.transform = `translate(${dx}px, ${dy}px) scale(${z})`;
+    if (lockOpen) positionLock();
+  }
+
+  setRect(doorBtn, CFG.door);
+  setRect(bellBtn, CFG.bell);
+  setPoint(anchor, CFG.lockAnchor);
+
+  // enable hotspots immediately in door room
+  doorBtn.classList.add("enabled");
+  bellBtn.classList.add("enabled");
+  applyCam();
+
+  window.addEventListener("resize", ()=>{ if (ACTIVE==="roomDoor") applyCam(); });
+
+  window.addEventListener("wheel", (e)=>{
+    if (ACTIVE !== "roomDoor") return;
+    e.preventDefault();
+    if (lockOpen) return;
+    // allow a little zoom in/out (but stable)
+    progress = Math.max(0.35, Math.min(0.85, progress + (-e.deltaY)*0.0006));
+    applyCam();
+  }, {passive:false});
+
+  bellBtn.addEventListener("click", ()=>{
+    if (ACTIVE !== "roomDoor") return;
+    showToast("🔔");
+    try{ song.currentTime=0; song.play().catch(()=>{}); }catch(_){}
+    NPC.speak({
+      step:true,
+      queue:[
+        "The sound is too clean for this hallway.",
+        "It keeps you from drifting—just barely."
+      ]
+    });
+  });
+
+  function openLock(){
+    lockOpen = true;
+    hintMsg.textContent = "";
+    positionLock();
+    lock.classList.add("show");
+    lock.setAttribute("aria-hidden","false");
+    setTimeout(()=>wheelsEl.children[0]?.focus(), 0);
+  }
+  function closeLock(){
+    lockOpen = false;
+    lock.classList.remove("show");
+    lock.setAttribute("aria-hidden","true");
+    hintMsg.textContent = "";
+  }
+
+  doorBtn.addEventListener("click", ()=>{
+    if (ACTIVE !== "roomDoor") return;
+    showToast("The door is closed.");
+    NPC.speak({
+      step:true,
+      queue:[
+        "It’s still closed.",
+        "Not resisting—waiting."
+      ]
+    });
+    openLock();
+  });
+
+  lockClose.addEventListener("click", closeLock);
+  window.addEventListener("keydown",(e)=>{
+    if (ACTIVE!=="roomDoor") return;
+    if (e.key==="Escape" && lockOpen) closeLock();
+  });
+  document.addEventListener("pointerdown",(e)=>{
+    if (ACTIVE!=="roomDoor") return;
+    if (!lockOpen) return;
+    if (!lock.contains(e.target) && e.target !== doorBtn) closeLock();
+  });
+
+  // wheels
+  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+  const CODE = CFG.code.toUpperCase();
+  const state = new Array(CODE.length).fill(0);
+
+  wheelsEl.innerHTML = "";
+  for (let i=0;i<CODE.length;i++){
+    const w = document.createElement("div");
+    w.className="wheel";
+    w.tabIndex=0;
+    w.textContent = letters[state[i]];
+
+    const setVal = (v)=>{ state[i]=(v+26)%26; w.textContent=letters[state[i]]; };
+    const step = (dir)=> setVal(state[i]+dir);
+
+    w.addEventListener("wheel",(e)=>{ e.preventDefault(); step(e.deltaY>0?-1:+1); },{passive:false});
+    w.addEventListener("keydown",(e)=>{
+      if (e.key==="ArrowUp"){ e.preventDefault(); step(+1); }
+      if (e.key==="ArrowDown"){ e.preventDefault(); step(-1); }
+      if (e.key==="ArrowRight"){ e.preventDefault(); wheelsEl.children[Math.min(CODE.length-1,i+1)].focus(); }
+      if (e.key==="ArrowLeft"){ e.preventDefault(); wheelsEl.children[Math.max(0,i-1)].focus(); }
+    });
+    w.addEventListener("pointerdown",()=>w.focus());
+    wheelsEl.appendChild(w);
+  }
+
+  const entered = ()=> state.map(i=>letters[i]).join("");
+
+  unlockBtn.addEventListener("click", ()=>{
+    if (ACTIVE!=="roomDoor") return;
+    if (entered() === CODE){
+      showToast("Unlocked.");
+      closeLock();
+      NPC.speak({
+        step:true,
+        queue:[
+          "The lock yields.",
+          "The moment the door should open—your memory jumps instead."
+        ],
+        done: ()=> enterClassRoom()
+      });
+    } else {
+      hintMsg.textContent="Not quite…";
+      lock.classList.remove("pulse-red"); void lock.offsetWidth; lock.classList.add("pulse-red");
+    }
+  });
+}
+
+/* =========================
+   ROOM 3: CLASSROOM + computer UI
+   - big seats + binary hint
+   - enter 139
+   ========================= */
+function enterClassRoom(){
+  showOnly("roomClass");
+  fadeInInner("classInner");
+  if (!initClass._inited){ initClass(); initClass._inited=true; }
+
+  NPC.speak({
+    step:true,
+    queue:[
+      "You don’t step outside.",
+      "Instead, you’re pulled into the sharpest milestone of the year:",
+      "your first year as a professor.",
+      "And yet—one fragment is still locked behind a pattern."
+    ]
+  });
+}
+
+function initClass(){
+  const strip = document.getElementById("classStrip");
+  const fragment = document.getElementById("classFragment");
+  const lock = document.getElementById("classLock");
+  const close = document.getElementById("classLockClose");
+  const digitsEl = document.getElementById("classDigits");
+  const btn = document.getElementById("classUnlockBtn");
+  const msg = document.getElementById("classMsg");
+
+  const CODE = "139";
+  const bits = [1,0,0,0,1,0,1,1]; // 10001011
+
+  strip.innerHTML="";
+  strip.style.display="grid";
+  strip.style.gridTemplateColumns="repeat(8, 1fr)";
+  strip.style.gap="12px";
+
   for (let i=0;i<8;i++){
     const cell = document.createElement("div");
-    cell.className = "seat";
+    cell.className="seat";
     const img = document.createElement("img");
     img.src = bits[i] ? "1.png" : "0.png";
     img.alt = bits[i] ? "occupied seat" : "empty seat";
@@ -1593,155 +1479,144 @@ function initRoom3(){
     strip.appendChild(cell);
   }
 
-  NPC.speak({
-    step: true,
-    queue: [
-      "You remember the room before you remember yourself.",
-      "A row of seats. A roll call. A quiet proof that you belong there.",
-      "This year’s biggest milestone was becoming a professor.",
-      "But the memory is incomplete—like a page torn at the corner.",
-      "If you can read the pattern, you can recover the final coordinates."
-    ]
-  });
-
-  let open = false;
-  function openLock(){
-    open = true;
-    msg.textContent = "";
+  let open=false;
+  const openLock = ()=>{
+    open=true;
+    msg.textContent="";
     lock.classList.add("show");
     lock.setAttribute("aria-hidden","false");
-    setTimeout(()=>digitsEl.children[0]?.focus(), 0);
-  }
-  function closeLock(){
-    open = false;
+    setTimeout(()=>digitsEl.children[0]?.focus(),0);
+  };
+  const closeLock = ()=>{
+    open=false;
     lock.classList.remove("show");
     lock.setAttribute("aria-hidden","true");
-    msg.textContent = "";
-  }
+    msg.textContent="";
+  };
 
-  frame.addEventListener("click", () => {
-    if (ACTIVE_ROOM !== 3) return;
+  fragment.addEventListener("click", ()=>{
+    if (ACTIVE!=="roomClass") return;
     NPC.speak({
-      step: true,
-      queue: [
-        "Don’t count out loud.",
-        "Just read it as binary."
+      step:true,
+      queue:[
+        "Don’t guess.",
+        "Read it as binary."
       ],
       done: openLock
     });
   });
 
-  closeBtn.addEventListener("click", closeLock);
-  window.addEventListener("keydown", (e) => {
-    if (ACTIVE_ROOM !== 3) return;
-    if (e.key === "Escape" && open) closeLock();
+  close.addEventListener("click", closeLock);
+  window.addEventListener("keydown",(e)=>{
+    if (ACTIVE!=="roomClass") return;
+    if (e.key==="Escape" && open) closeLock();
   });
-  document.addEventListener("pointerdown", (e) => {
-    if (ACTIVE_ROOM !== 3) return;
+  document.addEventListener("pointerdown",(e)=>{
+    if (ACTIVE!=="roomClass") return;
     if (!open) return;
-    if (!lock.contains(e.target) && !frame.contains(e.target)) closeLock();
+    if (!lock.contains(e.target) && !fragment.contains(e.target)) closeLock();
   });
 
-  let state = [0,0,0];
-  function buildDigits(){
-    digitsEl.innerHTML = "";
-    for (let i=0;i<3;i++){
-      const d = document.createElement("div");
-      d.className = "digit";
-      d.tabIndex = 0;
-      d.textContent = String(state[i]);
+  let st=[0,0,0];
+  digitsEl.innerHTML="";
+  for (let i=0;i<3;i++){
+    const d=document.createElement("div");
+    d.className="digit";
+    d.tabIndex=0;
+    d.textContent=String(st[i]);
 
-      function setVal(v){ state[i] = (v + 10) % 10; d.textContent = String(state[i]); }
-      function step(dir){ setVal(state[i] + dir); }
+    const setVal=(v)=>{ st[i]=(v+10)%10; d.textContent=String(st[i]); };
+    const step=(dir)=> setVal(st[i]+dir);
 
-      d.addEventListener("wheel", (e)=>{ e.preventDefault(); step(e.deltaY > 0 ? -1 : +1); }, { passive:false });
-      d.addEventListener("keydown", (e)=>{
-        if (e.key === "ArrowUp")   { e.preventDefault(); step(+1); }
-        if (e.key === "ArrowDown") { e.preventDefault(); step(-1); }
-        if (e.key === "ArrowRight"){ e.preventDefault(); digitsEl.children[Math.min(2,i+1)].focus(); }
-        if (e.key === "ArrowLeft") { e.preventDefault(); digitsEl.children[Math.max(0,i-1)].focus(); }
-      });
-
-      d.addEventListener("pointerdown", ()=> d.focus());
-      digitsEl.appendChild(d);
-    }
+    d.addEventListener("wheel",(e)=>{ e.preventDefault(); step(e.deltaY>0?-1:+1); },{passive:false});
+    d.addEventListener("keydown",(e)=>{
+      if (e.key==="ArrowUp"){ e.preventDefault(); step(+1); }
+      if (e.key==="ArrowDown"){ e.preventDefault(); step(-1); }
+      if (e.key==="ArrowRight"){ e.preventDefault(); digitsEl.children[Math.min(2,i+1)].focus(); }
+      if (e.key==="ArrowLeft"){ e.preventDefault(); digitsEl.children[Math.max(0,i-1)].focus(); }
+    });
+    d.addEventListener("pointerdown",()=>d.focus());
+    digitsEl.appendChild(d);
   }
-  buildDigits();
 
   btn.addEventListener("click", ()=>{
-    const attempt = state.join("");
-    if (attempt === PHOTO_CODE){
-      msg.textContent = "";
+    const attempt = st.join("");
+    if (attempt === CODE){
       closeLock();
-
       NPC.speak({
-        step: true,
-        queue: [
-          "The fragment clicks into place.",
-          "One number belongs to the dream.",
-          "The other belongs to the map.",
-          "Put them together—then go."
+        step:true,
+        queue:[
+          "The fragment unlocks.",
+          "Now you have the second number.",
+          "Put both numbers into the world."
         ],
-        done: () => enterRoom4()
+        done: ()=> enterMapRoom()
       });
-
     } else {
-      msg.textContent = "…";
-      lock.classList.remove("pulse-red");
-      void lock.offsetWidth;
-      lock.classList.add("pulse-red");
+      msg.textContent="…";
+      lock.classList.remove("pulse-red"); void lock.offsetWidth; lock.classList.add("pulse-red");
     }
   });
 }
 
 /* =========================
-   ROOM 4 (Option A: only accepts 35 / 139)
-   - starts world view (not Japan)
-   - narrative frames the reveal
+   ROOM 4: MAP (Option A accepts only 35 / 139)
    ========================= */
-function initRoom4(){
-  const room4 = document.getElementById("room4");
-  const latInput = document.getElementById("r4-lat");
-  const lngInput = document.getElementById("r4-lng");
-  const btn = document.getElementById("r4-go");
-  const err = document.getElementById("r4-err");
+function enterMapRoom(){
+  showOnly("roomMap");
+  fadeInInner("mapInner");
+  if (!initMap._inited){ initMap(); initMap._inited=true; }
+
+  NPC.speak({
+    step:true,
+    queue:[
+      "Two numbers—one from the dream, one from the classroom.",
+      "Together, they become direction."
+    ]
+  });
+}
+
+function initMap(){
+  const room = document.getElementById("roomMap");
+  const lat = document.getElementById("latInput");
+  const lng = document.getElementById("lngInput");
+  const go  = document.getElementById("mapGo");
+  const err = document.getElementById("mapErr");
+  const win = document.getElementById("winCard");
 
   const SHOP = { lat: 35.442006, lng: 139.630649 };
 
-  function parseIntLike(v){
-    const s = String(v).trim();
+  const parseIntLike = (v)=>{
+    const s=String(v).trim();
     if (!s) return null;
-    const n = Number(s);
+    const n=Number(s);
     if (!Number.isFinite(n)) return null;
     return Math.round(n);
-  }
+  };
 
   const map = L.map("map", {
-    zoomControl: false,
-    attributionControl: false,
-    dragging: true,
-    scrollWheelZoom: true
-  }).setView([20, 0], 2);
+    zoomControl:false,
+    attributionControl:false,
+    dragging:true,
+    scrollWheelZoom:true
+  }).setView([20,0], 2);
 
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
 
-  let marker = null;
+  let marker=null;
 
-  function win(){
+  function winAnim(){
     NPC.speak({
-      step: true,
-      queue: [
+      step:true,
+      queue:[
         "Good.",
-        "The numbers stop being clues and start being direction.",
         "Watch closely."
       ],
-      done: () => {
+      done: ()=>{
         map.flyTo([SHOP.lat, SHOP.lng], 16, { animate:true, duration: 2.2 });
-
-        setTimeout(() => {
+        setTimeout(()=>{
           if (marker) map.removeLayer(marker);
           marker = L.marker([SHOP.lat, SHOP.lng]).addTo(map);
-
           marker.bindPopup(`
             <div style="font-family: Inter, system-ui; font-weight:900; padding:2px 4px;">
               ARRIVAL<br/>
@@ -1751,49 +1626,49 @@ function initRoom4(){
             </div>
           `, { closeButton:false, autoClose:false, closeOnClick:false }).openPopup();
 
-          room4.classList.add("ready");
+          room.classList.add("ready");
+          win.style.opacity="1";
+          win.style.transform="translateX(-50%) translateY(0)";
+          win.style.pointerEvents="auto";
 
           NPC.speak({
-            step: true,
-            queue: [
+            step:true,
+            queue:[
               "Thanks for playing.",
               "The gift will be handed to you in person."
             ]
           });
-
         }, 1700);
       }
     });
   }
 
-  function trySearch(){
-    err.textContent = "";
-
-    const latI = parseIntLike(latInput.value);
-    const lngI = parseIntLike(lngInput.value);
-
-    if (latI === null || lngI === null){
-      err.textContent = "Enter two numbers.";
-      return;
-    }
-
-    if (latI === 35 && lngI === 139){
-      win();
-      latInput.blur(); lngInput.blur();
-      return;
-    }
-
-    err.textContent = "No result.";
+  function search(){
+    err.textContent="";
+    const a=parseIntLike(lat.value);
+    const b=parseIntLike(lng.value);
+    if (a===null || b===null){ err.textContent="Enter two numbers."; return; }
+    if (a===35 && b===139){ winAnim(); lat.blur(); lng.blur(); return; }
+    err.textContent="No result.";
   }
 
-  btn.addEventListener("click", trySearch);
-  latInput.addEventListener("keydown", (e)=>{ if (e.key === "Enter") trySearch(); });
-  lngInput.addEventListener("keydown", (e)=>{ if (e.key === "Enter") trySearch(); });
-
-  latInput.value = "";
-  lngInput.value = "";
+  go.addEventListener("click", search);
+  lat.addEventListener("keydown",(e)=>{ if (e.key==="Enter") search(); });
+  lng.addEventListener("keydown",(e)=>{ if (e.key==="Enter") search(); });
 }
-</script>
 
+/* =========================
+   Boot
+   ========================= */
+showOnly("intro");
+NPC.speak({
+  step:true,
+  queue:[
+    "Good morning.",
+    "You were going to open the door and leave.",
+    "Scroll."
+  ]
+});
+</script>
 </body>
 </html>
