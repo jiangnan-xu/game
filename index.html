@@ -9,7 +9,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Shippori+Mincho:wght@500;700&family=Cinzel:wght@500;600;700&display=swap" rel="stylesheet">
 
-<!-- REAL MAP: Leaflet (OpenStreetMap tiles) -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
@@ -21,11 +20,71 @@
 html,body{ margin:0; padding:0; height:100%; overflow:hidden; font-family:var(--ui-font); background:#000; }
 button,input{ font-family:inherit; }
 
+/* ----------------------------
+   Universal transitions
+-----------------------------*/
 #transition{
   position:fixed; inset:0; z-index:9999; pointer-events:none;
   opacity:0; background: rgba(255,255,255,1); filter: blur(0px);
 }
 #transition.show{ opacity:1; }
+
+#blink{
+  position:fixed; inset:0; z-index:9998; pointer-events:none;
+  display:none;
+}
+#blink .bg{
+  position:absolute; inset:0;
+  background:#000;
+}
+#blink .cone{
+  position:absolute; inset:0;
+  /* "锥型空白"：用 clip-path 做一个从中心向上开的锥形白光 */
+  background: radial-gradient(closest-side at 50% 52%, rgba(255,255,255,0.98), rgba(255,255,255,0.0) 70%);
+  clip-path: polygon(50% 52%, 35% 22%, 65% 22%);
+  filter: blur(2px);
+  opacity:0;
+  transform-origin: 50% 52%;
+}
+#blink .lidTop,
+#blink .lidBot{
+  position:absolute; left:0; right:0; height:52%;
+  background:#000;
+}
+#blink .lidTop{ top:0; transform: translateY(0%); }
+#blink .lidBot{ bottom:0; transform: translateY(0%); }
+
+/* blink sequence:
+   1) black
+   2) cone appears
+   3) lids open (reveal scene)
+   4) blink once (close/open quickly)
+*/
+@keyframes coneIn {
+  0% { opacity:0; transform: scale(0.8); clip-path: polygon(50% 52%, 48% 50%, 52% 50%); }
+  45% { opacity:1; transform: scale(1.0); clip-path: polygon(50% 52%, 38% 26%, 62% 26%); }
+  100% { opacity:1; transform: scale(1.3); clip-path: polygon(50% 52%, 18% 8%, 82% 8%); }
+}
+@keyframes lidsOpen {
+  0%   { transform: translateY(0%); }
+  100% { transform: translateY(-88%); }
+}
+@keyframes lidsOpenBottom {
+  0%   { transform: translateY(0%); }
+  100% { transform: translateY(88%); }
+}
+@keyframes lidsBlink {
+  0% { transform: translateY(-88%); }
+  35%{ transform: translateY(0%); }
+  70%{ transform: translateY(-88%); }
+  100%{ transform: translateY(-88%); }
+}
+@keyframes lidsBlinkBottom {
+  0% { transform: translateY(88%); }
+  35%{ transform: translateY(0%); }
+  70%{ transform: translateY(88%); }
+  100%{ transform: translateY(88%); }
+}
 
 @keyframes pulseRed {
   0%   { box-shadow: 0 20px 90px rgba(0,0,0,0.18), 0 0 0 0 rgba(239,68,68,0.0); }
@@ -35,8 +94,59 @@ button,input{ font-family:inherit; }
 }
 .pulse-red{ animation: pulseRed 520ms ease-out; }
 
+/* ----------------------------
+   Universal NPC bubble
+-----------------------------*/
+.npc-bubble{
+  position:fixed; left:50%; bottom:26px;
+  transform:translateX(-50%) translateY(10px);
+  z-index:2000;
+  width:min(900px,92vw);
+  padding:14px 16px 12px;
+  border-radius:18px;
+  background:rgba(0,0,0,.46);
+  border:1px solid rgba(255,255,255,.14);
+  color:rgba(255,255,255,.92);
+  backdrop-filter:blur(12px);
+  box-shadow:0 26px 90px rgba(0,0,0,.5);
+  opacity:0; pointer-events:none;
+  transition: opacity .25s ease, transform .25s ease;
+}
+.npc-bubble.show{ opacity:1; transform:translateX(-50%) translateY(0); pointer-events:auto; }
+.npc-name{
+  font-size:12px; font-weight:900; letter-spacing:.12em;
+  opacity:.9; margin-bottom:8px; text-transform:lowercase;
+}
+.npc-lines{ display:flex; flex-direction:column; gap:8px; }
+.npc-line{
+  font-size:14px; line-height:1.65;
+  border-left: 2px solid rgba(255,255,255,0.16);
+  padding-left: 10px;
+}
+.npc-tag{
+  display:inline-block;
+  font-size:11px; font-weight:900; letter-spacing:.14em;
+  opacity:.72; margin-right:8px;
+}
+.npc-text{ opacity:.95; }
+.npc-actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:10px; }
+.npc-btn{
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.10);
+  color: #fff;
+  font-weight:900;
+  cursor:pointer;
+}
+.npc-btn.primary{
+  background: linear-gradient(135deg,#fde68a,#fb923c);
+  border:none;
+  color:#111;
+}
+
 /* =========================
-   ROOM 1
+   ROOM 1 (Door)
    ========================= */
 #intro{ position:fixed; inset:0; background:#000; }
 #title-layer{
@@ -63,7 +173,6 @@ button,input{ font-family:inherit; }
 #camera{ position:absolute; inset:0; transform-origin:50% 50%; will-change:transform; }
 #scene-img{ width:100%; height:100%; object-fit:cover; display:block; }
 
-/* Visible hotspots */
 .hotspot{
   position:absolute; border:none; cursor:pointer; z-index:4;
   background: rgba(255,255,255,0.06);
@@ -77,7 +186,6 @@ button,input{ font-family:inherit; }
 
 .anchor{ position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
 
-/* Door lock */
 #door-lock{
   position:absolute; z-index:30; display:none;
   width: min(340px, 80vw);
@@ -100,7 +208,6 @@ button,input{ font-family:inherit; }
 }
 .lock-sub{ font-size:12px; color:#374151; margin-bottom:8px; }
 
-/* Roman wheels */
 .lock-wheels{ display:flex; justify-content:center; gap:10px; margin: 10px 0; }
 .wheel{
   width:44px; height:66px; border-radius:14px;
@@ -122,65 +229,6 @@ button,input{ font-family:inherit; }
 }
 .hint-message{ margin-top:8px; color:#b91c1c; font-weight:900; min-height:16px; font-size:12px; }
 
-/* Universal NPC bubble (used in room1 & room3) */
-.npc-bubble{
-  position:fixed; left:50%; bottom:26px;
-  transform:translateX(-50%) translateY(10px);
-  z-index:200;
-  width:min(860px,92vw);
-  padding:14px 16px 12px;
-  border-radius:18px;
-  background:rgba(0,0,0,.46);
-  border:1px solid rgba(255,255,255,.14);
-  color:rgba(255,255,255,.92);
-  backdrop-filter:blur(12px);
-  box-shadow:0 26px 90px rgba(0,0,0,.5);
-  opacity:0; pointer-events:none;
-  transition: opacity .25s ease, transform .25s ease;
-}
-.npc-bubble.show{ opacity:1; transform:translateX(-50%) translateY(0); pointer-events:auto; }
-.npc-name{
-  font-size:12px;
-  font-weight:900;
-  letter-spacing:.12em;
-  opacity:.9;
-  margin-bottom:8px;
-  text-transform:lowercase;
-}
-.npc-lines{ display:flex; flex-direction:column; gap:8px; }
-.npc-line{
-  font-size:14px; line-height:1.65;
-  border-left: 2px solid rgba(255,255,255,0.16);
-  padding-left: 10px;
-}
-.npc-tag{
-  display:inline-block;
-  font-size:11px;
-  font-weight:900;
-  letter-spacing:.14em;
-  opacity:.72;
-  margin-right:8px;
-}
-.npc-text{ opacity:.95; }
-.npc-actions{
-  display:flex; justify-content:flex-end; gap:8px; margin-top:10px;
-}
-.npc-btn{
-  padding: 8px 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.18);
-  background: rgba(255,255,255,0.10);
-  color: #fff;
-  font-weight:900;
-  cursor:pointer;
-}
-.npc-btn.primary{
-  background: linear-gradient(135deg,#fde68a,#fb923c);
-  border:none;
-  color:#111;
-}
-
-/* Toast */
 #toast{
   position:absolute; left:50%; top:18px;
   transform:translateX(-50%);
@@ -194,16 +242,22 @@ button,input{ font-family:inherit; }
 #toast.show{ opacity:1; transform:translate(-50%,-6px); }
 
 /* =========================
-   ROOM 2
+   ROOM 2 (Dream letters)
    ========================= */
 #room2{
   position:fixed; inset:0; display:none; overflow:hidden;
-  background: radial-gradient(circle at 50% 20%, rgba(0,0,0,0.03), rgba(255,255,255,1) 70%), #fff;
-  color:#111827;
+  /* dream-like: soft white mist over deep night */
+  background:
+    radial-gradient(circle at 50% 20%, rgba(255,255,255,0.60), rgba(255,255,255,0.06) 40%, rgba(0,0,0,0.92) 78%),
+    radial-gradient(circle at 70% 70%, rgba(147,197,253,0.12), rgba(0,0,0,0) 60%),
+    #000;
+  color:#fff;
 }
-#room2 .room2-inner{ position:absolute; inset:0; transition: filter 0.9s ease, opacity 0.9s ease; filter: blur(18px); opacity: 0.0; }
-#room2 .frame{ position:absolute; inset:0; pointer-events:none; box-shadow: inset 0 0 200px rgba(0,0,0,0.05); }
-
+#room2 .room2-inner{
+  position:absolute; inset:0;
+  transition: filter 0.9s ease, opacity 0.9s ease;
+  filter: blur(18px); opacity: 0.0;
+}
 #room2 .tile{
   position:absolute;
   width: 280px; height: 280px;
@@ -211,18 +265,18 @@ button,input{ font-family:inherit; }
   font-weight: 600;
   font-size: 210px;
   letter-spacing: -0.03em;
-  color: rgba(10,16,28,0.86);
+  color: rgba(255,255,255,0.92);
   user-select:none; cursor: grab; touch-action:none;
   transform: translateY(var(--lift, 0px)) scale(var(--scale, 1));
   opacity: var(--opa, 1);
   text-shadow:
-    0 calc(18px * var(--shadow, 1)) calc(46px * var(--shadow, 1)) rgba(0,0,0,0.10),
-    0 calc(8px * var(--shadow, 1)) calc(16px * var(--shadow, 1)) rgba(0,0,0,0.06);
+    0 calc(18px * var(--shadow, 1)) calc(46px * var(--shadow, 1)) rgba(0,0,0,0.55),
+    0 calc(8px * var(--shadow, 1)) calc(16px * var(--shadow, 1)) rgba(0,0,0,0.35);
   transition: transform .12s ease;
 }
 #room2 .tile:hover{ --lift: -6px; }
 #room2 .tile:active{ cursor: grabbing; --lift: -2px; }
-#room2 .tile.locked{ color: rgba(16,185,129,0.92); cursor: default; }
+#room2 .tile.locked{ color: rgba(16,185,129,0.95); cursor: default; }
 
 #room2 .assembly{
   position:absolute; left:50%; bottom: 48px;
@@ -230,10 +284,10 @@ button,input{ font-family:inherit; }
   width: min(1080px, 94vw);
   height: 150px;
   border-radius: 32px;
-  background: rgba(255,255,255,0.72);
-  border: 1px solid rgba(17,24,39,0.08);
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.12);
   backdrop-filter: blur(14px);
-  box-shadow: 0 28px 120px rgba(0,0,0,0.10);
+  box-shadow: 0 28px 120px rgba(0,0,0,0.55);
   z-index:40;
   display:flex; align-items:center; justify-content:center;
   padding: 14px 14px;
@@ -242,18 +296,18 @@ button,input{ font-family:inherit; }
 #room2 .slot{
   width: 58px; height: 88px;
   border-radius: 18px;
-  border: 1px dashed rgba(17,24,39,0.14);
-  background: rgba(17,24,39,0.012);
+  border: 1px dashed rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.05);
   display:flex; align-items:center; justify-content:center;
   font-weight: 700; font-size: 26px;
-  color: rgba(17,24,39,0.22);
+  color: rgba(255,255,255,0.25);
 }
 #room2 .slot.space{ width: 18px; border:none; background:transparent; }
 #room2 .slot.correct{
   border-style: solid;
-  border-color: rgba(16,185,129,0.22);
-  background: rgba(16,185,129,0.05);
-  color: rgba(16,185,129,0.96);
+  border-color: rgba(16,185,129,0.30);
+  background: rgba(16,185,129,0.08);
+  color: rgba(16,185,129,0.98);
 }
 
 #room2 .postHint, #room2 .escapeLock{
@@ -270,41 +324,43 @@ button,input{ font-family:inherit; }
   transform: translateX(-50%) translateY(2px);
 }
 #room2 .postHint .card{
-  background: rgba(255,255,255,0.86);
-  border: 1px solid rgba(17,24,39,0.10);
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.12);
   border-radius: 18px;
   padding: 10px 12px;
   backdrop-filter: blur(10px);
-  box-shadow: 0 18px 70px rgba(0,0,0,0.10);
+  box-shadow: 0 18px 70px rgba(0,0,0,0.55);
   display:flex; align-items:center; gap: 12px;
 }
-#room2 .postHint .hintTitle{ font-weight: 900; font-size: 12px; letter-spacing: .12em; opacity: .75; }
-#room2 .postHint .hintText{ font-size: 13px; opacity: .88; white-space: nowrap; }
+#room2 .postHint .hintTitle{ font-weight: 900; font-size: 12px; letter-spacing: .12em; opacity: .85; color:#fff; }
+#room2 .postHint .hintText{ font-size: 13px; opacity: .92; white-space: nowrap; color:#fff; }
 
 #room2 .lockCard{
   width: min(360px, 92vw);
-  background: rgba(255,255,255,0.90);
-  border: 1px solid rgba(17,24,39,0.10);
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.12);
   border-radius: 18px;
   padding: 12px 12px 10px;
   backdrop-filter: blur(10px);
-  box-shadow: 0 20px 80px rgba(0,0,0,0.12);
+  box-shadow: 0 20px 80px rgba(0,0,0,0.55);
+  color:#fff;
 }
 #room2 .lockRow{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom: 8px; }
-#room2 .lockTitle{ font-weight: 900; font-size: 13px; letter-spacing: .10em; opacity: .86; }
+#room2 .lockTitle{ font-weight: 900; font-size: 13px; letter-spacing: .10em; opacity: .92; }
 #room2 .digits{ display:flex; gap:10px; justify-content:center; margin: 8px 0 8px; }
 
 #room2 .digit{
   width: 56px; height: 72px;
   border-radius: 18px;
-  background: linear-gradient(#f8fafc,#eef2ff);
-  border: 1px solid rgba(59,130,246,0.22);
+  background: linear-gradient(rgba(255,255,255,0.14), rgba(255,255,255,0.06));
+  border: 1px solid rgba(255,255,255,0.18);
   display:flex; align-items:center; justify-content:center;
   font-weight: 700; font-size: 28px;
   font-family: var(--roman-font);
   user-select:none; cursor: grab; outline:none;
+  color:#fff;
 }
-#room2 .digit:focus{ outline: 2px solid rgba(59,130,246,0.35); box-shadow: 0 0 0 5px rgba(59,130,246,0.12); }
+#room2 .digit:focus{ outline: 2px solid rgba(255,255,255,0.30); box-shadow: 0 0 0 5px rgba(255,255,255,0.10); }
 #room2 .lockBtn{
   width:100%;
   border:none;
@@ -313,14 +369,15 @@ button,input{ font-family:inherit; }
   font-weight: 900;
   cursor:pointer;
   background: linear-gradient(135deg, #fde68a, #fb923c);
+  color:#111;
 }
-#room2 .lockMsg{ margin-top: 8px; font-size: 12px; font-weight: 800; min-height: 16px; color: #b91c1c; }
+#room2 .lockMsg{ margin-top: 8px; font-size: 12px; font-weight: 800; min-height: 16px; color: #ffb4b4; }
 #room2 .toast{
   position:absolute; left:50%; bottom: 18px;
   transform: translateX(-50%);
   padding:10px 14px;
   border-radius:999px;
-  background: rgba(17,24,39,0.70);
+  background: rgba(0,0,0,0.55);
   color:#fff; font-size: 13px;
   opacity:0; transition: opacity .2s ease, transform .2s ease;
   z-index:80; pointer-events:none;
@@ -328,13 +385,15 @@ button,input{ font-family:inherit; }
 #room2 .toast.show{ opacity:1; transform: translateX(-50%) translateY(-6px); }
 
 /* =========================
-   ROOM 3
+   ROOM 3 (Memory fragment: classroom)
    ========================= */
 #room3{
   position:fixed; inset:0;
   display:none; overflow:hidden;
-  background: radial-gradient(circle at 50% 24%, rgba(0,0,0,0.04), rgba(255,255,255,1) 70%), #fff;
-  color:#111827;
+  background:
+    radial-gradient(circle at 50% 24%, rgba(255,255,255,0.55), rgba(255,255,255,0.10) 45%, rgba(0,0,0,0.90) 78%),
+    #000;
+  color:#fff;
 }
 #room3 .room3-inner{ position:absolute; inset:0; transition: filter 0.9s ease, opacity 0.9s ease; filter: blur(18px); opacity: 0.0; }
 #room3 .stage{
@@ -345,10 +404,10 @@ button,input{ font-family:inherit; }
 #room3 .frameWrap{
   width: min(1200px, 94vw);
   border-radius: 28px;
-  background: rgba(255,255,255,0.74);
-  border: 1px solid rgba(17,24,39,0.10);
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.12);
   backdrop-filter: blur(12px);
-  box-shadow: 0 30px 160px rgba(0,0,0,0.12);
+  box-shadow: 0 30px 160px rgba(0,0,0,0.65);
   position: relative;
   overflow:hidden;
   padding: 18px;
@@ -363,8 +422,8 @@ button,input{ font-family:inherit; }
 #room3 .seat{
   border-radius: 18px;
   overflow:hidden;
-  border: 1px solid rgba(17,24,39,0.10);
-  background: rgba(0,0,0,0.03);
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(0,0,0,0.20);
   aspect-ratio: 4 / 3;
 }
 #room3 .seat img{
@@ -379,12 +438,12 @@ button,input{ font-family:inherit; }
   transform: translateX(-50%);
   font-size: 12px; font-weight: 900; letter-spacing: .14em;
   padding: 10px 12px; border-radius: 999px;
-  color: rgba(17,24,39,0.72);
-  background: rgba(255,255,255,0.78);
-  border: 1px solid rgba(17,24,39,0.10);
+  color: rgba(255,255,255,0.82);
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.12);
   backdrop-filter: blur(10px);
   pointer-events:none;
-  opacity:.85;
+  opacity:.92;
 }
 
 /* Room3 lock */
@@ -399,6 +458,7 @@ button,input{ font-family:inherit; }
   padding: 12px 12px 10px;
   backdrop-filter: blur(10px);
   box-shadow: 0 20px 90px rgba(0,0,0,0.18);
+  color:#111;
 }
 #r3-lock.show{ display:block; }
 #r3-lock .top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom: 8px; }
@@ -410,11 +470,8 @@ button,input{ font-family:inherit; }
   cursor:pointer; font-weight:900;
 }
 #r3-lock .sub{
-  font-size: 12px;
-  color: rgba(17,24,39,0.72);
-  margin-bottom: 8px;
-  letter-spacing: .12em;
-  font-weight: 900;
+  font-size: 12px; color: rgba(17,24,39,0.72);
+  margin-bottom: 8px; letter-spacing: .12em; font-weight: 900;
 }
 #r3-lock .digits{ display:flex; justify-content:center; gap:10px; margin: 10px 0; }
 #r3-lock .digit{
@@ -438,7 +495,7 @@ button,input{ font-family:inherit; }
 #r3-lock .msg{ margin-top: 8px; font-size: 12px; font-weight: 900; min-height: 16px; color: #b91c1c; }
 
 /* =========================
-   ROOM 4
+   ROOM 4 (Map = waking world)
    ========================= */
 #room4{
   position:fixed; inset:0; display:none; overflow:hidden;
@@ -518,6 +575,7 @@ button,input{ font-family:inherit; }
   overflow:hidden;
   border: 1px solid rgba(255,255,255,0.14);
   box-shadow: 0 30px 160px rgba(0,0,0,0.55);
+  opacity: 0.92;
 }
 #map{ width:100%; height:100%; }
 #room4 .mapVignette{
@@ -527,7 +585,6 @@ button,input{ font-family:inherit; }
   border-radius: 28px;
 }
 
-/* Win card: hint.png bigger */
 #room4 .winCard{
   position:absolute;
   left:50%;
@@ -575,14 +632,31 @@ button,input{ font-family:inherit; }
 }
 #room4 .winText .p{ font-size: 14px; line-height: 1.55; opacity: .92; }
 
-/* Leaflet tweaks */
 .leaflet-control-container{ display:none; }
 .leaflet-tile{ filter: saturate(1.08) contrast(1.02); }
 </style>
 </head>
 
 <body>
+
 <div id="transition"></div>
+
+<div id="blink" aria-hidden="true">
+  <div class="bg"></div>
+  <div class="cone"></div>
+  <div class="lidTop"></div>
+  <div class="lidBot"></div>
+</div>
+
+<!-- NPC bubble (unified) -->
+<div id="npc" class="npc-bubble" aria-hidden="true">
+  <div class="npc-name" id="npc-name">cyberpumpkin</div>
+  <div class="npc-lines" id="npc-lines"></div>
+  <div class="npc-actions" id="npc-actions" style="display:none;">
+    <button class="npc-btn" id="npc-skip">Skip</button>
+    <button class="npc-btn primary" id="npc-next">Next</button>
+  </div>
+</div>
 
 <!-- ========================= ROOM 1 ========================= -->
 <div id="intro">
@@ -600,7 +674,7 @@ button,input{ font-family:inherit; }
       <img id="scene-img" src="door-bg.jpg" alt="Door hallway"/>
 
       <button id="door-hotspot" class="hotspot" aria-label="Door"></button>
-      <button id="bell-hotspot" class="hotspot" aria-label="Intercom"></button>
+      <button id="bell-hotspot" class="hotspot" aria-label="Door bell"></button>
 
       <div id="lock-anchor" class="anchor"></div>
     </div>
@@ -622,16 +696,6 @@ button,input{ font-family:inherit; }
 
 <audio id="song" src="song.m4a" preload="auto"></audio>
 
-<!-- Universal NPC bubble -->
-<div id="npc" class="npc-bubble" aria-hidden="true">
-  <div class="npc-name" id="npc-name">cyberpumpkin</div>
-  <div class="npc-lines" id="npc-lines"></div>
-  <div class="npc-actions" id="npc-actions" style="display:none;">
-    <button class="npc-btn" id="npc-skip">Skip</button>
-    <button class="npc-btn primary" id="npc-next">Next</button>
-  </div>
-</div>
-
 <!-- ========================= ROOM 2 ========================= -->
 <div id="room2" aria-hidden="true">
   <div class="room2-inner" id="r2-inner">
@@ -640,8 +704,6 @@ button,input{ font-family:inherit; }
     <div class="assembly" id="r2-assembly">
       <div class="slots" id="r2-slots"></div>
     </div>
-
-    <div class="frame"></div>
   </div>
 
   <div class="postHint" id="r2-postHint">
@@ -654,11 +716,11 @@ button,input{ font-family:inherit; }
   <div class="escapeLock" id="r2-escapeLock">
     <div class="lockCard" id="r2-lockCard">
       <div class="lockRow">
-        <div class="lockTitle">ESCAPE LOCK</div>
-        <div style="font-size:12px; opacity:.75;">2 digits</div>
+        <div class="lockTitle">WAKE LOCK</div>
+        <div style="font-size:12px; opacity:.85;">2 digits</div>
       </div>
       <div class="digits" id="r2-digits"></div>
-      <button class="lockBtn" id="r2-escapeBtn">Continue</button>
+      <button class="lockBtn" id="r2-escapeBtn">Wake up</button>
       <div class="lockMsg" id="r2-lockMsg"></div>
     </div>
   </div>
@@ -670,16 +732,16 @@ button,input{ font-family:inherit; }
 <div id="room3" aria-hidden="true">
   <div class="room3-inner" id="r3-inner">
     <div class="stage">
-      <div class="frameWrap" id="r3-frame" role="button" aria-label="Classroom archive strip">
+      <div class="frameWrap" id="r3-frame" role="button" aria-label="Memory fragment">
         <div class="strip" id="r3-strip"></div>
-        <div class="tapHint">ARCHIVE</div>
+        <div class="tapHint">MEMORY FRAGMENT</div>
       </div>
     </div>
   </div>
 
   <div id="r3-lock" aria-hidden="true">
     <div class="top">
-      <div class="t">ARCHIVE GATE</div>
+      <div class="t">FRAGMENT LOCK</div>
       <button class="x" id="r3-close" aria-label="Close">✕</button>
     </div>
     <div class="sub">BINARY</div>
@@ -740,9 +802,9 @@ const NPC = (() => {
 
   let queue = [];
   let idx = 0;
-  let mode = "auto"; // "auto" or "step"
   let autoTimer = null;
   let onDone = null;
+  let stepMode = false;
 
   function render(i){
     const l = queue[i];
@@ -784,13 +846,14 @@ const NPC = (() => {
     queue = lines;
     idx = 0;
     onDone = done;
+    stepMode = step;
 
     if (!queue.length) return;
 
     render(0);
     show();
 
-    if (step){
+    if (stepMode){
       actions.style.display = "flex";
       return;
     }
@@ -807,7 +870,7 @@ const NPC = (() => {
 })();
 
 /* =========================
-   Transition
+   Transitions
    ========================= */
 function brightTransition(go){
   const transition = document.getElementById("transition");
@@ -831,6 +894,47 @@ function brightTransition(go){
   }, 360);
 }
 
+/* Room2 special: “睁眼”锥型白 + 黑底眨眼 */
+function blinkReveal(go){
+  const blink = document.getElementById("blink");
+  const cone = blink.querySelector(".cone");
+  const lidTop = blink.querySelector(".lidTop");
+  const lidBot = blink.querySelector(".lidBot");
+
+  blink.style.display = "block";
+
+  // reset
+  cone.style.animation = "none";
+  lidTop.style.animation = "none";
+  lidBot.style.animation = "none";
+  void blink.offsetWidth;
+
+  // start animations
+  cone.style.opacity = "1";
+  cone.style.animation = "coneIn 700ms ease-out forwards";
+  lidTop.style.animation = "lidsOpen 700ms ease-in-out forwards";
+  lidBot.style.animation = "lidsOpenBottom 700ms ease-in-out forwards";
+
+  setTimeout(() => {
+    go();
+
+    // blink once shortly after reveal (眨眼)
+    setTimeout(() => {
+      lidTop.style.animation = "lidsBlink 520ms ease-in-out forwards";
+      lidBot.style.animation = "lidsBlinkBottom 520ms ease-in-out forwards";
+    }, 260);
+
+    // clear overlay
+    setTimeout(() => {
+      blink.style.display = "none";
+      cone.style.opacity = "0";
+    }, 980);
+  }, 520);
+}
+
+/* =========================
+   Room enter
+   ========================= */
 function enterRoom2(){
   ACTIVE_ROOM = 2;
   document.getElementById("intro").style.display = "none";
@@ -847,6 +951,17 @@ function enterRoom2(){
   inner.style.filter = "blur(18px)";
   inner.style.opacity = "0.0";
   requestAnimationFrame(() => { inner.style.filter = "blur(0px)"; inner.style.opacity = "1"; });
+
+  NPC.speak({
+    name: "cyberpumpkin",
+    step: false,
+    duration: 3600,
+    lines: [{
+      zh: "你没真正走进门里——你先掉进了梦里。字母会漂浮，像还没说出口的话。",
+      en: "You didn’t step through the door—yet. You fell into a dream. Letters drift like unsent sentences.",
+      ja: "扉の向こうへはまだ行けない。先に夢へ落ちた。文字が、言えなかった言葉みたいに漂う。"
+    }]
+  });
 }
 
 function enterRoom3(){
@@ -865,6 +980,28 @@ function enterRoom3(){
   inner.style.filter = "blur(18px)";
   inner.style.opacity = "0.0";
   requestAnimationFrame(() => { inner.style.filter = "blur(0px)"; inner.style.opacity = "1"; });
+
+  NPC.speak({
+    name: "cyberpumpkin",
+    step: true,
+    lines: [
+      {
+        zh: "醒来的一瞬间，记忆会先回到“最熟悉的教室”。",
+        en: "When you wake, memory returns first—to the classroom you know too well.",
+        ja: "目が覚める瞬間、記憶はまず“いちばん慣れた教室”へ戻る。"
+      },
+      {
+        zh: "它不讲道理，只留下一个排列。",
+        en: "It won’t explain itself. It only leaves an arrangement behind.",
+        ja: "理由は語らない。ただ並びだけを残していく。"
+      },
+      {
+        zh: "提示只有一个：binary。",
+        en: "One hint only: binary.",
+        ja: "ヒントはひとつだけ：binary。"
+      }
+    ]
+  });
 }
 
 function enterRoom4(){
@@ -883,10 +1020,21 @@ function enterRoom4(){
   inner.style.filter = "blur(18px)";
   inner.style.opacity = "0.0";
   requestAnimationFrame(() => { inner.style.filter = "blur(0px)"; inner.style.opacity = "1"; });
+
+  NPC.speak({
+    name: "cyberpumpkin",
+    step: false,
+    duration: 4200,
+    lines: [{
+      zh: "最后一步：把梦里的数字，换成现实里能找到的位置。",
+      en: "Final step: turn the dream’s numbers into a place you can reach in the waking world.",
+      ja: "最後の一歩。夢の数字を、現実で辿れる場所に変えて。"
+    }]
+  });
 }
 
 /* =========================
-   ROOM 1 (hotspot numbers EXACT)
+   ROOM 1 (hotspot numbers EXACT - unchanged)
    ========================= */
 (function room1(){
   const CFG = {
@@ -981,6 +1129,16 @@ function enterRoom4(){
           doorBtn.classList.add("enabled");
           bellBtn.classList.add("enabled");
           showToast("…");
+          NPC.speak({
+            name: "cyberpumpkin",
+            step: false,
+            duration: 3600,
+            lines: [{
+              zh: "你终于看清了门。它不欢迎你——至少现在不。",
+              en: "You can finally see the door. It doesn’t welcome you—at least not yet.",
+              ja: "やっと扉が見えた。歓迎はしてくれない——少なくとも今は。"
+            }]
+          });
         }
         applyCamera();
       }
@@ -995,20 +1153,17 @@ function enterRoom4(){
     if (ACTIVE_ROOM !== 1) return;
     showToast("🔔");
     try{ song.currentTime = 0; song.play().catch(()=>{}); }catch(_){}
-  });
-
-  function narrDoor(){
     NPC.speak({
       name: "cyberpumpkin",
       step: false,
-      duration: 2800,
+      duration: 2200,
       lines: [{
-        zh: "门还是关着。别急，先听听这栋楼会不会回应你。",
-        en: "Still closed. Don’t rush—see if the building answers first.",
-        ja: "まだ閉まってる。焦らないで、この建物が返事するか確かめて。"
+        zh: "听见了吗？这声响像是在确认你还醒着。",
+        en: "Did you hear it? Like the world checking you’re still awake.",
+        ja: "聞こえた？世界が、君がまだ起きてるか確かめてるみたい。"
       }]
     });
-  }
+  });
 
   function openLock(){
     lockOpen = true;
@@ -1028,7 +1183,16 @@ function enterRoom4(){
   doorBtn.addEventListener("click", () => {
     if (ACTIVE_ROOM !== 1) return;
     showToast("The door is closed.");
-    narrDoor();
+    NPC.speak({
+      name: "cyberpumpkin",
+      step: false,
+      duration: 3200,
+      lines: [{
+        zh: "门关着。也许不是要你推开它——而是要你先想起些什么。",
+        en: "It’s closed. Maybe you’re not meant to push it—maybe you’re meant to remember first.",
+        ja: "閉まってる。押すためじゃないのかも——先に思い出すためかもしれない。"
+      }]
+    });
     openLock();
   });
 
@@ -1085,7 +1249,19 @@ function enterRoom4(){
     if (enteredCode() === CODE){
       showToast("Unlocked.");
       closeLock();
-      setTimeout(() => brightTransition(enterRoom2), 260);
+
+      NPC.speak({
+        name: "cyberpumpkin",
+        step: false,
+        duration: 2600,
+        lines: [{
+          zh: "好。不是门开了——是你眼睛要睁开了。",
+          en: "Good. Not the door opening—your eyes are about to.",
+          ja: "いいね。扉じゃない——君の目が、開く。"
+        }],
+        done: () => blinkReveal(enterRoom2)
+      });
+
     } else {
       hintMsg.textContent = "Not quite…";
       lockPanel.classList.remove("pulse-red");
@@ -1096,7 +1272,7 @@ function enterRoom4(){
 })();
 
 /* =========================
-   ROOM 2
+   ROOM 2 (Dream letters)
    ========================= */
 function initRoom2(){
   const TARGET = "FAVORITE PAPER";
@@ -1158,8 +1334,8 @@ function initRoom2(){
 
   function setDepthStyle(el, z){
     const scale = z;
-    const opa  = 0.74 + (z - 0.74) * 0.30;
-    const shadow = 0.58 + (z - 0.74) * 0.80;
+    const opa  = 0.62 + (z - 0.62) * 0.38;
+    const shadow = 0.65 + (z - 0.62) * 0.90;
     el.style.setProperty("--scale", scale.toFixed(3));
     el.style.setProperty("--opa", opa.toFixed(3));
     el.style.setProperty("--shadow", shadow.toFixed(3));
@@ -1182,13 +1358,13 @@ function initRoom2(){
       tilesWrap.appendChild(el);
 
       const id = nextId++;
-      const z = 0.82 + Math.random() * 0.58;
+      const z = 0.78 + Math.random() * 0.70;  // stronger near/far
       setDepthStyle(el, z);
 
       const cx = w * (0.06 + Math.random() * 0.88);
-      const cy = h * (0.06 + Math.random() * 0.38);
+      const cy = h * (0.06 + Math.random() * 0.40);
 
-      const speed = 0.24 + (1.42 - z) * 0.66;
+      const speed = 0.18 + (1.55 - z) * 0.88;
 
       const t = {
         id, char: ch, el,
@@ -1291,6 +1467,17 @@ function initRoom2(){
       postHint.classList.add("show");
       escapeLock.classList.add("show");
       buildDigits();
+
+      NPC.speak({
+        name: "cyberpumpkin",
+        step: false,
+        duration: 3800,
+        lines: [{
+          zh: "你把散开的字母拼回了原句。梦开始松动了。",
+          en: "You pulled scattered letters back into a sentence. The dream is loosening.",
+          ja: "散った文字が、また文章に戻った。夢がほどけはじめた。"
+        }]
+      });
     }
   }
 
@@ -1353,8 +1540,20 @@ function initRoom2(){
     const attempt = digitState.join("");
     if (attempt === ESCAPE_CODE){
       lockMsg.textContent = "";
-      showToast("Unlocked.");
-      setTimeout(() => brightTransition(enterRoom3), 280);
+      showToast("…");
+
+      NPC.speak({
+        name: "cyberpumpkin",
+        step: false,
+        duration: 2600,
+        lines: [{
+          zh: "好。下一段记忆会更清晰——但别期待它解释你。",
+          en: "Good. The next memory will be clearer—don’t expect it to explain you.",
+          ja: "いいね。次の記憶はもっと鮮明になる——でも君を説明してはくれない。"
+        }],
+        done: () => brightTransition(enterRoom3)
+      });
+
     } else {
       lockMsg.textContent = "Not quite…";
       lockCard.classList.remove("pulse-red");
@@ -1385,12 +1584,10 @@ function initRoom2(){
 }
 
 /* =========================
-   ROOM 3
-   - narrative (3 languages, cyberpumpkin)
-   - strip uses 0.png / 1.png to form 10001011
+   ROOM 3 (Classroom memory)
    ========================= */
 function initRoom3(){
-  const PHOTO_CODE = "139"; // not revealed in hint
+  const PHOTO_CODE = "139"; // still required; hint remains only "binary"
 
   const frame = document.getElementById("r3-frame");
   const strip = document.getElementById("r3-strip");
@@ -1403,7 +1600,6 @@ function initRoom3(){
   // 10001011 (seat 1,5,7,8 occupied)
   const bits = [1,0,0,0,1,0,1,1];
 
-  // build strip from your assets
   strip.innerHTML = "";
   for (let i=0;i<8;i++){
     const cell = document.createElement("div");
@@ -1414,32 +1610,6 @@ function initRoom3(){
     cell.appendChild(img);
     strip.appendChild(cell);
   }
-
-  // On enter: narrative with “first year professor” (3 languages) – step mode
-  const narrLines = [
-    {
-      zh: "恭喜你，第一年当教授也撑过来了。",
-      en: "Congratulations — you survived your first year as a professor.",
-      ja: "おめでとう。教授一年目、ちゃんとここまで来たね。"
-    },
-    {
-      zh: "但档案馆不认头衔，只认你看见的“排列”。",
-      en: "But the archive doesn’t care about titles — only the pattern you noticed.",
-      ja: "でもアーカイブは肩書きじゃなく、“並び”だけを見る。"
-    },
-    {
-      zh: "提示只有一个：binary。",
-      en: "One hint only: binary.",
-      ja: "ヒントはひとつだけ：binary。"
-    }
-  ];
-
-  NPC.speak({
-    name: "cyberpumpkin",
-    lines: narrLines,
-    step: true,
-    done: null
-  });
 
   let open = false;
   function openLock(){
@@ -1459,15 +1629,14 @@ function initRoom3(){
   frame.addEventListener("click", () => {
     if (ACTIVE_ROOM !== 3) return;
     NPC.hide();
-    // quick single “binary” reminder, then lock
     NPC.speak({
       name: "cyberpumpkin",
       step: false,
-      duration: 1100,
+      duration: 1600,
       lines: [{
-        zh: "只看 binary。",
-        en: "Stay with binary.",
-        ja: "binary だけ見て。"
+        zh: "别数。看它像不像一种语言。",
+        en: "Don’t count. See if it looks like a language.",
+        ja: "数えないで。言語みたいに見えるか、確かめて。"
       }],
       done: openLock
     });
@@ -1515,7 +1684,19 @@ function initRoom3(){
     if (attempt === PHOTO_CODE){
       msg.textContent = "";
       closeLock();
-      setTimeout(() => brightTransition(enterRoom4), 320);
+
+      NPC.speak({
+        name: "cyberpumpkin",
+        step: false,
+        duration: 3400,
+        lines: [{
+          zh: "你把碎片读对了。现在，把它带去现实里。",
+          en: "You read the fragment correctly. Now take it into the waking world.",
+          ja: "欠片を正しく読めた。次はそれを、現実へ持っていって。"
+        }],
+        done: () => brightTransition(enterRoom4)
+      });
+
     } else {
       msg.textContent = "…";
       lock.classList.remove("pulse-red");
@@ -1526,9 +1707,9 @@ function initRoom3(){
 }
 
 /* =========================
-   ROOM 4 (Option A)
-   - input only 35 / 139
-   - map starts world-wide, then fly to precise coordinate
+   ROOM 4 (Option A: input only 35 / 139)
+   - world view first (not Japan)
+   - map reveal is framed by NPC line (no sudden jump feeling)
    ========================= */
 function initRoom4(){
   const room4 = document.getElementById("room4");
@@ -1548,7 +1729,7 @@ function initRoom4(){
     return Math.round(n);
   }
 
-  // WORLD view (not Japan)
+  // WORLD view first
   const map = L.map("map", {
     zoomControl: false,
     attributionControl: false,
@@ -1561,23 +1742,48 @@ function initRoom4(){
   let marker = null;
 
   function win(){
-    map.flyTo([SHOP.lat, SHOP.lng], 16, { animate:true, duration: 2.2 });
+    // frame the “map turns out” with story, then fly
+    NPC.speak({
+      name: "cyberpumpkin",
+      step: false,
+      duration: 2600,
+      lines: [{
+        zh: "就这样。35 与 139 —— 不是答案，是方向。",
+        en: "That’s it. 35 and 139— not an answer, a direction.",
+        ja: "そう。35 と 139 —— 答えじゃない、方向だ。"
+      }],
+      done: () => {
+        map.flyTo([SHOP.lat, SHOP.lng], 16, { animate:true, duration: 2.2 });
 
-    setTimeout(() => {
-      if (marker) map.removeLayer(marker);
-      marker = L.marker([SHOP.lat, SHOP.lng]).addTo(map);
+        setTimeout(() => {
+          if (marker) map.removeLayer(marker);
+          marker = L.marker([SHOP.lat, SHOP.lng]).addTo(map);
 
-      marker.bindPopup(`
-        <div style="font-family: Inter, system-ui; font-weight:900; padding:2px 4px;">
-          ARRIVAL<br/>
-          <span style="font-weight:800; opacity:.85; font-size:12px;">
-            ${SHOP.lat.toFixed(6)}, ${SHOP.lng.toFixed(6)}
-          </span>
-        </div>
-      `, { closeButton:false, autoClose:false, closeOnClick:false }).openPopup();
+          marker.bindPopup(`
+            <div style="font-family: Inter, system-ui; font-weight:900; padding:2px 4px;">
+              ARRIVAL<br/>
+              <span style="font-weight:800; opacity:.85; font-size:12px;">
+                ${SHOP.lat.toFixed(6)}, ${SHOP.lng.toFixed(6)}
+              </span>
+            </div>
+          `, { closeButton:false, autoClose:false, closeOnClick:false }).openPopup();
 
-      room4.classList.add("ready");
-    }, 1700);
+          room4.classList.add("ready");
+
+          NPC.speak({
+            name: "cyberpumpkin",
+            step: false,
+            duration: 3600,
+            lines: [{
+              zh: "谢谢你玩到这里。礼物会亲手交给你。",
+              en: "Thanks for playing to the end. The gift will be handed to you in person.",
+              ja: "ここまで来てくれてありがとう。贈り物は、直接渡すね。"
+            }]
+          });
+
+        }, 1700);
+      }
+    });
   }
 
   function trySearch(){
@@ -1591,6 +1797,7 @@ function initRoom4(){
       return;
     }
 
+    // Option A: accept only 35 & 139
     if (latI === 35 && lngI === 139){
       win();
       latInput.blur(); lngInput.blur();
@@ -1608,6 +1815,5 @@ function initRoom4(){
   lngInput.value = "";
 }
 </script>
-
 </body>
 </html>
